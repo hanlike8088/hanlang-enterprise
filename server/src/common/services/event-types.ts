@@ -21,6 +21,21 @@ export const CrossModuleEvents = {
   MFG_ORDER_COMPLETED: "manufacturing:order:completed",
   // Chain 8: Manufacturing Order Released -> Warehouse material issuing
   MFG_ORDER_RELEASED: "manufacturing:order:released",
+
+  // Chain 9: CRM Quote Approved -> Sales notification + Order creation
+  CRM_QUOTE_APPROVED: 'crm:quote:approved',
+
+  // Chain 10: CRM Order Shipped -> OQC inspection trigger
+  CRM_ORDER_SHIPPED: 'crm:order:shipped',
+
+  // Chain 11: Payment Received -> Finance reconciliation + Order status
+  PAYMENT_RECEIVED: 'finance:payment:received',
+
+  // Chain 12: Warehouse Stock Low -> Purchase suggestion alert
+  WAREHOUSE_STOCK_LOW: 'warehouse:stock:low',
+
+  // Chain 13: Supplier Score Updated -> Supplier tier review
+  SUPPLIER_SCORE_UPDATED: 'supplier:score:updated',
 } as const;
 
 export interface CrossModuleEvent {
