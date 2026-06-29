@@ -29,13 +29,13 @@ export class FilesService {
 
   getFilePath(filename: string) {
     const filePath = path.join(UPLOAD_DIR, filename);
-    if (!fs.existsSync(filePath)) throw new NotFoundException('File not found');
+    if (!fs.existsSync(filePath)) throw new NotFoundException('文件不存在');
     return filePath;
   }
 
   deleteFile(filename: string) {
     const filePath = path.join(UPLOAD_DIR, filename);
-    if (!fs.existsSync(filePath)) throw new NotFoundException('File not found');
+    if (!fs.existsSync(filePath)) throw new NotFoundException('文件不存在');
     fs.unlinkSync(filePath);
     return { message: 'deleted' };
   }

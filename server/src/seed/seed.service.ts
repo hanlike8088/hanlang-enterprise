@@ -22,20 +22,20 @@ export class SeedService {
 
   async initCodingRules() {
     await this.codingRule.ensureRules([
-      { docType: 'SAMPLING_WO', prefix: 'DY', description: 'Sampling work order' },
-      { docType: 'NPI_PROJECT', prefix: 'NPI', description: 'NPI project' },
-      { docType: 'PLM_PRODUCT', prefix: 'PRD', description: 'PLM product' },
-      { docType: 'PLM_BOM', prefix: 'BOM', description: 'PLM BOM' },
-      { docType: 'PLM_DOCUMENT', prefix: 'DOC', description: 'PLM document' },
-      { docType: 'CRM_CUSTOMER', prefix: 'C', yearDigits: 2, description: 'CRM customer' },
-      { docType: 'CRM_QUOTE', prefix: 'BJ', yearDigits: 2, description: 'CRM quote' },
-      { docType: 'CRM_ORDER', prefix: 'SO', yearDigits: 2, description: 'CRM order' },
-      { docType: 'CRM_COMPLAINT', prefix: 'KS', yearDigits: 2, description: 'CRM complaint' },
-      { docType: 'CRM_RECONCILIATION', prefix: 'DZ', yearDigits: 2, description: 'CRM reconciliation' },
-      { docType: 'CRM_PAYMENT', prefix: 'SK', yearDigits: 2, description: 'CRM payment' },
-      { docType: 'PURCHASE_ORDER', prefix: 'PO', yearDigits: 2, description: 'Purchase order' },
-      { docType: 'MRP_RUN', prefix: 'MRP', description: 'MRP run' },
-      { docType: 'QLT_INCOMING', prefix: 'IQC', description: 'IQC inspection' },
+      { docType: 'SAMPLING_WO', prefix: 'DY', description: '打样工单' },
+      { docType: 'NPI_PROJECT', prefix: 'NPI', description: 'NPI项目' },
+      { docType: 'PLM_PRODUCT', prefix: 'PRD', description: 'PLM产品' },
+      { docType: 'PLM_BOM', prefix: 'BOM', description: 'PLM物料清单' },
+      { docType: 'PLM_DOCUMENT', prefix: 'DOC', description: 'PLM文档' },
+      { docType: 'CRM_CUSTOMER', prefix: 'C', yearDigits: 2, description: 'CRM客户' },
+      { docType: 'CRM_QUOTE', prefix: 'BJ', yearDigits: 2, description: 'CRM报价单' },
+      { docType: 'CRM_ORDER', prefix: 'SO', yearDigits: 2, description: 'CRM销售订单' },
+      { docType: 'CRM_COMPLAINT', prefix: 'KS', yearDigits: 2, description: 'CRM客诉单' },
+      { docType: 'CRM_RECONCILIATION', prefix: 'DZ', yearDigits: 2, description: 'CRM对账单' },
+      { docType: 'CRM_PAYMENT', prefix: 'SK', yearDigits: 2, description: 'CRM收款单' },
+      { docType: 'PURCHASE_ORDER', prefix: 'PO', yearDigits: 2, description: '采购订单' },
+      { docType: 'MRP_RUN', prefix: 'MRP', description: 'MRP运行' },
+      { docType: 'QLT_INCOMING', prefix: 'IQC', description: '来料检验' },
     ]);
     return { message: 'coding rules ensured' };
   }

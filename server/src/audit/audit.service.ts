@@ -27,7 +27,7 @@ export class AuditService {
       where: { id },
       include: { checklists: { include: { findings: true }, orderBy: { sortOrder: 'asc' } } },
     });
-    if (!plan) throw new NotFoundException('Audit plan not found');
+    if (!plan) throw new NotFoundException('审核计划不存在');
     return plan;
   }
   async updatePlan(id: string, dto: any) {

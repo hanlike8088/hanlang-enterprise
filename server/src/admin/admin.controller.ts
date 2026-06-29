@@ -248,9 +248,9 @@ export class AdminController {
       'ncr','capa','mfg_order','mfg_operation','mfg_plan',
       'erp_material','erp_work_order'
     ];
-    if (module) return this.sm.loadTransitions(module);
+    if (module) return this.adminService.getWorkflowTransitions(module);
     const result = {};
-    for (const m of modules) { result[m] = await this.sm.loadTransitions(m); }
+    for (const m of modules) { result[m] = await this.adminService.getWorkflowTransitions(m); }
     return result;
   }
 
@@ -267,21 +267,6 @@ export class AdminController {
   deleteWorkflowTransition(@Param('id') id: string) { return this.adminService.deleteWorkflowTransition(id); }
 
 
-  @RequirePermission('admin', 'workflow:write')
-  @Post('workflow-transitions')
-  async createWorkflowTransition(@Body() dto: { module: string; fromStatus: string; toStatus: string }) {
-    const result = await this.adminService.createWorkflowTransition(dto);
-    this.adminService.sm.clearCache(dto.module);
-    return result;
-  }
-
-  @RequirePermission('admin', 'workflow:write')
-  @Delete('workflow-transitions/:id')
-  async deleteWorkflowTransition(@Param('id') id: string) {
-    const t = await this.adminService.getWorkflowTransition(id);
-    if (t) this.adminService.sm.clearCache(t.module);
-    return this.adminService.deleteWorkflowTransition(id);
-  }
 
   // ========== System Settings ==========
   @RequirePermission('admin', 'setting:read')

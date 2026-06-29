@@ -11,17 +11,17 @@ import dayjs from 'dayjs';
 const { Text, Title } = Typography;
 
 const STATUS_MAP: Record<string, { color: string; label: string }> = {
-  active: { color: 'green', label: 'Active' },
-  archived: { color: 'default', label: 'Archived' },
+  active: { color: 'green', label: '现行有效' },
+  archived: { color: 'default', label: '已归档' },
 };
 
 const CATEGORY_OPTIONS = [
-  { label: 'Assembly', value: 'Assembly' },
-  { label: 'Part', value: 'Part' },
-  { label: 'Circuit', value: 'Circuit' },
-  { label: 'Pneumatic', value: 'Pneumatic' },
-  { label: 'Mold', value: 'Mold' },
-  { label: 'Process', value: 'Process' },
+  { label: '装配图', value: 'Assembly' },
+  { label: '零件图', value: 'Part' },
+  { label: '电路图', value: 'Circuit' },
+  { label: '气路图', value: 'Pneumatic' },
+  { label: '模具图', value: 'Mold' },
+  { label: '工艺图', value: 'Process' },
 ];
 
 export default function Drawing版本sPage() {
@@ -159,7 +159,7 @@ export default function Drawing版本sPage() {
       <Row gutter={24} style={{ marginBottom: 24 }}>
         <Col span={6}><Card><Statistic title="Total" value={statTotal} /></Card></Col>
         <Col span={6}><Card><Statistic title="Active" value={statActive} valueStyle={{ color: '#3f8600' }} /></Card></Col>
-        <Col span={12}><Card><Space><span>Filter:</span><Select allowClear placeholder="All" style={{ width: 120 }} value={filterStatus} onChange={setFilterStatus} options={[{ label: 'Active', value: 'active' }, { label: 'Archived', value: 'archived' }]} /></Space></Card></Col>
+        <Col span={12}><Card><Space><span>筛选：</span><Select allowClear placeholder="全部" style={{ width: 120 }} value={filterStatus} onChange={setFilterStatus} options={[{ label: '现行有效', value: 'active' }, { label: '已归档', value: 'archived' }]} /></Space></Card></Col>
       </Row>
 
       <div style={{ marginBottom: 16 }}>

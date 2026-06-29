@@ -5,12 +5,12 @@ import { PlayCircleOutlined, HistoryOutlined, FolderOpenOutlined } from '@ant-de
 const { Title } = Typography;
 
 const ENTITY_OPTIONS = [
-  { label: 'Sampling Work Orders', value: 'sampling_work_orders' },
-  { label: 'Purchase Orders', value: 'purchase_orders' },
-  { label: 'CRM Orders', value: 'crm_orders' },
-  { label: 'Manufacturing Orders', value: 'manufacturing_orders' },
-  { label: 'Maintenance Work Orders', value: 'maintenance_work_orders' },
-  { label: 'Read Notifications', value: 'notifications' },
+  { label: '打样工单', value: 'sampling_work_orders' },
+  { label: '采购订单', value: 'purchase_orders' },
+  { label: 'CRM销售订单', value: 'crm_orders' },
+  { label: '生产工单', value: 'manufacturing_orders' },
+  { label: '维修工单', value: 'maintenance_work_orders' },
+  { label: '已读通知', value: 'notifications' },
 ];
 
 export default function ArchivePage() {

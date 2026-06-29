@@ -92,11 +92,11 @@ export default function TracePage() {
   }, [activeTab]);
 
   const entityOptions = [
-    { value: 'crmOrder', label: 'CRM Order' },
-    { value: 'npiProject', label: 'NPI Project' },
-    { value: 'purchaseOrder', label: 'Purchase Order' },
-    { value: 'repairRequest', label: 'Repair Request' },
-    { value: 'ncrReport', label: 'NCR Report' },
+    { value: 'crmOrder', label: 'CRM销售订单' },
+    { value: 'npiProject', label: 'NPI项目' },
+    { value: 'purchaseOrder', label: '采购订单' },
+    { value: 'repairRequest', label: '维修工单' },
+    { value: 'ncrReport', label: '不合格报告' },
   ];
 
   const traceColumns = [

@@ -46,7 +46,7 @@ export class TraceService {
       where: { id: orderId },
       select: { id: true, orderCode: true, customerId: true, status: true, createdAt: true },
     });
-    if (!order) return { ...chain, error: 'Order not found' };
+    if (!order) return { ...chain, error: '订单不存在' };
 
     chain.nodes.push({ label: 'CRM Order', id: order.id, detail: { orderCode: order.orderCode, status: order.status } });
 
@@ -98,7 +98,7 @@ export class TraceService {
       where: { id: projectId },
       select: { id: true, projectCode: true, projectName: true, status: true, productId: true },
     });
-    if (!project) return { ...chain, error: 'Project not found' };
+    if (!project) return { ...chain, error: '项目不存在' };
 
     chain.nodes.push({ label: 'NPI Project', id: project.id, detail: { projectCode: project.projectCode, status: project.status } });
 
@@ -149,7 +149,7 @@ export class TraceService {
       where: { id: poId },
       select: { id: true, orderCode: true, supplierId: true, status: true },
     });
-    if (!po) return { ...chain, error: 'Purchase order not found' };
+    if (!po) return { ...chain, error: '采购订单不存在' };
 
     chain.nodes.push({ label: 'Purchase Order', id: po.id, detail: { orderCode: po.orderCode, status: po.status } });
 
@@ -194,7 +194,7 @@ export class TraceService {
       where: { id: repairId },
       select: { id: true, requestCode: true, equipmentId: true, status: true },
     });
-    if (!repair) return { ...chain, error: 'Repair request not found' };
+    if (!repair) return { ...chain, error: '维修工单不存在' };
 
     chain.nodes.push({ label: 'Repair Request', id: repair.id, detail: { requestCode: repair.requestCode, status: repair.status } });
 
@@ -218,7 +218,7 @@ export class TraceService {
       where: { id: ncrId },
       select: { id: true, ncrCode: true, source: true, sourceId: true, status: true, severity: true, productName: true },
     });
-    if (!ncr) return { ...chain, error: 'NCR not found' };
+    if (!ncr) return { ...chain, error: '不合格报告不存在' };
 
     chain.nodes.push({ label: 'NCR Report', id: ncr.id, detail: { ncrCode: ncr.ncrCode, status: ncr.status, severity: ncr.severity } });
 

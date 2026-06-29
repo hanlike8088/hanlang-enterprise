@@ -32,7 +32,7 @@ export class FilesController {
   downloadFile(@Param('filename') filename: string, @Res() res: any) {
     const filePath = this.filesService.getFilePath(filename);
     return res.download(filePath, (err: any) => {
-      if (err) res.status(404).json({ message: 'File not found' });
+      if (err) res.status(404).json({ message: '文件不存在' });
     });
   }
 

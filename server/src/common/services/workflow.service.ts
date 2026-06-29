@@ -68,8 +68,8 @@ export class WorkflowService {
    */
   async approve(approvalId: string, approver: string, comment?: string) {
     const record = await this.prisma.approvalRecord.findUnique({ where: { id: approvalId } });
-    if (!record) throw new NotFoundException('Approval record not found');
-    if (record.status !== 'pending') throw new BadRequestException('Approval already processed');
+    if (!record) throw new NotFoundException('审批记录不存在');
+    if (record.status !== 'pending') throw new BadRequestException('审批已处理');
 
     return this.prisma.approvalRecord.update({
       where: { id: approvalId },
@@ -89,8 +89,8 @@ export class WorkflowService {
    */
   async reject(approvalId: string, approver: string, comment?: string) {
     const record = await this.prisma.approvalRecord.findUnique({ where: { id: approvalId } });
-    if (!record) throw new NotFoundException('Approval record not found');
-    if (record.status !== 'pending') throw new BadRequestException('Approval already processed');
+    if (!record) throw new NotFoundException('审批记录不存在');
+    if (record.status !== 'pending') throw new BadRequestException('审批已处理');
 
     return this.prisma.approvalRecord.update({
       where: { id: approvalId },
@@ -135,7 +135,7 @@ export class WorkflowService {
       where: { id },
       include: { transition: { include: { fromState: true, toState: true } } },
     });
-    if (!record) throw new NotFoundException('Approval record not found');
+    if (!record) throw new NotFoundException('审批记录不存在');
     return record;
   }
 }

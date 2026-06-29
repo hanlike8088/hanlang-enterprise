@@ -320,19 +320,19 @@ export class AdminService {
 
   async updateCodingRule(id: string, dto: UpdateCodingRuleDto) {
     const rule = await this.prisma.adminCodingRule.findUnique({ where: { id } });
-    if (!rule) throw new NotFoundException('Rule not found');
+    if (!rule) throw new NotFoundException('规则不存在');
     return this.prisma.adminCodingRule.update({ where: { id }, data: dto });
   }
 
   async deleteCodingRule(id: string) {
     const rule = await this.prisma.adminCodingRule.findUnique({ where: { id } });
-    if (!rule) throw new NotFoundException('Rule not found');
+    if (!rule) throw new NotFoundException('规则不存在');
     return this.prisma.adminCodingRule.delete({ where: { id } });
   }
 
   async generateCode(docType: string): Promise<string> {
     const rule = await this.prisma.adminCodingRule.findUnique({ where: { docType } });
-    if (!rule) throw new NotFoundException('No coding rule for docType: ' + docType);
+    if (!rule) throw new NotFoundException('未找到编码规则: ' + docType);
     const year = new Date().getFullYear();
     const yearStr = rule.yearDigits === 2 ? String(year).slice(-2) : String(year);
     const serial = String(rule.currentSerial).padStart(rule.serialDigits, '0');
@@ -354,13 +354,13 @@ export class AdminService {
 
   async updateWorkflowState(id: string, dto: Partial<CreateWorkflowStateDto>) {
     const state = await this.prisma.adminWorkflowState.findUnique({ where: { id } });
-    if (!state) throw new NotFoundException('Workflow state not found');
+    if (!state) throw new NotFoundException('工作流状态不存在');
     return this.prisma.adminWorkflowState.update({ where: { id }, data: dto });
   }
 
   async deleteWorkflowState(id: string) {
     const state = await this.prisma.adminWorkflowState.findUnique({ where: { id } });
-    if (!state) throw new NotFoundException('Workflow state not found');
+    if (!state) throw new NotFoundException('工作流状态不存在');
     return this.prisma.adminWorkflowState.delete({ where: { id } });
   }
 
@@ -370,7 +370,7 @@ export class AdminService {
     const where = module ? { module } : {};
     return this.prisma.adminWorkflowTransition.findMany({
       where, orderBy: { sortOrder: 'asc' },
-      include: { fromState: true, toState: true },
+      select: { id: true, module: true, transitionName: true, fromStateId: true, toStateId: true, requiredPerm: true, sortOrder: true },
     });
   }
 
@@ -380,13 +380,13 @@ export class AdminService {
 
   async updateWorkflowTransition(id: string, dto: Partial<CreateWorkflowTransitionDto>) {
     const trans = await this.prisma.adminWorkflowTransition.findUnique({ where: { id } });
-    if (!trans) throw new NotFoundException('Workflow transition not found');
+    if (!trans) throw new NotFoundException('工作流转换不存在');
     return this.prisma.adminWorkflowTransition.update({ where: { id }, data: dto });
   }
 
   async deleteWorkflowTransition(id: string) {
     const trans = await this.prisma.adminWorkflowTransition.findUnique({ where: { id } });
-    if (!trans) throw new NotFoundException('Workflow transition not found');
+    if (!trans) throw new NotFoundException('工作流转换不存在');
     return this.prisma.adminWorkflowTransition.delete({ where: { id } });
   }
 
@@ -406,7 +406,7 @@ export class AdminService {
 
   async deleteSystemSetting(id: string) {
     const setting = await this.prisma.adminSystemSetting.findUnique({ where: { id } });
-    if (!setting) throw new NotFoundException('System setting not found');
+    if (!setting) throw new NotFoundException('系统设置不存在');
     return this.prisma.adminSystemSetting.delete({ where: { id } });
   }
 }

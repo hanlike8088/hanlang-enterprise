@@ -69,7 +69,7 @@ export class DrawingService {
       where: { id },
       include: { versions: { orderBy: { createdAt: 'desc' } }, product: true },
     });
-    if (!drawing) throw new NotFoundException('Drawing not found');
+    if (!drawing) throw new NotFoundException('图纸不存在');
     return drawing;
   }
 
@@ -99,7 +99,7 @@ export class DrawingService {
       const minor = parseInt(match[2]) + 1;
       newVersion = `V${major}.` + minor;
     } else {
-      throw new BadRequestException('Invalid version format');
+      throw new BadRequestException('版本格式无效');
     }
 
     await this.prisma.drawingVersion.updateMany({
@@ -142,7 +142,7 @@ export class DrawingService {
       this.prisma.drawingVersion.findUnique({ where: { id: v1Id } }),
       this.prisma.drawingVersion.findUnique({ where: { id: v2Id } }),
     ]);
-    if (!ver1 || !ver2) throw new NotFoundException('Version not found');
+    if (!ver1 || !ver2) throw new NotFoundException('版本不存在');
     return { version1: ver1, version2: ver2 };
   }
 }

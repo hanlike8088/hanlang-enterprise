@@ -18,7 +18,7 @@ export class BackupService {
   async createBackup(createdBy?: string, type = 'manual') {
     const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
     if (!fs.existsSync(dbPath)) {
-      throw new Error('Database file not found');
+      throw new Error('数据库文件不存在');
     }
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = `backup-${type}-${timestamp}.db`;
@@ -49,14 +49,14 @@ export class BackupService {
 
   async deleteBackup(id: string) {
     const record = await this.prisma.systemBackup.findUnique({ where: { id } });
-    if (!record) throw new Error('Backup not found');
+    if (!record) throw new Error('备份文件不存在');
     if (fs.existsSync(record.path)) fs.unlinkSync(record.path);
     return this.prisma.systemBackup.delete({ where: { id } });
   }
 
   async restoreBackup(id: string) {
     const record = await this.prisma.systemBackup.findUnique({ where: { id } });
-    if (!record) throw new Error('Backup not found');
+    if (!record) throw new Error('备份文件不存在');
     if (!fs.existsSync(record.path)) throw new Error('Backup file not on disk');
     const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
     const preRestorePath = dbPath + '.pre-restore-' + Date.now();

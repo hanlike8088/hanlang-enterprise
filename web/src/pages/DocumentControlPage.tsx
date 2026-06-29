@@ -160,7 +160,7 @@ export default function DocumentControlPage() {
       <Modal title={`新增${titleMap[modalType]}`} open={modalOpen} onOk={handleSubmit} onCancel={() => setModalOpen(false)} width={600}>
         <Form form={form} layout="vertical">
           {modalType === 'approval' && <>
-            <Form.Item name="docType" label="文档类型" rules={[{ required: true }]}><Select options={[{ value: 'drawing', label: '图纸' }, { value: 'bom', label: 'BOM' }, { value: 'procedure', label: '作业指导书' }, { value: 'quality_manual', label: '质量手册' }, { value: 'standard', label: '标准规范' }, { value: 'other', label: '其他' }]} /></Form.Item>
+            <Form.Item name="docType" label="文档类型" rules={[{ required: true }]}><Select options={[{ value: 'drawing', label: '图纸' }, { value: 'bom', label: '物料清单' }, { value: 'procedure', label: '作业指导书' }, { value: 'quality_manual', label: '质量手册' }, { value: 'standard', label: '标准规范' }, { value: 'other', label: '其他' }]} /></Form.Item>
             <Form.Item name="docId" label="文档ID" rules={[{ required: true }]}><Input /></Form.Item>
             <Form.Item name="docName" label="文档名称" rules={[{ required: true }]}><Input /></Form.Item>
             <Form.Item name="docCode" label="文档编码"><Input /></Form.Item>

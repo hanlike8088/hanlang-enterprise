@@ -133,7 +133,7 @@ export class MrpService {
       where: { id },
       include: { items: true },
     });
-    if (!run) throw new NotFoundException('MRP run not found');
+    if (!run) throw new NotFoundException('MRP运算不存在');
     return run;
   }
 

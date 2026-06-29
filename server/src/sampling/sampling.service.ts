@@ -35,7 +35,7 @@ export class SamplingService {
 
   async findOne(id: string) {
     const order = await this.prisma.samplingWorkOrder.findUnique({ where: { id } });
-    if (!order) throw new NotFoundException('Sampling order not found');
+    if (!order) throw new NotFoundException('打样工单不存在');
     return order;
   }
 

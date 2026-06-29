@@ -86,9 +86,9 @@ export default function DashboardPage() {
   const tabItems = [
     { key: 'overview', icon: <DashboardOutlined />, label: '总览' },
     { key: 'admin', icon: <ApartmentOutlined />, label: '行政' },
-    { key: 'npi', icon: <ProjectOutlined />, label: 'NPI' },
-    { key: 'plm', icon: <DatabaseOutlined />, label: 'PLM' },
-    { key: 'crm', icon: <ContactsOutlined />, label: 'CRM' },
+    { key: 'npi', icon: <ProjectOutlined />, label: 'NPI管理' },
+    { key: 'plm', icon: <DatabaseOutlined />, label: 'PLM管理' },
+    { key: 'crm', icon: <ContactsOutlined />, label: 'CRM管理' },
     { key: 'supplier', icon: <ShoppingOutlined />, label: '供应链' },
     { key: 'equipment', icon: <ToolOutlined />, label: '设备' },
     { key: 'quality', icon: <SafetyCertificateOutlined />, label: '品质' },

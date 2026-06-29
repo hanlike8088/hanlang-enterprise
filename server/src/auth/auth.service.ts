@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   async login(dto: { username: string; password: string }) {
-    if (!dto?.username) throw new UnauthorizedException('Missing credentials');
+    if (!dto?.username) throw new UnauthorizedException('缺少用户名和密码');
     const user = await this.prisma.user.findUnique({ where: { username: dto.username } });
     if (!user) throw new UnauthorizedException('用户名或密码错误');
 

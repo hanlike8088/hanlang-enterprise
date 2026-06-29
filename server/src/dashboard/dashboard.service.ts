@@ -166,7 +166,7 @@ export class DashboardService {
         { id: 1, source: 'CRM', target: 'NPI', trigger: 'crm:order:confirmed', description: 'Sales order confirmed -> auto-create NPI project + tech review' },
         { id: 2, source: 'NPI', target: 'CRM', trigger: 'npi:project:review-passed', description: 'Project review passed -> auto-create quote (with BOM)' },
         { id: 3, source: 'CRM', target: 'Purchase', trigger: 'crm:order:confirmed', description: 'Sales order confirmed -> auto-create purchase order' },
-        { id: 4, source: 'Purchase', target: 'Quality', trigger: 'purchase:receipt:completed', description: 'Purchase receipt -> auto-create IQC inspection record' },
+        { id: 4, source: 'Purchase', target: 'Quality', trigger: 'purchase:receipt:completed', description: '采购收货 -> 自动创建来料检验记录' },
         { id: 5, source: 'Quality', target: 'Supplier', trigger: 'quality:ncr:created', description: 'NCR created -> QCDS score warning' },
         { id: 6, source: 'Equipment', target: 'PLM', trigger: 'equipment:anomaly:detected', description: 'TPM anomaly -> auto-create technical change document' },
       ],

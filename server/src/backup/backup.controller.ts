@@ -11,7 +11,7 @@ export class BackupController {
   @Get(':id') async getOne(@Param('id') id: string) { return this.svc.getBackup(id); }
   @Get(':id/download') async download(@Param('id') id: string, @Res() res: Response) {
     const record = await this.svc.getBackup(id);
-    if (!record || !fs.existsSync(record.path)) return res.status(404).json({ error: 'Backup not found' });
+    if (!record || !fs.existsSync(record.path)) return res.status(404).json({ error: '备份文件不存在' });
     return res.download(record.path, record.fileName);
   }
   @Post(':id/restore') async restore(@Param('id') id: string) { return this.svc.restoreBackup(id); }

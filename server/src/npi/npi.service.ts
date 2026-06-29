@@ -84,7 +84,7 @@ export class NpiService implements OnModuleInit {
       where: { id },
       include: { trialRuns: true, approvals: true },
     });
-    if (!project) throw new NotFoundException('Project not found');
+    if (!project) throw new NotFoundException('项目不存在');
     return project;
   }
 
@@ -128,7 +128,7 @@ export class NpiService implements OnModuleInit {
 
   async getTrialRun(id: string) {
     const tr = await this.prisma.npiTrialRun.findUnique({ where: { id }, include: { issues: true } });
-    if (!tr) throw new NotFoundException('Trial run not found');
+    if (!tr) throw new NotFoundException('试产不存在');
     return tr;
   }
 
@@ -164,7 +164,7 @@ export class NpiService implements OnModuleInit {
 
   async getIssue(id: string) {
     const issue = await this.prisma.npiIssue.findUnique({ where: { id } });
-    if (!issue) throw new NotFoundException('Issue not found');
+    if (!issue) throw new NotFoundException('问题不存在');
     return issue;
   }
 
@@ -190,7 +190,7 @@ export class NpiService implements OnModuleInit {
 
   async transitionApproval(id: string, nextStatus: string, approver?: string, comment?: string) {
     const approval = await this.prisma.npiApproval.findUnique({ where: { id } });
-    if (!approval) throw new NotFoundException('Approval not found');
+    if (!approval) throw new NotFoundException('审批不存在');
     this.sm.validateTransition(NPI_APPROVAL_TRANSITIONS, approval.status, nextStatus);
     return this.prisma.npiApproval.update({
       where: { id },
@@ -200,7 +200,7 @@ export class NpiService implements OnModuleInit {
 
   async reviewApproval(id: string, dto: ReviewApprovalDto) {
     const approval = await this.prisma.npiApproval.findUnique({ where: { id } });
-    if (!approval) throw new NotFoundException('Approval not found');
+    if (!approval) throw new NotFoundException('审批不存在');
     return this.prisma.npiApproval.update({
       where: { id },
       data: { status: dto.status, comment: dto.comment, approver: dto.approver, decidedAt: new Date() },
