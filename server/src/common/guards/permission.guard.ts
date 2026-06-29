@@ -23,6 +23,10 @@ export const Permissions = (...codes: string[]) =>
 export const RequirePermission = (resource: string, action: string) =>
   SetMetadata(PERMISSIONS_KEY, [resource + ':' + action]);
 
+// -- Permission cache (in-memory, 60s TTL) ----------------------
+const permCache = new Map<string, { perms: string; ts: number }>();
+const CACHE_TTL = 60_000;
+
 // -- Guard -------------------------------------------------------
 
 @Injectable()
@@ -54,6 +58,13 @@ export class PermissionGuard implements CanActivate {
 
     // Admin users bypass RBAC check
     if (user.role === 'admin') return true;
+
+    // Check permission cache first
+    const cacheKey = `perm:${user.sub || user.id}`;
+    const cached = permCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < CACHE_TTL) {
+      return cached.perms.split(',').some(p => requiredCodes.some(r => p === r));
+    }
 
     const employee = await this.prisma.adminEmployee.findFirst({
       where: { name: user.name || user.username },

@@ -219,7 +219,7 @@ export class CrmService implements OnModuleInit {
   // ========== Orders ==========
 
   async getOrders(keyword?: string, status?: string) {
-    const where: any = {};
+    const where: any = { deletedAt: null };
     if (status) where.status = status;
     if (keyword) where.OR = [
       { orderCode: { contains: keyword } },
@@ -352,7 +352,7 @@ export class CrmService implements OnModuleInit {
   // ========== Complaints ==========
 
   async getComplaints(keyword?: string, complaintType?: string, severity?: string, status?: string) {
-    const where: any = {};
+    const where: any = { deletedAt: null };
     if (complaintType) where.complaintType = complaintType;
     if (severity) where.severity = severity;
     if (status) where.status = status;
@@ -392,7 +392,7 @@ export class CrmService implements OnModuleInit {
   // ========== Reconciliations ==========
 
   async getReconciliations(keyword?: string, status?: string) {
-    const where: any = {};
+    const where: any = { deletedAt: null };
     if (status) where.status = status;
     if (keyword) where.OR = [{ reconciliationCode: { contains: keyword } }];
     return this.prisma.crmReconciliation.findMany({ where, orderBy: { createdAt: 'desc' }, include: { customer: true } });
@@ -430,7 +430,7 @@ export class CrmService implements OnModuleInit {
   // ========== Payments ==========
 
   async getPayments(keyword?: string, customerId?: string, reconciliationId?: string) {
-    const where: any = {};
+    const where: any = { deletedAt: null };
     if (customerId) where.customerId = customerId;
     if (reconciliationId) where.reconciliationId = reconciliationId;
     if (keyword) where.OR = [{ paymentCode: { contains: keyword } }, { referenceNo: { contains: keyword } }];
