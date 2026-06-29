@@ -21,6 +21,8 @@ import { SpcModule } from './spc/spc.module';
 import { NotificationModule } from './notification/notification.module';
 import { BackupModule } from './backup/backup.module';
 import { ArchiveModule } from './archive/archive.module';
+import { SeedModule } from './seed/seed.module';
+import { FilesModule } from './files/files.module';
 import { SamplingModule } from './sampling/sampling.module';
 import { CrmModule } from './crm/crm.module';
 import { DrawingModule } from './drawing/drawing.module';
@@ -60,6 +62,8 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     NotificationModule,
     BackupModule,
     ArchiveModule,
+    SeedModule,
+    FilesModule,
     KnowledgeModule,
     SamplingModule,
     CrmModule,
