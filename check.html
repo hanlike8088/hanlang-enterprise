@@ -1,0 +1,29 @@
+========================================
+  hanlang full pipeline check
+========================================
+
+--- Layer 1: TypeScript ---
+  [FAIL] TS: 2 errors
+
+--- Layer 2: Backend build ---
+  [FAIL] NestJS build FAILED
+
+--- Layer 3: Frontend build ---
+  [PASS] Vite build OK
+
+--- Layer 4: API smoke ---
+  [OK] POST /auth/login
+  [OK] GET /crm/customers
+  [OK] GET /crm/quotes
+  [OK] GET /crm/orders
+  [OK] GET /crm/complaints
+  [OK] GET /dashboard/stats
+  [OK] GET /plm/products
+
+--- Layer 5: PM2 ---
+  [PASS] PM2 online
+
+========================================
+  Result: 2 passed, 2 failed
+  NEED FIXES
+========================================
