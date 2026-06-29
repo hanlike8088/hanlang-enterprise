@@ -163,9 +163,9 @@ export class DashboardService {
   async getEventChain() {
     return {
       chains: [
-        { id: 1, source: 'CRM', target: 'NPI', trigger: 'crm:order:confirmed', description: 'Sales order confirmed -> auto-create NPI project + tech review' },
-        { id: 2, source: 'NPI', target: 'CRM', trigger: 'npi:project:review-passed', description: 'Project review passed -> auto-create quote (with BOM)' },
-        { id: 3, source: 'CRM', target: 'Purchase', trigger: 'crm:order:confirmed', description: 'Sales order confirmed -> auto-create purchase order' },
+        { id: 1, source: 'CRM', target: 'NPI', trigger: 'crm:order:confirmed', description: '销售订单已确认 -> 自动创建NPI项目+技术评审' },
+        { id: 2, source: 'NPI', target: 'CRM', trigger: 'npi:project:review-passed', description: '项目评审通过 -> 自动创建报价单（含物料清单）' },
+        { id: 3, source: 'CRM', target: 'Purchase', trigger: 'crm:order:confirmed', description: '销售订单已确认 -> 自动创建采购订单' },
         { id: 4, source: 'Purchase', target: 'Quality', trigger: 'purchase:receipt:completed', description: '采购收货 -> 自动创建来料检验记录' },
         { id: 5, source: 'Quality', target: 'Supplier', trigger: 'quality:ncr:created', description: 'NCR created -> QCDS score warning' },
         { id: 6, source: 'Equipment', target: 'PLM', trigger: 'equipment:anomaly:detected', description: 'TPM anomaly -> auto-create technical change document' },

@@ -68,7 +68,7 @@ export class TraceService {
         select: { id: true, orderCode: true, status: true, supplierId: true },
       });
       if (po) {
-        chain.nodes.push({ label: 'Purchase Order', id: po.id, detail: { orderCode: po.orderCode, status: po.status } });
+        chain.nodes.push({ label: '采购订单', id: po.id, detail: { orderCode: po.orderCode, status: po.status } });
         const receipts = await this.prisma.purchaseOrderReceipt.findMany({
           where: { orderId: po.id },
           take: 5,
@@ -151,7 +151,7 @@ export class TraceService {
     });
     if (!po) return { ...chain, error: '采购订单不存在' };
 
-    chain.nodes.push({ label: 'Purchase Order', id: po.id, detail: { orderCode: po.orderCode, status: po.status } });
+    chain.nodes.push({ label: '采购订单', id: po.id, detail: { orderCode: po.orderCode, status: po.status } });
 
     if (po.supplierId) {
       const supplier = await this.prisma.supplier.findUnique({
@@ -159,7 +159,7 @@ export class TraceService {
         select: { id: true, supplierName: true, supplierCode: true },
       });
       if (supplier) {
-        chain.nodes.push({ label: 'Supplier', id: supplier.id, detail: { name: supplier.supplierName, code: supplier.supplierCode } });
+        chain.nodes.push({ label: '供应商', id: supplier.id, detail: { name: supplier.supplierName, code: supplier.supplierCode } });
       }
     }
 
@@ -196,7 +196,7 @@ export class TraceService {
     });
     if (!repair) return { ...chain, error: '维修工单不存在' };
 
-    chain.nodes.push({ label: 'Repair Request', id: repair.id, detail: { requestCode: repair.requestCode, status: repair.status } });
+    chain.nodes.push({ label: '维修工单', id: repair.id, detail: { requestCode: repair.requestCode, status: repair.status } });
 
     if (repair.equipmentId) {
       const equip = await this.prisma.equipment.findUnique({
@@ -204,7 +204,7 @@ export class TraceService {
         select: { id: true, equipmentCode: true, equipmentName: true, status: true },
       });
       if (equip) {
-        chain.nodes.push({ label: 'Equipment', id: equip.id, detail: { code: equip.equipmentCode, name: equip.equipmentName, status: equip.status } });
+        chain.nodes.push({ label: '设备', id: equip.id, detail: { code: equip.equipmentCode, name: equip.equipmentName, status: equip.status } });
       }
     }
 
@@ -228,7 +228,7 @@ export class TraceService {
         select: { id: true, batchNo: true, purchaseOrderId: true, status: true },
       });
       if (incoming) {
-        chain.nodes.push({ label: 'IncomingMaterial', id: incoming.id, detail: { batchNo: incoming.batchNo, status: incoming.status } });
+        chain.nodes.push({ label: '来料', id: incoming.id, detail: { batchNo: incoming.batchNo, status: incoming.status } });
         if (incoming.purchaseOrderId) {
           const po = await this.prisma.purchaseOrder.findUnique({
             where: { id: incoming.purchaseOrderId },
@@ -240,7 +240,7 @@ export class TraceService {
               select: { id: true, supplierName: true, supplierCode: true },
             });
             if (supplier) {
-              chain.nodes.push({ label: 'Supplier', id: supplier.id, detail: { name: supplier.supplierName, code: supplier.supplierCode } });
+              chain.nodes.push({ label: '供应商', id: supplier.id, detail: { name: supplier.supplierName, code: supplier.supplierCode } });
               const scores = await this.prisma.supplierQcdsScore.findMany({
                 where: { supplierId: supplier.id },
                 take: 5,
@@ -272,7 +272,7 @@ export class TraceService {
   async traceOrderFullChain(orderId: string): Promise<TraceResult> {
     const result: TraceResult = { entityType: 'crmOrder', entityId: orderId, chains: [] };
     const order = await this.prisma.crmOrder.findUnique({ where: { id: orderId } });
-    if (!order) { result.error = 'Order not found'; return result; }
+    if (!order) { result.error = '订单不存在'; return result; }
 
     const salesChain: TraceChain = { name: 'Sales -> Purchase -> Receipt', nodes: [] };
     salesChain.nodes.push({ label: 'CRM Order (Sales)', id: order.id, detail: { orderCode: order.orderCode, status: order.status, totalAmount: order.totalAmount, createdAt: order.createdAt } });
@@ -284,10 +284,10 @@ export class TraceService {
     for (const link of poLinks) {
       const po = await this.prisma.purchaseOrder.findUnique({ where: { id: link.purchaseOrderId } });
       if (po) {
-        salesChain.nodes.push({ label: 'Purchase Order', id: po.id, detail: { orderCode: po.orderCode, status: po.status, totalAmount: po.totalAmount, expectedDate: po.expectedDate } });
+        salesChain.nodes.push({ label: '采购订单', id: po.id, detail: { orderCode: po.orderCode, status: po.status, totalAmount: po.totalAmount, expectedDate: po.expectedDate } });
         if (po.supplierId) {
           const supplier = await this.prisma.supplier.findUnique({ where: { id: po.supplierId }, select: { id: true, supplierName: true, supplierCode: true } });
-          if (supplier) { salesChain.nodes.push({ label: 'Supplier', id: supplier.id, detail: { name: supplier.supplierName, code: supplier.supplierCode } }); }
+          if (supplier) { salesChain.nodes.push({ label: '供应商', id: supplier.id, detail: { name: supplier.supplierName, code: supplier.supplierCode } }); }
         }
         const receipts = await this.prisma.purchaseOrderReceipt.findMany({ where: { orderId: po.id } });
         for (const r of receipts) {

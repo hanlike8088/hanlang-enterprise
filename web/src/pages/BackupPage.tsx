@@ -19,8 +19,8 @@ export default function BackupPage() {
 
   const handleCreate = async () => {
     setCreating(true);
-    try { await fetch('/api/backups', { method: 'POST' }); message.success('Backup created'); fetchData(); }
-    catch { message.error('Backup failed'); }
+    try { await fetch('/api/backups', { method: 'POST' }); message.success('备份已创建'); fetchData(); }
+    catch { message.error('备份失败'); }
     finally { setCreating(false); }
   };
 

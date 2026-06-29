@@ -67,7 +67,7 @@ import { UploadOutlined } from '@ant-design/icons';
          <Space>
            <Button type="primary" icon={<UploadOutlined />} onClick={async () => {
              const res = await plmApi.importPatents();
-             message.success('Patents imported successfully');
+             message.success('专利导入成功');
              fetch();
            }}>Import Patents</Button>
            <Select

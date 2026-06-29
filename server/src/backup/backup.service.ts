@@ -57,7 +57,7 @@ export class BackupService {
   async restoreBackup(id: string) {
     const record = await this.prisma.systemBackup.findUnique({ where: { id } });
     if (!record) throw new Error('备份文件不存在');
-    if (!fs.existsSync(record.path)) throw new Error('Backup file not on disk');
+    if (!fs.existsSync(record.path)) throw new Error('备份文件不在磁盘上');
     const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
     const preRestorePath = dbPath + '.pre-restore-' + Date.now();
     fs.copyFileSync(dbPath, preRestorePath);

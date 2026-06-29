@@ -35,7 +35,7 @@ export class DrawingService {
         fileName: dto.fileName || '',
         filePath: dto.filePath || '',
         fileSize: dto.fileSize || 0,
-        changeNote: 'Initial version',
+        changeNote: '初始版本',
         uploadBy: dto.uploadBy || 'system',
         isLatest: true,
       },

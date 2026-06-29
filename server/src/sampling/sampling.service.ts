@@ -25,7 +25,7 @@ export class SamplingService {
         throw err;
       }
     }
-    throw new Error('Failed to create sampling order');
+    throw new Error('打样工单创建失败');
   }
 
   async findAll(status?: string) {

@@ -45,7 +45,7 @@ export default function NotificationPage() {
       body: JSON.stringify({ userId: CURRENT_USER_ID }),
     });
     setItems(prev => prev.map(i => ({ ...i, isRead: true })));
-    message.success('All marked read');
+    message.success('全部标记已读');
   };
 
   const handleDelete = async (id: string) => {
@@ -55,7 +55,7 @@ export default function NotificationPage() {
 
   const handleCleanup = async () => {
     await fetch(`/api/notifications/read/cleanup?userId=${CURRENT_USER_ID}`, { method: 'DELETE' });
-    message.success('Read notifications cleared');
+    message.success('已读通知已清除');
     fetchData();
   };
 

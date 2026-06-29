@@ -50,7 +50,7 @@ export default function Drawing版本sPage() {
       setStatTotal(data.length);
       setStatActive(active);
     } catch (e: any) {
-      message.error('Failed to load drawings');
+      message.error('加载图纸失败');
     } finally {
       setLoading(false);
     }
@@ -71,12 +71,12 @@ export default function Drawing版本sPage() {
         fileName: values.fileName || '',
         filePath: values.filePath || '',
       });
-      message.success('Drawing created');
+      message.success('图纸已创建');
       setCreateOpen(false);
       form.resetFields();
       load图纸管理();
     } catch (e: any) {
-      message.error(e.response?.data?.message || 'Create failed');
+      message.error(e.response?.data?.message || '创建失败');
     }
   };
 
@@ -90,7 +90,7 @@ export default function Drawing版本sPage() {
         fileName: values.fileName || '',
         filePath: values.filePath || '',
       });
-      message.success('New version added');
+      message.success('新版本已添加');
       set版本Open(false);
       versionForm.resetFields();
       load图纸管理();
@@ -105,7 +105,7 @@ export default function Drawing版本sPage() {
       const data = await drawingApi.compareVersions(drawingId, v1Id, v2Id);
       setCompareData(data);
       setCompareOpen(true);
-    } catch { message.error('Compare failed'); }
+    } catch { message.error('比对失败'); }
   };
 
   const handleViewDetail = async (id: string) => {
@@ -115,7 +115,7 @@ export default function Drawing版本sPage() {
       set版本s(drawing.versions || []);
       setDetailOpen(true);
     } catch {
-      message.error('Failed to load detail');
+      message.error('加载详情失败');
     }
   };
 
@@ -129,7 +129,7 @@ export default function Drawing版本sPage() {
           await drawingApi.deleteDrawing(id);
           message.success('Deleted');
           load图纸管理();
-        } catch { message.error('Delete failed'); }
+        } catch { message.error('删除失败'); }
       },
     });
   };
@@ -172,10 +172,10 @@ export default function Drawing版本sPage() {
         <Form form={form} layout="vertical" onFinish={handleCreate}>
           <Form.Item name="drawingCode" label="Code" rules={[{ required: true }]}><Input placeholder="e.g. DWG-001" /></Form.Item>
           <Form.Item name="drawingName" label="Name" rules={[{ required: true }]}><Input placeholder="e.g. Motor Assembly" /></Form.Item>
-          <Form.Item name="productId" label="Product"><Select allowClear placeholder="Select product" options={products.map((p: any) => ({ value: p.id, label: p.productCode + ' - ' + p.productName }))} /></Form.Item>
-          <Form.Item name="category" label="Category"><Select placeholder="Select category" options={CATEGORY_OPTIONS} /></Form.Item>
-          <Form.Item name="description" label="Description"><Input.TextArea rows={3} placeholder="Drawing description" /></Form.Item>
-          <Form.Item name="uploadBy" label="Uploader" initialValue="user"><Input placeholder="Uploader name" /></Form.Item>
+          <Form.Item name="productId" label="产品"><Select allowClear placeholder="选择产品" options={products.map((p: any) => ({ value: p.id, label: p.productCode + ' - ' + p.productName }))} /></Form.Item>
+          <Form.Item name="category" label="类别"><Select placeholder="选择类别" options={CATEGORY_OPTIONS} /></Form.Item>
+          <Form.Item name="description" label="描述"><Input.TextArea rows={3} placeholder="图纸描述" /></Form.Item>
+          <Form.Item name="uploadBy" label="上传者" initialValue="user"><Input placeholder="上传者姓名" /></Form.Item>
           <Form.Item name="fileName" label="File"><Input placeholder="e.g. assembly_v1.pdf" /></Form.Item>
           <Form.Item><Button type="primary" htmlType="submit">Create</Button></Form.Item>
         </Form>
@@ -183,8 +183,8 @@ export default function Drawing版本sPage() {
 
       <Modal title={"New 版本 - " + (selectedDrawing?.drawingName || '')} open={versionOpen} onCancel={() => { set版本Open(false); versionForm.resetFields(); }} footer={null} width={550}>
         <Form form={versionForm} layout="vertical" onFinish={handleAdd版本}>
-          <Form.Item name="changeNote" label="Change Note" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="Describe changes" /></Form.Item>
-          <Form.Item name="uploadBy" label="Uploader" initialValue="user"><Input /></Form.Item>
+          <Form.Item name="changeNote" label="变更说明" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="描述变更内容" /></Form.Item>
+          <Form.Item name="uploadBy" label="上传者" initialValue="user"><Input /></Form.Item>
           <Form.Item name="fileName" label="File"><Input placeholder="e.g. assembly_v2.pdf" /></Form.Item>
           <Form.Item name="docType" label="Type"><Select options={[{ label: 'PDF', value: 'pdf' }, { label: 'DWG', value: 'dwg' }, { label: 'JPG', value: 'jpg' }, { label: 'PNG', value: 'png' }]} /></Form.Item>
           <Form.Item><Button type="primary" htmlType="submit">Add 版本</Button></Form.Item>
@@ -197,11 +197,11 @@ export default function Drawing版本sPage() {
             <Descriptions column={2} bordered size="small" style={{ marginBottom: 16 }}>
               <Descriptions.Item label="Code">{selectedDrawing.drawingCode}</Descriptions.Item>
               <Descriptions.Item label="Name">{selectedDrawing.drawingName}</Descriptions.Item>
-              <Descriptions.Item label="Category">{selectedDrawing.category || '-'}</Descriptions.Item>
+              <Descriptions.Item label="类别">{selectedDrawing.category || '-'}</Descriptions.Item>
               <Descriptions.Item label="Status"><Tag color={STATUS_MAP[selectedDrawing.status]?.color}>{STATUS_MAP[selectedDrawing.status]?.label}</Tag></Descriptions.Item>
               <Descriptions.Item label="版本"><Tag color="blue">{selectedDrawing.latest版本}</Tag></Descriptions.Item>
               <Descriptions.Item label="Created">{dayjs(selectedDrawing.createdAt).format('YYYY-MM-DD HH:mm')}</Descriptions.Item>
-              <Descriptions.Item label="Description" span={2}>{selectedDrawing.description || '-'}</Descriptions.Item>
+              <Descriptions.Item label="描述" span={2}>{selectedDrawing.description || '-'}</Descriptions.Item>
             </Descriptions>
             <Title level={5}>版本 History ({versions.length})</Title>
             <Table

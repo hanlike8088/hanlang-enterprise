@@ -39,7 +39,7 @@ export default function ArchivePage() {
       if (result.status === 'failed') message.error(`Failed: ${result.error}`);
       else message.success(`Archived ${result.recordsCount} records`);
       fetchRuns();
-    } catch { message.error('Archive failed'); }
+    } catch { message.error('归档失败'); }
     finally { setRunning(false); }
   };
 
