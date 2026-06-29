@@ -1,8 +1,9 @@
 import { IsString, IsOptional, IsNumber, IsBoolean, IsDateString } from 'class-validator';
 
 export class CreateCustomerDto {
+  @IsOptional()
   @IsString()
-  customerCode: string;
+  customerCode?: string;
 
   @IsString()
   customerName: string;

@@ -417,6 +417,7 @@ model CrmCustomer {
   status          String              @default("active")
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
+  deletedAt   DateTime?
  contactRecords  CrmContactRecord[]
  quotes          CrmQuote[]
   orders          CrmOrder[]
@@ -436,6 +437,7 @@ model CrmContactRecord {
   createdBy       String?
   createdAt       DateTime    @default(now())
   customer        CrmCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  deletedAt   DateTime?
   @@index([customerId])
 }
 
@@ -458,6 +460,7 @@ model CrmQuote {
   createdBy        String?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  deletedAt   DateTime?
   customer         CrmCustomer?  @relation(fields: [customerId], references: [id])
   items            CrmQuoteItem[]
 }
@@ -474,6 +477,7 @@ model CrmQuoteItem {
   totalPrice    Float     @default(0)
   sortOrder     Int       @default(0)
   quote         CrmQuote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  deletedAt   DateTime?
   @@index([quoteId])
 }
 
@@ -496,6 +500,7 @@ model CrmOrder {
   createdBy        String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+  deletedAt   DateTime?
   customer         CrmCustomer?   @relation(fields: [customerId], references: [id])
   items           CrmOrderItem[]
   complaints      CrmComplaint[]
@@ -515,6 +520,7 @@ model CrmOrderItem {
   totalPrice    Float    @default(0)
   sortOrder     Int      @default(0)
   order         CrmOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  deletedAt   DateTime?
   @@index([orderId])
 }
 
@@ -534,6 +540,7 @@ model CrmComplaint {
   resolvedAt    DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  deletedAt   DateTime?
   customer      CrmCustomer @relation(fields: [customerId], references: [id])
   order         CrmOrder?   @relation(fields: [orderId], references: [id])
   @@index([customerId])
@@ -552,6 +559,7 @@ model CrmReconciliation {
   notes               String?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
+  deletedAt   DateTime?
   customer            CrmCustomer  @relation(fields: [customerId], references: [id])
   order               CrmOrder?    @relation(fields: [orderId], references: [id])
   payments            CrmPayment[]
@@ -574,6 +582,7 @@ model CrmPayment {
   customer          CrmCustomer       @relation(fields: [customerId], references: [id])
   order             CrmOrder?         @relation(fields: [orderId], references: [id])
   reconciliation    CrmReconciliation? @relation(fields: [reconciliationId], references: [id])
+  deletedAt   DateTime?
   @@index([customerId])
   @@index([reconciliationId])
 }

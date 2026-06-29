@@ -109,8 +109,7 @@ export class CrmService implements OnModuleInit {
   }
 
   async deleteCustomer(id: string) {
-    await this.getCustomer(id);
-    return this.prisma.crmCustomer.delete({ where: { id } });
+    return this.prisma.crmCustomer.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   // ========== Contact Records ==========
@@ -135,9 +134,7 @@ export class CrmService implements OnModuleInit {
   }
 
   async deleteContactRecord(id: string) {
-    const c = await this.prisma.crmContactRecord.findUnique({ where: { id } });
-    if (!c) throw new NotFoundException('联系记录不存在');
-    return this.prisma.crmContactRecord.delete({ where: { id } });
+    return this.prisma.crmContactRecord.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   // ========== Quotes ==========
@@ -199,8 +196,7 @@ export class CrmService implements OnModuleInit {
   }
 
   async deleteQuote(id: string) {
-    await this.getQuote(id);
-    return this.prisma.crmQuote.delete({ where: { id } });
+    return this.prisma.crmQuote.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   async transitionQuote(id: string, status: string) {
@@ -315,8 +311,7 @@ export class CrmService implements OnModuleInit {
   }
 
   async deleteOrder(id: string) {
-    await this.getOrder(id);
-    return this.prisma.crmOrder.delete({ where: { id } });
+    return this.prisma.crmOrder.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   async transitionOrder(id: string, status: string) {
@@ -376,8 +371,7 @@ export class CrmService implements OnModuleInit {
   }
 
   async deleteComplaint(id: string) {
-    await this.getComplaint(id);
-    return this.prisma.crmComplaint.delete({ where: { id } });
+    return this.prisma.crmComplaint.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   async transitionComplaint(id: string, status: string) {
@@ -415,8 +409,7 @@ export class CrmService implements OnModuleInit {
   }
 
   async deleteReconciliation(id: string) {
-    await this.getReconciliation(id);
-    return this.prisma.crmReconciliation.delete({ where: { id } });
+    return this.prisma.crmReconciliation.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   async transitionReconciliation(id: string, status: string) {
@@ -457,8 +450,7 @@ export class CrmService implements OnModuleInit {
   }
 
   async deletePayment(id: string) {
-    await this.getPayment(id);
-    return this.prisma.crmPayment.delete({ where: { id } });
+    return this.prisma.crmPayment.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   async transitionPayment(id: string, status: string) {

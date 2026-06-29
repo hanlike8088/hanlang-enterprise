@@ -21,6 +21,19 @@ interface K3ApiResponse {
   };
 }
 
+/** 金蝶云星空 FormId 速查表 */
+const K3_FORMS = {
+  MATERIAL:    'BD_MATERIAL',    // 物料
+  DEPARTMENT:  'BD_Department',  // 部门
+  CUSTOMER:    'BD_Customer',    // 客户
+  SUPPLIER:    'BD_Supplier',    // 供应商
+  PROD_ORDER:  'PRD_MO',         // 生产订单
+  SALE_ORDER:  'SAL_SaleOrder',  // 销售订单
+  PURCHASE_ORDER: 'PUR_PurchaseOrder', // 采购订单
+  STOCK:       'STK_Inventory',  // 库存
+  ACCOUNT:     'BD_Account',     // 科目
+} as const;
+
 @Injectable()
 export class K3CloudService {
   private readonly logger = new Logger(K3CloudService.name);
