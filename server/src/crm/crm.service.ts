@@ -2,6 +2,12 @@
 import { OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CodingRuleService } from '../common/services/coding-rule.service';
+import { CreateCustomerDto, UpdateCustomerDto } from './dto/create-customer.dto';
+import { CreateQuoteDto, UpdateQuoteDto } from './dto/create-quote.dto';
+import { CreateOrderDto, UpdateOrderDto, ConvertQuoteToOrderDto } from './dto/create-order.dto';
+import { CreateComplaintDto } from './dto/create-complaint.dto';
+import { CreateReconciliationDto } from './dto/create-reconciliation.dto';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 import { StatusMachineService } from '../common/services/status-machine.service';
 import { CRM_ORDER_TRANSITIONS } from '../common/services/status-transitions';
 import { EventBusService } from '../common/services/event-bus.service';
