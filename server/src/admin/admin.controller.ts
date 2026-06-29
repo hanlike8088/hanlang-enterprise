@@ -239,7 +239,20 @@ export class AdminController {
   // ========== Workflow Transitions ==========
   @RequirePermission('admin', 'workflow:read')
   @Get('workflow-transitions')
-  getWorkflowTransitions(@Query('module') module?: string) { return this.adminService.getWorkflowTransitions(module); }
+  async getWorkflowTransitions(@Query('module') module?: string) {
+    const modules = [
+      'sampling_wo','drawing','plm_product','plm_bom','plm_document',
+      'npi_project','npi_trial','npi_issue','npi_approval',
+      'crm_quote','crm_order','crm_complaint','crm_reconciliation','crm_payment',
+      'purchase_order','equipment','maintenance_wo','repair_wo',
+      'ncr','capa','mfg_order','mfg_operation','mfg_plan',
+      'erp_material','erp_work_order'
+    ];
+    if (module) return this.sm.loadTransitions(module);
+    const result = {};
+    for (const m of modules) { result[m] = await this.sm.loadTransitions(m); }
+    return result;
+  }
 
   @RequirePermission('admin', 'workflow:write')
   @Post('workflow-transitions')
@@ -252,6 +265,23 @@ export class AdminController {
   @RequirePermission('admin', 'workflow:write')
   @Delete('workflow-transitions/:id')
   deleteWorkflowTransition(@Param('id') id: string) { return this.adminService.deleteWorkflowTransition(id); }
+
+
+  @RequirePermission('admin', 'workflow:write')
+  @Post('workflow-transitions')
+  async createWorkflowTransition(@Body() dto: { module: string; fromStatus: string; toStatus: string }) {
+    const result = await this.adminService.createWorkflowTransition(dto);
+    this.adminService.sm.clearCache(dto.module);
+    return result;
+  }
+
+  @RequirePermission('admin', 'workflow:write')
+  @Delete('workflow-transitions/:id')
+  async deleteWorkflowTransition(@Param('id') id: string) {
+    const t = await this.adminService.getWorkflowTransition(id);
+    if (t) this.adminService.sm.clearCache(t.module);
+    return this.adminService.deleteWorkflowTransition(id);
+  }
 
   // ========== System Settings ==========
   @RequirePermission('admin', 'setting:read')
