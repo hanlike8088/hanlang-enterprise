@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Popconfirm, Space, Tag, message, Descriptions, Card, Table as AntTable, Row, Col, Statistic } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, CalculatorOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, EyeOutlined, CalculatorOutlined } from '@ant-design/icons';
 import { crmApi, plmApi } from '../../services/api';
 
 interface Product {

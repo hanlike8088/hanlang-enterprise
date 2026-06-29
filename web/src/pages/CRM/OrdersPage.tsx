@@ -53,6 +53,16 @@ const statusOptions = [
   { value: 'cancelled', label: '已取消'},
 ];
 
+
+const ORDER_STATUS_COLORS: Record<string, string> = {
+  pending_confirm: 'default', confirmed: 'processing', in_production: 'blue',
+  shipped: 'cyan', signed: 'green', completed: 'green', cancelled: 'red',
+};
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  pending_confirm: '待确认', confirmed: '已确认', in_production: '生产中',
+  shipped: '已发货', signed: '已签收', completed: '已完成', cancelled: '已取消',
+};
+
 export default function 销售订单Page() {
   const [orders, set销售订单] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
