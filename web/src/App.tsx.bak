@@ -1,0 +1,201 @@
+﻿﻿import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Layout, Menu, Typography, theme, Button, Dropdown, Avatar, Space } from 'antd';
+import {
+  ContactsOutlined,
+  DashboardOutlined,
+  ExperimentOutlined,
+  ScheduleOutlined,
+  DatabaseOutlined,
+  ToolOutlined,
+  ProjectOutlined,
+  BugOutlined,
+  CheckCircleOutlined,
+  FileTextOutlined,
+  PictureOutlined,
+  ShoppingCartOutlined,
+  UserOutlined,
+  LogoutOutlined,
+ ApiOutlined,
+SettingOutlined,
+ NumberOutlined,
+ BranchesOutlined,
+ SafetyCertificateOutlined,
+ ApartmentOutlined,
+ IdcardOutlined,
+ TeamOutlined,
+} from '@ant-design/icons';
+import CustomersPage from './pages/CRM/CustomersPage';
+
+import DashboardPage from './pages/DashboardPage';
+import Dashboard from './pages/Dashboard';
+import ProjectsPage from './pages/NPI/ProjectsPage';
+import TrialRunsPage from './pages/NPI/TrialRunsPage';
+import IssuesPage from './pages/NPI/IssuesPage';
+import ApprovalsPage from './pages/NPI/ApprovalsPage';
+import ProductsPage from './pages/PLM/ProductsPage';
+import DocumentsPage from './pages/PLM/DocumentsPage';
+import PatentsPage from './pages/PLM/PatentsPage';
+import PatentsPage from './pages/PLM/PatentsPage';
+import DrawingVersionsPage from './pages/PLM/DrawingVersionsPage';
+import MaterialsPage from './pages/ERP/MaterialsPage';
+import WorkOrdersPage from './pages/ERP/WorkOrdersPage';
+import K3CloudPage from './pages/K3CloudPage';
+import OrganizationPage from './pages/Admin/OrganizationPage';
+import PositionPage from './pages/Admin/PositionPage';
+import EmployeePage from './pages/Admin/EmployeePage';
+import RolePermissionPage from './pages/Admin/RolePermissionPage';
+import CodingRulesPage from './pages/Admin/CodingRulesPage';
+import WorkflowStatesPage from './pages/Admin/WorkflowStatesPage';
+import SystemSettingsPage from './pages/Admin/SystemSettingsPage';
+import SamplingWorkOrdersPage from './pages/NPI/SamplingWorkOrdersPage';
+
+const { Header, Sider, Content } = Layout;
+const { Title, Text } = Typography;
+
+const menuItems = [
+  { key: '/dashboard'HL', icon: <DashboardOutlined />, label: '浠〃鐩? },
+  { key: '/npi/sampling'HL', icon: <ScheduleOutlined />, label: 'Sampling' },
+  { key: '/npi/projects'HL', icon: <ProjectOutlined />, label: 'NPI Projects' },
+  { key: '/npi/trial-runs'HL', icon: <ExperimentOutlined />, label: 'Trial Runs' },
+  { key: '/npi/issues'HL', icon: <BugOutlined />, label: '闂璺熻釜' },
+  { key: '/npi/approvals'HL', icon: <CheckCircleOutlined />, label: 'Approvals' },
+  { key: '/plm/products'HL', icon: <DatabaseOutlined />, label: 'PLM Products' },
+  { key: '/plm/documents'HL', icon: <FileTextOutlined />, label: 'PLM Docs },
+
+  { key: '/plm/patents'HL', icon: <SafetyCertificateOutlined />, label: '专利管理' },  { key: '/plm/drawing-versions'HL', icon: <PictureOutlined />, label: 'Drawings' },
+  { key: '/crm/customers'HL', icon: <ContactsOutlined />, label: 'CRM' },
+  
+  { key: '/erp/work-orders'HL', icon: <ToolOutlined />, label: 'ERP Orders' },
+ { key: '/k3cloud'HL', icon: <ApiOutlined />, label: 'K3Cloud' },
+  { type: 'divider' },
+  { key: '/admin/org'HL', icon: <ApartmentOutlined />, label: 'Orgs' },
+  { key: '/admin/position'HL', icon: <IdcardOutlined />, label: 'Positions' },
+  { key: '/admin/employee'HL', icon: <TeamOutlined />, label: 'Employees' },
+ { key: '/admin/role-permission'HL', icon: <SafetyCertificateOutlined />, label: 'Roles' },
+  { key: '/admin/coding-rules'HL', icon: <NumberOutlined />, label: 'Codes' },
+  { key: '/admin/workflow-states'HL', icon: <BranchesOutlined />, label: 'Workflows },
+  { key: '/admin/system-settings'HL', icon: <SettingOutlined />, label: 'Settings' },
+];
+
+export default function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
+  const [user, setUser] = useState<any>(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null);
+  const { token: themeToken } = theme.useToken();
+
+  const handleLoginSuccess = (newToken: string, newUser: any) => {
+    setToken(newToken);
+    setUser(newUser);
+    navigate('/dashboard');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
+    navigate('/');
+  };
+
+  // Add auth interceptor to fetch calls
+  useEffect(() => {
+    const origFetch = window.fetch;
+    window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      const headers = (init?.headers as Record<string, string>) || {};
+      const storedToken = localStorage.getItem('access_token');
+      if (storedToken && !headers.Authorization) {
+        headers.Authorization = `Bearer ${storedToken}`;
+      }
+      return origFetch(input, { ...init, headers });
+    };
+    return () => { window.fetch = origFetch; };
+  }, []);
+
+  if (!token) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  const userMenuItems = [
+    { key: 'profile'HL', icon: <UserOutlined />, label: user?.name || user?.username },
+    { key: 'logout'HL', icon: <LogoutOutlined />, label: 'Logout'HL', danger: true },
+  ];
+
+  const selectedKey = location.pathname === '/' ? '/dashboard' : location.pathname;
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        style={{ background: themeToken.colorBgContainer }}
+      >
+        <div style={{
+          height: 64, display: 'flex'HL', alignItems: 'center'HL', justifyContent: 'center'HL',
+          borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
+        }}>
+          <Title level={4} style={{ margin: 0, color: themeToken.colorPrimary, whiteSpace: 'nowrap' }}>
+            {collapsed ? '鐎? : 'HanLang System'}
+          </Title>
+        </div>
+        <Menu
+          mode="inline"
+          selectedKeys={[selectedKey]}
+          items={menuItems}
+          onClick={({ key }) => navigate(key)}
+          style={{ borderInlineEnd: 'none' }}
+        />
+      </Sider>
+      <Layout>
+        <Header style={{
+          background: themeToken.colorBgContainer, padding: '0 24px'HL',
+          borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
+          display: 'flex'HL', alignItems: 'center'HL', justifyContent: 'space-between'HL',
+        }}>
+          <Title level={5} style={{ margin: 0 }}>{'HanLang Motor - Enterprise Platform'}</Title>
+          <Dropdown menu={{
+            items: userMenuItems,
+            onClick: ({ key }) => {
+              if (key === 'logout') handleLogout();
+            },
+          }}>
+            <Space style={{ cursor: 'pointer' }}>
+              <Avatar size="small" icon={<UserOutlined />} />
+              <Text>{user?.name || user?.username}</Text>
+            </Space>
+          </Dropdown>
+        </Header>
+        <Content style={{ margin: 24 }}>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/npi/sampling" element={<SamplingWorkOrdersPage />} />
+            <Route path="/npi/projects" element={<ProjectsPage />} />
+            <Route path="/npi/trial-runs" element={<TrialRunsPage />} />
+            <Route path="/npi/issues" element={<IssuesPage />} />
+            <Route path="/npi/approvals" element={<ApprovalsPage />} />
+            <Route path="/plm/products" element={<ProductsPage />} />
+            <Route path="/plm/documents" element={<DocumentsPage />} />
+            <Route path="/plm/patents" element={<PatentsPage />} />
+            <Route path="/plm/patents" element={<PatentsPage />} />
+            <Route path="/plm/drawing-versions" element={<DrawingVersionsPage />} />
+           <Route path="/k3cloud" element={<K3CloudPage />} />
+            <Route path="/admin/org" element={<OrganizationPage />} />
+            <Route path="/admin/position" element={<PositionPage />} />
+            <Route path="/admin/employee" element={<EmployeePage />} />
+            <Route path="/admin/role-permission" element={<RolePermissionPage />} />
+          <Route path="/admin/coding-rules" element={<CodingRulesPage />} />
+           <Route path="/admin/workflow-states" element={<WorkflowStatesPage />} />
+           <Route path="/admin/system-settings" element={<SystemSettingsPage />} />
+          <Route path="/crm/customers" element={<CustomersPage />} />
+          
+            <Route path="/erp/work-orders" element={<WorkOrdersPage />} />
+          </Routes>
+        </Content>
+      </Layout>
+    </Layout>
+  );
+}

@@ -1,0 +1,185 @@
+﻿  // ---- Complaints ----
+  async createComplaint(dto: CreateComplaintDto) {
+    const count = await this.prisma.crmComplaint.count();
+    const code = `KS-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    await this.getCustomer(dto.customerId);
+    if (dto.orderId) { await this.getOrder(dto.orderId); }
+    return this.prisma.crmComplaint.create({
+      data: { complaintCode: code, ...dto },
+      include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } } },
+    });
+  }
+
+  async getComplaints(keyword?: string, complaintType?: string, severity?: string, status?: string) {
+    const where: any = {};
+    if (keyword) { where.OR = [{ complaintCode: { contains: keyword } }, { title: { contains: keyword } }]; }
+    if (complaintType) where.complaintType = complaintType;
+    if (severity) where.severity = severity;
+    if (status) where.status = status;
+    return this.prisma.crmComplaint.findMany({
+      where, include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async getComplaint(id: string) {
+    const c = await this.prisma.crmComplaint.findUnique({
+      where: { id }, include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } } },
+    });
+    if (!c) throw new NotFoundException('投诉不存在');
+    return c;
+  }
+
+  async updateComplaint(id: string, dto: UpdateComplaintDto) {
+    await this.getComplaint(id);
+    const data: any = { ...dto };
+    if (dto.status === 'resolved' || dto.status === 'closed') { data.resolvedAt = new Date(); }
+    return this.prisma.crmComplaint.update({
+      where: { id }, data,
+      include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } } },
+    });
+  }
+
+  async deleteComplaint(id: string) {
+    await this.getComplaint(id);
+    return this.prisma.crmComplaint.delete({ where: { id } });
+  }
+
+  async getComplaintsForCustomer(customerId: string) {
+    return this.prisma.crmComplaint.findMany({ where: { customerId }, orderBy: { updatedAt: 'desc' } });
+  }
+
+  // ---- Reconciliations ----
+  async createReconciliation(dto: CreateReconciliationDto) {
+    const count = await this.prisma.crmReconciliation.count();
+    const code = `DZ-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    await this.getCustomer(dto.customerId);
+    if (dto.orderId) await this.getOrder(dto.orderId);
+    const paid = dto.paidAmount || 0;
+    const balance = dto.totalAmount - paid;
+    return this.prisma.crmReconciliation.create({
+      data: { reconciliationCode: code, ...dto, paidAmount: paid, balance },
+      include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } } },
+    });
+  }
+
+  async getReconciliations(keyword?: string, status?: string) {
+    const where: any = {};
+    if (keyword) { where.OR = [{ reconciliationCode: { contains: keyword } }]; }
+    if (status) where.status = status;
+    return this.prisma.crmReconciliation.findMany({
+      where, include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async getReconciliation(id: string) {
+    const r = await this.prisma.crmReconciliation.findUnique({
+      where: { id },
+      include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } }, payments: { orderBy: { paymentDate: 'desc' } } },
+    });
+    if (!r) throw new NotFoundException('对账单不存在');
+    return r;
+  }
+
+  async updateReconciliation(id: string, dto: UpdateReconciliationDto) {
+    const existing = await this.getReconciliation(id);
+    const data: any = {};
+    if (dto.totalAmount !== undefined) data.totalAmount = dto.totalAmount;
+    if (dto.paidAmount !== undefined) data.paidAmount = dto.paidAmount;
+    if (dto.paymentDueDate !== undefined) data.paymentDueDate = new Date(dto.paymentDueDate);
+    if (dto.status !== undefined) data.status = dto.status;
+    if (dto.notes !== undefined) data.notes = dto.notes;
+    if (data.totalAmount !== undefined || data.paidAmount !== undefined) {
+      data.balance = (data.totalAmount ?? existing.totalAmount) - (data.paidAmount ?? existing.paidAmount);
+    }
+    return this.prisma.crmReconciliation.update({
+      where: { id }, data,
+      include: { customer: { select: { id: true, customerName: true } }, order: { select: { id: true, orderCode: true } } },
+    });
+  }
+
+  async deleteReconciliation(id: string) {
+    await this.getReconciliation(id);
+    return this.prisma.crmReconciliation.delete({ where: { id } });
+  }
+
+  async getReconciliationsForCustomer(customerId: string) {
+    return this.prisma.crmReconciliation.findMany({ where: { customerId }, orderBy: { updatedAt: 'desc' } });
+  }
+
+  // ---- Payments ----
+  async createPayment(dto: CreatePaymentDto) {
+    const count = await this.prisma.crmPayment.count();
+    const code = `HK-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    await this.getCustomer(dto.customerId);
+    if (dto.reconciliationId) await this.getReconciliation(dto.reconciliationId);
+    const payment = await this.prisma.crmPayment.create({
+      data: { paymentCode: code, ...dto, paymentDate: dto.paymentDate ? new Date(dto.paymentDate) : new Date() },
+      include: { customer: { select: { id: true, customerName: true } }, reconciliation: { select: { id: true, reconciliationCode: true } } },
+    });
+    if (dto.reconciliationId) {
+      const rec = await this.prisma.crmReconciliation.findUnique({ where: { id: dto.reconciliationId } });
+      if (rec) {
+        const paid = rec.paidAmount + dto.amount;
+        const balance = rec.totalAmount - paid;
+        await this.prisma.crmReconciliation.update({ where: { id: dto.reconciliationId }, data: { paidAmount: paid, balance, status: balance <= 0 ? 'paid' : 'partial' } });
+      }
+    }
+    return payment;
+  }
+
+  async getPayments(keyword?: string, customerId?: string, reconciliationId?: string) {
+    const where: any = {};
+    if (keyword) { where.OR = [{ paymentCode: { contains: keyword } }, { referenceNo: { contains: keyword } }]; }
+    if (customerId) where.customerId = customerId;
+    if (reconciliationId) where.reconciliationId = reconciliationId;
+    return this.prisma.crmPayment.findMany({
+      where, include: { customer: { select: { id: true, customerName: true } }, reconciliation: { select: { id: true, reconciliationCode: true } } },
+      orderBy: { paymentDate: 'desc' },
+    });
+  }
+
+  async getPayment(id: string) {
+    const p = await this.prisma.crmPayment.findUnique({
+      where: { id }, include: { customer: { select: { id: true, customerName: true } }, reconciliation: { select: { id: true, reconciliationCode: true } } },
+    });
+    if (!p) throw new NotFoundException('回款记录不存在');
+    return p;
+  }
+
+  async updatePayment(id: string, dto: UpdatePaymentDto) {
+    const existing = await this.getPayment(id);
+    const payment = await this.prisma.crmPayment.update({
+      where: { id }, data: { ...dto, paymentDate: dto.paymentDate ? new Date(dto.paymentDate) : undefined },
+    });
+    if (existing.reconciliationId) {
+      const payments = await this.prisma.crmPayment.findMany({ where: { reconciliationId: existing.reconciliationId } });
+      const totalPaid = payments.reduce((sum: number, p: any) => sum + p.amount, 0);
+      const rec = await this.prisma.crmReconciliation.findUnique({ where: { id: existing.reconciliationId } });
+      if (rec) {
+        const balance = rec.totalAmount - totalPaid;
+        await this.prisma.crmReconciliation.update({ where: { id: existing.reconciliationId }, data: { paidAmount: totalPaid, balance, status: balance <= 0 ? 'paid' : 'partial' } });
+      }
+    }
+    return payment;
+  }
+
+  async deletePayment(id: string) {
+    const existing = await this.getPayment(id);
+    const result = await this.prisma.crmPayment.delete({ where: { id } });
+    if (existing.reconciliationId) {
+      const payments = await this.prisma.crmPayment.findMany({ where: { reconciliationId: existing.reconciliationId } });
+      const totalPaid = payments.reduce((sum: number, p: any) => sum + p.amount, 0);
+      const rec = await this.prisma.crmReconciliation.findUnique({ where: { id: existing.reconciliationId } });
+      if (rec) {
+        const balance = rec.totalAmount - totalPaid;
+        await this.prisma.crmReconciliation.update({ where: { id: existing.reconciliationId }, data: { paidAmount: totalPaid, balance, status: totalPaid <= 0 ? 'pending' : balance <= 0 ? 'paid' : 'partial' } });
+      }
+    }
+    return result;
+  }
+
+  async getPaymentsForCustomer(customerId: string) {
+    return this.prisma.crmPayment.findMany({ where: { customerId }, orderBy: { paymentDate: 'desc' } });
+  }

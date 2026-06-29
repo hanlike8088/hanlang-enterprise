@@ -1,0 +1,1982 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NpiProject {
+  id             String    @id @default(uuid())
+  projectCode    String    @unique
+  projectName    String
+  status         String    @default("initiated")
+  priority       String    @default("medium")
+  productId      String?
+  startDate      DateTime
+  targetDate     DateTime
+  actualEndDate  DateTime?
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  trialRuns      NpiTrialRun[]
+  approvals      NpiApproval[]
+  issues         NpiIssue[]     @relation("ProjectIssues")
+}
+
+model NpiTrialRun {
+  id         String    @id @default(uuid())
+  trialCode  String    @unique
+  projectId  String
+  batchSize  Int
+  status     String    @default("planned")
+  startDate  DateTime
+  endDate    DateTime?
+  result     String?
+  createdBy  String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  project    NpiProject @relation(fields: [projectId], references: [id])
+  issues     NpiIssue[]
+}
+
+model NpiIssue {
+  id           String     @id @default(uuid())
+  issueCode    String     @unique
+  projectId    String?
+  trialRunId   String
+  title        String
+  description  String?
+  severity     String     @default("major")
+  status       String     @default("pending")
+  assignee     String?
+  solution     String?
+  resolvedAt   DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  trialRun     NpiTrialRun @relation(fields: [trialRunId], references: [id])
+  project      NpiProject? @relation("ProjectIssues", fields: [projectId], references: [id])
+}
+
+model NpiApproval {
+  id           String    @id @default(uuid())
+  projectId    String
+  approvalType String
+  status       String    @default("pending")
+  applicant    String
+  approver     String?
+  comment      String?
+  decidedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  project      NpiProject @relation(fields: [projectId], references: [id])
+}
+
+model PlmProduct {
+  id           String    @id @default(uuid())
+  productCode  String    @unique
+  productName  String
+  category     String?
+  modelNo      String?
+  specifications String?
+  description  String?
+  status       String    @default("developing")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  boms         PlmBom[]
+  documents    PlmDocument[]
+  drawings     Drawing[]
+}
+
+model PlmBom {
+  id         String   @id @default(uuid())
+  productId  String
+  bomCode    String   @unique
+  version    String   @default("V1.0")
+  materialId String
+  quantity   Float
+  unit       String
+  status     String   @default("draft")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  product    PlmProduct @relation(fields: [productId], references: [id])
+}
+
+model PlmDocument {
+  id             String    @id @default(uuid())
+  productId      String?
+  docCode        String    @unique
+  docName        String
+  docType        String
+  patentType     String?
+  expirationDate DateTime?
+  filePath       String
+  fileSize       Int
+  version        String    @default("V1.0")
+  status         String    @default("draft")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  product        PlmProduct? @relation(fields: [productId], references: [id])
+}
+
+model Drawing {
+  id            String          @id @default(uuid())
+  drawingCode   String
+  drawingName   String
+  productId     String?
+  category      String?
+  status        String          @default("active")
+  latestVersion String          @default("V1.0")
+  description   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  product       PlmProduct?     @relation(fields: [productId], references: [id])
+  versions      DrawingVersion[]
+  @@index([drawingCode])
+}
+
+model DrawingVersion {
+  id         String   @id @default(uuid())
+  drawingId  String
+  version    String
+  docType    String   @default("pdf")
+  fileName   String
+  filePath   String
+  fileSize   Int      @default(0)
+  changeNote String?
+  uploadBy   String
+  isLatest   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  drawing    Drawing  @relation(fields: [drawingId], references: [id], onDelete: Cascade)
+  @@index([drawingId])
+}
+
+model ErpMaterial {
+  id           String   @id @default(uuid())
+  materialCode String   @unique
+  materialName String
+  category     String
+  spec         String?
+  unit         String
+  batchManaged Boolean  @default(false)
+  safetyStock  Int      @default(0)
+  stock        Int      @default(0)
+  price        Float?
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  materialBatches MaterialBatch[]
+}
+
+model ErpWorkOrder {
+  id        String    @id @default(uuid())
+  orderCode String    @unique
+  productId String
+  quantity  Int
+  status    String    @default("pending")
+  priority  String    @default("medium")
+  startDate DateTime
+  endDate   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminOrganization {
+  id          String    @id @default(uuid())
+  orgCode     String    @unique
+  orgName     String
+  parentId    String?
+  description String?
+  sortOrder   Int       @default(0)
+  status      String    @default("active")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  parent      AdminOrganization?  @relation("OrgTree", fields: [parentId], references: [id])
+  children    AdminOrganization[] @relation("OrgTree")
+  positions   AdminPosition[]
+  employees   AdminEmployee[]
+}
+
+model AdminPosition {
+  id               String               @id @default(uuid())
+  positionCode     String               @unique
+  positionName     String
+  orgId            String
+  description      String?
+  status           String               @default("active")
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  organization     AdminOrganization    @relation(fields: [orgId], references: [id])
+  employeePositions AdminEmployeePosition[]
+  positionRoles    AdminPositionRole[]
+}
+
+model AdminEmployee {
+  id           String             @id @default(uuid())
+  employeeCode String             @unique
+  name         String
+  email        String?
+  phone        String?
+  orgId        String
+  hireDate     DateTime?
+  status       String             @default("active")
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  organization AdminOrganization  @relation(fields: [orgId], references: [id])
+  positions    AdminEmployeePosition[]
+  trainingRecords TrainingRecord[]
+  qualifications  Qualification[]
+  skillMatrixes   SkillMatrix[]
+}
+
+model AdminEmployeePosition {
+  id         String         @id @default(uuid())
+  employeeId String
+  positionId String
+  isPrimary  Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  employee   AdminEmployee  @relation(fields: [employeeId], references: [id])
+  position   AdminPosition  @relation(fields: [positionId], references: [id])
+  @@unique([employeeId, positionId])
+}
+
+model AdminRole {
+  id              String              @id @default(uuid())
+  roleCode        String              @unique
+  roleName        String
+  description     String?
+  status          String              @default("active")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  rolePermissions AdminRolePermission[]
+  positionRoles   AdminPositionRole[]
+}
+
+model AdminPermission {
+  id              String              @id @default(uuid())
+  permCode        String              @unique
+  permName        String
+  resource        String
+  action          String
+  description     String?
+  createdAt       DateTime            @default(now())
+  rolePermissions AdminRolePermission[]
+}
+
+model AdminRolePermission {
+  id         String         @id @default(uuid())
+  roleId     String
+  permId     String
+  role       AdminRole      @relation(fields: [roleId], references: [id])
+  permission AdminPermission @relation(fields: [permId], references: [id])
+  @@unique([roleId, permId])
+}
+
+model AdminPositionRole {
+  id         String        @id @default(uuid())
+  positionId String
+  roleId     String
+  position   AdminPosition @relation(fields: [positionId], references: [id])
+  role       AdminRole     @relation(fields: [roleId], references: [id])
+  @@unique([positionId, roleId])
+}
+
+model AdminCodingRule {
+  id            String   @id @default(uuid())
+  docType       String   @unique
+  prefix        String
+  yearDigits    Int      @default(4)
+  serialDigits  Int      @default(4)
+  separator     String   @default("-")
+  currentSerial Int      @default(1)
+  resetPeriod   String   @default("yearly")
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model AdminWorkflowState {
+  id              String                    @id @default(uuid())
+  stateCode       String                    @unique
+  stateName       String
+  module          String
+  isStart         Boolean                   @default(false)
+  isEnd           Boolean                   @default(false)
+  sortOrder       Int                       @default(0)
+  description     String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  fromTransitions AdminWorkflowTransition[] @relation("FromState")
+  toTransitions   AdminWorkflowTransition[] @relation("ToState")
+}
+
+model AdminWorkflowTransition {
+  id             String            @id @default(uuid())
+  module         String
+  fromStateId    String
+  toStateId      String
+  transitionName String
+  requiredPerm   String?
+  sortOrder      Int               @default(0)
+  createdAt      DateTime          @default(now())
+  fromState      AdminWorkflowState @relation("FromState", fields: [fromStateId], references: [id])
+  toState        AdminWorkflowState @relation("ToState", fields: [toStateId], references: [id])
+  approvalRecords ApprovalRecord[]
+  @@unique([module, fromStateId, toStateId])
+}
+
+model ApprovalRecord {
+  id           String                @id @default(uuid())
+  approvalCode String                @unique
+  module       String
+  docType      String
+  docId        String
+  docCode      String?
+  fromStatus   String
+  toStatus     String
+  requestedBy  String?
+  requestedAt  DateTime              @default(now())
+  approver     String?
+  approvedAt   DateTime?
+  decision     String?
+  comment      String?
+  status       String                @default("pending")
+  transitionId String
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  transition   AdminWorkflowTransition @relation(fields: [transitionId], references: [id])
+
+  @@index([module, status])
+  @@index([docId])
+}
+
+model AdminSystemSetting {
+  id           String   @id @default(uuid())
+  settingKey   String   @unique
+  settingValue String
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SamplingWorkOrder {
+  id              String    @id @default(uuid())
+  orderCode       String    @unique
+  productName     String
+  productCategory String?
+  quantity        Int
+  unit            String    @default("pcs")
+  deadline        DateTime
+  description     String?
+  attachmentPaths String?
+  drawingId       String?
+  relatedDrawingId String?
+  status          String    @default("pending_approval")
+  applicant       String
+  customerName    String?
+  approver        String?
+  approverComment String?
+  approvedAt      DateTime?
+  assignee        String?
+  assignedAt      DateTime?
+  progressNote    String?
+  exceptionReason String?
+  actualStartDate DateTime?
+  actualEndDate   DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+// ---- Phase 1.2: CRM ----
+
+model CrmCustomer {
+  id              String              @id @default(uuid())
+  customerCode    String              @unique
+  customerName    String
+  category        String              @default("potential")
+  contactName     String?
+  contactPhone    String?
+  contactEmail    String?
+  address         String?
+  creditLimit     Float?
+  paymentTerms    String?
+  notes           String?
+  status          String              @default("active")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+ contactRecords  CrmContactRecord[]
+ quotes          CrmQuote[]
+  orders          CrmOrder[]
+  complaints      CrmComplaint[]
+  reconciliations CrmReconciliation[]
+  payments        CrmPayment[]
+}
+
+model CrmContactRecord {
+  id              String      @id @default(uuid())
+  customerId       String
+  contactDate     DateTime    @default(now())
+  contactType     String      @default("phone")
+  content         String
+  nextFollowUp    DateTime?
+  followUpDone    Boolean     @default(false)
+  createdBy       String?
+  createdAt       DateTime    @default(now())
+  customer        CrmCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  @@index([customerId])
+}
+
+model CrmQuote {
+  id               String        @id @default(uuid())
+  quoteCode        String        @unique
+  productId        String
+  customerId       String?
+  customerName     String?
+  materialCost     Float         @default(0)
+  laborCost        Float         @default(0)
+  manufacturingFee Float         @default(0)
+  referencePrice   Float         @default(0)
+  profitRate       Float         @default(15)
+  finalPrice       Float         @default(0)
+  currency         String        @default("CNY")
+  status           String        @default("draft")
+  validUntil       DateTime?
+  notes            String?
+  createdBy        String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  customer         CrmCustomer?  @relation(fields: [customerId], references: [id])
+  items            CrmQuoteItem[]
+}
+
+model CrmQuoteItem {
+  id            String    @id @default(uuid())
+  quoteId       String
+  materialCode  String
+  materialName  String
+  specification String?
+  unit          String
+  quantity      Float
+  unitPrice     Float     @default(0)
+  totalPrice    Float     @default(0)
+  sortOrder     Int       @default(0)
+  quote         CrmQuote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  @@index([quoteId])
+}
+
+// ---- Phase 1.2: Sales Orders ----
+
+model CrmOrder {
+  id               String         @id @default(uuid())
+  orderCode        String         @unique
+  quoteId          String?
+  productId        String
+  productName      String
+  customerId       String?
+  customerName     String?
+  totalAmount      Float          @default(0)
+  currency         String         @default("CNY")
+  quantity         Int            @default(1)
+  deliveryDate     DateTime?
+  status           String         @default("pending_confirm")
+  notes            String?
+  createdBy        String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  customer         CrmCustomer?   @relation(fields: [customerId], references: [id])
+  items           CrmOrderItem[]
+  complaints      CrmComplaint[]
+  reconciliations CrmReconciliation[]
+  payments        CrmPayment[]
+}
+
+model CrmOrderItem {
+  id            String   @id @default(uuid())
+  orderId       String
+  materialCode  String
+  materialName  String
+  specification String?
+  unit          String
+  quantity      Float
+  unitPrice     Float    @default(0)
+  totalPrice    Float    @default(0)
+  sortOrder     Int      @default(0)
+  order         CrmOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId])
+}
+
+// ---- Phase 1.2: Customer Complaints & Reconciliation ----
+
+model CrmComplaint {
+  id            String   @id @default(uuid())
+  complaintCode String   @unique
+  customerId    String
+  orderId       String?
+  title         String
+  description   String?
+  complaintType String   @default("quality")
+  severity      String   @default("minor")
+  status        String   @default("pending")
+  resolution    String?
+  resolvedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  customer      CrmCustomer @relation(fields: [customerId], references: [id])
+  order         CrmOrder?   @relation(fields: [orderId], references: [id])
+  @@index([customerId])
+}
+
+model CrmReconciliation {
+  id                  String       @id @default(uuid())
+  reconciliationCode  String       @unique
+  customerId          String
+  orderId             String?
+  totalAmount         Float        @default(0)
+  paidAmount          Float        @default(0)
+  balance             Float        @default(0)
+  paymentDueDate      DateTime?
+  status              String       @default("pending")
+  notes               String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  customer            CrmCustomer  @relation(fields: [customerId], references: [id])
+  order               CrmOrder?    @relation(fields: [orderId], references: [id])
+  payments            CrmPayment[]
+  @@index([customerId])
+}
+
+model CrmPayment {
+  id                String            @id @default(uuid())
+  paymentCode       String            @unique
+  customerId        String
+  orderId           String?
+  reconciliationId  String?
+  amount            Float             @default(0)
+  paymentMethod     String            @default("bank_transfer")
+  paymentDate       DateTime          @default(now())
+  referenceNo       String?
+  notes             String?
+  status            String            @default("pending")
+  createdAt         DateTime          @default(now())
+  customer          CrmCustomer       @relation(fields: [customerId], references: [id])
+  order             CrmOrder?         @relation(fields: [orderId], references: [id])
+  reconciliation    CrmReconciliation? @relation(fields: [reconciliationId], references: [id])
+  @@index([customerId])
+  @@index([reconciliationId])
+}
+
+
+
+
+// ========== 供应链模块 (Phase 1.3) ==========
+
+// 供应商
+model Supplier {
+  id             String   @id @default(uuid())
+  supplierCode   String   @unique
+  supplierName   String
+  contactPerson  String?
+  phone          String?
+  address        String?
+  bankAccount    String?
+  taxId          String?
+  category       String   // 原材料 | 外协件 | 辅料 | 设备
+  status         String   @default("潜在")
+  rating         String   @default("C")
+  paymentTerms   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  qcdsScores    SupplierQcdsScore[]
+  approvals     SupplierApproval[]
+  purchaseOrders PurchaseOrder[]
+  apReconciliations ApReconciliation[]
+  apPayments        ApPayment[]
+}
+
+model SupplierQcdsScore {
+  id            String   @id @default(uuid())
+  supplierId    String
+  period        String
+  qualityScore  Float    @default(0)
+  costScore     Float    @default(0)
+  deliveryScore Float    @default(0)
+  serviceScore  Float    @default(0)
+  totalScore    Float    @default(0)
+  createdBy     String?
+  createdAt     DateTime @default(now())
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+}
+
+model SupplierApproval {
+  id           String   @id @default(uuid())
+  supplierId   String
+  approvalType String
+  status       String   @default("待审批")
+  applicant    String?
+  approver     String?
+  comment      String?
+  decidedAt    DateTime?
+  createdAt    DateTime @default(now())
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+}
+
+model PurchaseOrder {
+  id            String   @id @default(uuid())
+  orderCode     String   @unique
+  supplierId    String
+  status        String   @default("草稿")
+  totalAmount   Float?
+  orderDate     DateTime @default(now())
+  expectedDate  DateTime?
+  remark        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  supplier  Supplier       @relation(fields: [supplierId], references: [id])
+  receipts         PurchaseOrderReceipt[]
+  saleOrderLinks    PurchaseOrderSaleOrder[]
+  items     PurchaseOrderItem[]
+}
+
+model PurchaseOrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  materialName String
+  quantity     Float
+  unit         String   @default("个")
+  unitPrice    Float?
+  totalPrice   Float?
+  expectedDate DateTime?
+
+  order PurchaseOrder @relation(fields: [orderId], references: [id])
+}
+
+model InventoryRecord {
+  id         String   @id @default(uuid())
+  materialId String
+  warehouse  String
+  type       String
+  batchNo    String?
+  quantity   Float
+  beforeQty  Float    @default(0)
+  afterQty   Float
+  reference  String?
+  operator   String?
+  remark     String?
+  createdAt  DateTime @default(now())
+
+  @@index([materialId])
+  @@index([warehouse])
+}
+
+// 仓库/库位
+model Warehouse {
+  id            String            @id @default(uuid())
+  warehouseCode String            @unique
+  warehouseName String
+  type          String            @default("原材料仓")
+  address       String?
+  manager       String?
+  status        String            @default("启用")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+   locations     WarehouseLocation[]
+    inventories   WarehouseInventory[]
+    batchInventories BatchInventory[]
+ }
+
+model WarehouseLocation {
+  id           String             @id @default(uuid())
+  locationCode String
+  locationName String
+  warehouseId  String
+  status       String             @default("启用")
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+   warehouse    Warehouse          @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+    inventories  WarehouseInventory[]
+    batchInventories BatchInventory[]
+   @@unique([warehouseId, locationCode])
+}
+
+model WarehouseInventory {
+  id           String             @id @default(uuid())
+  warehouseId  String
+  locationId   String?
+  materialId   String
+  materialName String
+  materialCode String?
+  quantity     Float              @default(0)
+  safetyStock  Float              @default(0)
+  abcClass     String             @default("C")
+  batchNo      String?
+  updatedAt    DateTime           @updatedAt
+  createdAt    DateTime           @default(now())
+  warehouse    Warehouse          @relation(fields: [warehouseId], references: [id])
+  location     WarehouseLocation? @relation(fields: [locationId], references: [id])
+   @@unique([warehouseId, materialId])
+ }
+ 
+ // 采购订单分批到货
+
+  // FIFO 批次级库存追踪
+  model BatchInventory {
+    id           String             @id @default(uuid())
+    warehouseId  String
+    locationId   String?
+    materialId   String
+    materialName String
+    materialCode String?
+    batchNo      String
+    quantity     Float              @default(0)
+    receivedDate DateTime           @default(now())
+    status       String             @default("available")
+    createdAt    DateTime           @default(now())
+    updatedAt    DateTime           @updatedAt
+
+    warehouse    Warehouse          @relation(fields: [warehouseId], references: [id])
+    location     WarehouseLocation? @relation(fields: [locationId], references: [id])
+
+    @@unique([warehouseId, materialId, batchNo])
+    @@index([batchNo])
+    @@index([receivedDate])
+   @@index([status])
+ }
+
+  // 成本核算 — 标准成本 vs 实际成本
+  model CostSheet {
+    id            String   @id @default(uuid())
+    sheetCode     String   @unique
+    productId     String
+    productName   String
+    productCode   String?
+    standardCost  Float    @default(0)
+    actualCost    Float    @default(0)
+    variance      Float    @default(0)
+    variancePct   Float    @default(0)
+    period        String   @default("")
+    status        String   @default("draft")
+    calculatedAt  DateTime @default(now())
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    items         CostSheetItem[]
+
+    @@index([productId])
+    @@index([period])
+  }
+
+  model CostSheetItem {
+    id            String    @id @default(uuid())
+    sheetId       String
+    materialId    String
+    materialName  String
+    materialCode  String?
+    bomQuantity   Float     @default(0)
+    unit          String    @default("pcs")
+    standardPrice Float     @default(0)
+    standardTotal Float     @default(0)
+    actualPrice   Float     @default(0)
+    actualTotal   Float     @default(0)
+    variance      Float     @default(0)
+    sourceType    String    @default("BOM")
+    sourceId      String?
+    createdAt     DateTime  @default(now())
+    sheet         CostSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+
+    @@index([sheetId])
+    @@index([materialId])
+  }
+
+ model PurchaseOrderReceipt {
+  id          String        @id @default(uuid())
+  orderId     String
+  receiptCode String        @unique
+  batchNo     String?
+  quantity    Float
+  acceptedAt  DateTime      @default(now())
+  inspector   String?
+  result      String        @default("合格")
+  notes       String?
+  createdAt   DateTime      @default(now())
+  order       PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId])
+}
+
+// 采购订单关联销售订单
+model PurchaseOrderSaleOrder {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  saleOrderId     String
+  createdAt       DateTime      @default(now())
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  @@unique([purchaseOrderId, saleOrderId])
+  @@index([saleOrderId])
+}
+
+// 应付账款/对账
+model ApReconciliation {
+  id              String   @id @default(uuid())
+  reconCode       String   @unique
+  purchaseOrderId String
+  supplierId      String
+  supplier        Supplier @relation(fields: [supplierId], references: [id])
+  orderAmount     Float    @default(0)
+  receiptAmount   Float    @default(0)
+  invoiceAmount   Float    @default(0)
+  status          String   @default("待对账")
+  diffType        String?
+  diffAmount      Float    @default(0)
+  payments        ApPayment[]
+  confirmedBy     String?
+  confirmedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ApPayment {
+  id               String            @id @default(uuid())
+  paymentCode      String            @unique
+  supplierId      String
+  supplier        Supplier          @relation(fields: [supplierId], references: [id])
+  reconciliationId String
+  reconciliation   ApReconciliation  @relation(fields: [reconciliationId], references: [id])
+  amount           Float             @default(0)
+  paymentMethod    String            @default("银行转账")
+  paymentDate      DateTime          @default(now())
+  notes            String?
+ createdAt        DateTime          @default(now())
+}
+
+// ========== Phase 2: 设备工程部 ==========
+
+// Module 1: 设备台账
+model Equipment {
+  id            String              @id @default(uuid())
+  equipmentCode String              @unique
+  equipmentName String
+  modelNo        String?
+  manufacturer   String?
+  location       String?
+  purchaseDate   DateTime?
+  status         String              @default("运行中")
+  category       String              @default("外购设备")
+  patentId       String?
+  description    String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  documents      EquipmentDocument[]
+  checkStandards TpmCheckStandard[]
+  checkRecords   TpmCheckRecord[]
+  checkPlans     TpmCheckPlan[]
+  maintenancePlans MaintenancePlan[]
+  repairRequests  RepairRequest[]
+  repairWorkOrders RepairWorkOrder[]
+  workOrders      MaintenanceWorkOrder[]
+}
+
+model EquipmentDocument {
+  id          String    @id @default(uuid())
+  equipmentId String
+  docType     String    @default("图纸")
+  docName     String
+  fileName    String
+  filePath    String
+  fileSize    Int       @default(0)
+  uploadBy    String?
+  createdAt   DateTime  @default(now())
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  @@index([equipmentId])
+}
+
+// Module 2: TPM点检标准
+model TpmCheckStandard {
+  id          String    @id @default(uuid())
+  equipmentId String
+  checkItem   String
+  checkMethod String?
+  normalRange String?
+  unit       String?
+  frequency   String    @default("每日")
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  @@index([equipmentId])
+}
+
+// TPM点检计划（自动排期）
+model TpmCheckPlan {
+  id          String           @id @default(uuid())
+  planCode    String           @unique
+  equipmentId String
+  checkDate   DateTime
+  status      String           @default("待执行")
+  createdAt   DateTime         @default(now())
+  checkRecords TpmCheckRecord[]
+  equipment   Equipment        @relation(fields: [equipmentId], references: [id])
+  @@index([equipmentId])
+  @@index([checkDate])
+}
+
+// TPM点检执行记录
+model TpmCheckRecord {
+  id              String       @id @default(uuid())
+  planId          String?
+  equipmentId     String
+  checkItem       String
+  checkResult     String       @default("正常")
+  reading         String?
+  note            String?
+  checkedBy       String?
+  checkedAt       DateTime     @default(now())
+  triggeredRepair Boolean      @default(false)
+  plan            TpmCheckPlan? @relation(fields: [planId], references: [id])
+  equipment       Equipment    @relation(fields: [equipmentId], references: [id])
+  @@index([planId])
+  @@index([equipmentId])
+}
+
+// 保养计划
+model MaintenancePlan {
+  id          String                 @id @default(uuid())
+  planCode    String                 @unique
+  equipmentId String
+  planType    String                 @default("定期保养")
+  content     String
+  frequency   String
+  nextDate    DateTime?
+  status      String                 @default("计划中")
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  equipment   Equipment              @relation(fields: [equipmentId], references: [id])
+  workOrders  MaintenanceWorkOrder[]
+  @@index([equipmentId])
+}
+
+// 保养工单
+model MaintenanceWorkOrder {
+  id          String          @id @default(uuid())
+  orderCode   String          @unique
+  planId      String?
+  equipmentId String
+  workType    String          @default("保养")
+  status      String          @default("待执行")
+  description String?
+  assignedTo  String?
+  startDate   DateTime?
+  endDate     DateTime?
+  result      String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  plan        MaintenancePlan? @relation(fields: [planId], references: [id])
+  equipment   Equipment       @relation(fields: [equipmentId], references: [id])
+  @@index([equipmentId])
+}
+
+// Module 3: 故障报修
+model RepairRequest {
+  id               String            @id @default(uuid())
+  requestCode      String            @unique
+  equipmentId      String
+  faultDescription String
+  severity         String            @default("一般")
+  reporter         String?
+  reportedAt       DateTime          @default(now())
+  status           String            @default("待派工")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  workOrder        RepairWorkOrder?
+  equipment        Equipment         @relation(fields: [equipmentId], references: [id])
+  @@index([equipmentId])
+}
+
+// 维修工单
+model RepairWorkOrder {
+  id           String         @id @default(uuid())
+  orderCode    String         @unique
+  requestId    String         @unique
+  equipmentId  String
+  assignedTo   String?
+  repairMethod String?
+  partsUsed    String?
+  startTime    DateTime?
+  endTime      DateTime?
+  status       String         @default("待维修")
+  result       String?
+  verifiedBy   String?
+  verifiedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  request      RepairRequest  @relation(fields: [requestId], references: [id])
+  equipment    Equipment      @relation(fields: [equipmentId], references: [id])
+  @@index([equipmentId])
+}
+
+// Module 4: 备品备件
+model SparePart {
+  id           String            @id @default(uuid())
+  partCode     String            @unique
+  partName     String
+  spec         String?
+  unit         String            @default("个")
+  safetyStock  Float             @default(0)
+  currentStock Float             @default(0)
+  price        Float?
+  category     String?
+  location     String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  records      SparePartRecord[]
+}
+
+model SparePartRecord {
+  id        String    @id @default(uuid())
+  partId    String
+  type      String
+  quantity  Float
+  beforeQty Float
+  afterQty  Float
+  reference String?
+  operator  String?
+  remark    String?
+  createdAt DateTime  @default(now())
+  part      SparePart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  @@index([partId])
+}
+
+// ========== Phase 3: 品质中心 ==========
+
+// ---- Module 1: IQC 来料检验 ----
+
+model InspectionStandard {
+  id          String   @id @default(uuid())
+  materialId  String
+  materialName String
+  materialCode String?
+  itemName    String
+  specUpper   Float?
+  specLower   Float?
+  unit        String?
+  aql         String?
+  testMethod  String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([materialId])
+}
+
+model IncomingMaterial {
+  id              String              @id @default(uuid())
+  inspectionCode  String              @unique
+  purchaseOrderId String?
+  materialId      String
+  materialName    String
+  materialCode    String?
+  supplierName    String?
+  batchNo         String?
+  quantity        Float               @default(0)
+  unit            String              @default("个")
+  arrivalDate     DateTime            @default(now())
+  status          String              @default("待检")
+  inspector       String?
+  inspectedAt     DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  records         InspectionRecord[]
+  disposition     DefectDisposition?
+  @@index([purchaseOrderId])
+  @@index([status])
+}
+
+model InspectionRecord {
+  id               String            @id @default(uuid())
+  incomingId       String
+  itemName         String
+  specUpper        Float?
+  specLower        Float?
+  unit             String?
+  measuredValue    Float
+  result           String            @default("待判")
+  note             String?
+  inspectedBy      String?
+  inspectedAt      DateTime          @default(now())
+  incoming         IncomingMaterial  @relation(fields: [incomingId], references: [id], onDelete: Cascade)
+  @@index([incomingId])
+}
+
+model DefectDisposition {
+  id           String           @id @default(uuid())
+  incomingId   String           @unique
+  disposition  String           @default("退货")
+  reason       String?
+  quantity     Float?
+  approvedBy   String?
+  approvedAt   DateTime?
+  incoming     IncomingMaterial @relation(fields: [incomingId], references: [id], onDelete: Cascade)
+}
+
+// ---- Module 2: IPQC 过程检验 ----
+
+model FirstPieceInspection {
+  id              String   @id @default(uuid())
+  inspectionCode  String   @unique
+  workOrderId     String?
+  productName     String
+  shift           String?
+  machineNo       String?
+  status          String   @default("待检验")
+  inspector       String?
+  result          String?
+  note            String?
+  inspectedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PatrolInspectionPlan {
+  id            String                @id @default(uuid())
+  planCode      String                @unique
+  checkDate     DateTime
+  shift         String?
+  productLine   String?
+  frequency     String                @default("每2小时")
+  status        String                @default("待执行")
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  records       PatrolInspectionRecord[]
+  @@index([checkDate])
+  @@index([status])
+}
+
+model PatrolInspectionRecord {
+  id              String               @id @default(uuid())
+  planId          String?
+  checkItem       String
+  checkResult     String               @default("合格")
+  note            String?
+  checkedBy       String?
+  checkedAt       DateTime             @default(now())
+  triggeredNcr    Boolean              @default(false)
+  plan            PatrolInspectionPlan? @relation(fields: [planId], references: [id])
+  @@index([planId])
+}
+
+// ---- Module 3: OQC 出货检验 + NCR + CAPA ----
+
+model OutgoingInspection {
+  id              String   @id @default(uuid())
+  inspectionCode  String   @unique
+  orderId         String?
+  productName     String
+  batchNo         String?
+  quantity        Float    @default(0)
+  unit            String   @default("个")
+  status          String   @default("待检")
+  inspector       String?
+  result          String?
+  note            String?
+  inspectedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model NcrReport {
+  id            String   @id @default(uuid())
+  ncrCode       String   @unique
+  source        String
+  sourceId      String?
+  productName   String
+  defectType    String
+  severity      String   @default("一般")
+  quantity      Float    @default(0)
+  description   String?
+  status        String   @default("待评审")
+  disposition   String?
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  capa          CapaReport?
+}
+
+model CapaReport {
+  id            String    @id @default(uuid())
+  capaCode      String    @unique
+  ncrId         String    @unique
+  rootCause     String?
+  correctiveAction String?
+  responsible   String?
+  deadline      DateTime?
+  status        String    @default("待实施")
+  verifiedBy    String?
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  ncr           NcrReport @relation(fields: [ncrId], references: [id])
+}
+
+// ---- Module 4: 量具/仪器管理 ----
+
+model GaugeInstrument {
+  id              String              @id @default(uuid())
+  gaugeCode       String              @unique
+  gaugeName       String
+  modelNo         String?
+  manufacturer    String?
+  serialNo        String?
+  location        String?
+  status          String              @default("使用中")
+  calibrationCycle Int                @default(12)
+  lastCalibrationDate DateTime?
+  nextCalibrationDate DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  records         CalibrationRecord[]
+}
+
+model CalibrationRecord {
+  id              String           @id @default(uuid())
+  gaugeId         String
+  calibrationDate DateTime         @default(now())
+  result          String           @default("合格")
+  agency          String?
+  certificateNo   String?
+  note            String?
+  calibratedBy    String?
+  createdAt       DateTime         @default(now())
+  gauge           GaugeInstrument  @relation(fields: [gaugeId], references: [id], onDelete: Cascade)
+  @@index([gaugeId])
+}
+
+// ========== Phase 4: 制造中心 ==========
+
+// 产品工艺路线 / 标准工时
+model ProductRouting {
+  id          String   @id @default(uuid())
+  productId   String
+  productName String
+  routingCode String   @unique
+  version     String   @default("V1.0")
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  operations  RoutingOperation[]
+}
+
+model RoutingOperation {
+  id            String          @id @default(uuid())
+  routingId     String
+  opSequence    Int
+  opName        String
+  opCode        String
+  workCenter    String?
+  machineNo     String?
+  standardLaborHours Float     @default(0)
+  standardMachineHours Float @default(0)
+  previousOpSequence Int?
+  description   String?
+  createdAt     DateTime        @default(now())
+  routing       ProductRouting  @relation(fields: [routingId], references: [id], onDelete: Cascade)
+  @@index([routingId])
+}
+
+// 制造工单
+model ManufacturingOrder {
+  id              String                    @id @default(uuid())
+  orderCode       String                    @unique
+  productId       String?
+  productName     String
+  productCode     String?
+  batchNo       String?
+  routingId       String?
+  planId          String?
+  quantity        Int
+  completedQty    Int                       @default(0)
+  qualifiedQty    Int                       @default(0)
+  status          String                    @default("draft")
+  priority        String                    @default("normal")
+  plannedStart    DateTime?
+  plannedEnd      DateTime?
+  actualStart     DateTime?
+  actualEnd       DateTime?
+  customerName    String?
+  salesOrderCode  String?
+  description     String?
+  createdBy       String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  operations      ManufacturingOrderOperation[]
+  materialIssues  MaterialIssuing[]
+  plan            ProductionPlan?           @relation(fields: [planId], references: [id])
+  @@index([status])
+  @@index([planId])
+  @@index([batchNo])
+}
+
+// 工单工序
+model ManufacturingOrderOperation {
+  id              String                    @id @default(uuid())
+  orderId         String
+  routingOpId     String?
+  opSequence      Int
+  opName          String
+  status          String                    @default("pending")
+  workCenter      String?
+  machineNo       String?
+  assignedWorker  String?
+  plannedHours    Float                     @default(0)
+  actualHours     Float                     @default(0)
+  plannedStart    DateTime?
+  plannedEnd      DateTime?
+  actualStart     DateTime?
+  actualEnd       DateTime?
+  inputQty        Int                       @default(0)
+  completedQty    Int                       @default(0)
+  qualifiedQty    Int                       @default(0)
+  defectQty       Int                       @default(0)
+  description     String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  order           ManufacturingOrder        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reports         OperationReport[]
+  @@index([orderId])
+  @@index([status])
+}
+
+// 领料记录
+model MaterialIssuing {
+  id             String              @id @default(uuid())
+  issueCode      String              @unique
+  orderId        String
+  operationId    String?
+  materialId     String
+  materialName   String
+  materialCode   String?
+  batchNo       String?
+  quantity       Float
+  unit           String              @default("件")
+  warehouseId    String?
+  locationId     String?
+  issuedBy       String?
+  receivedBy     String?
+  status         String              @default("issued")
+  issuedAt       DateTime            @default(now())
+  createdAt      DateTime            @default(now())
+  order          ManufacturingOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId])
+  @@index([materialId])
+  @@index([batchNo])
+}
+
+// 报工记录
+model OperationReport {
+  id            String                      @id @default(uuid())
+  reportCode    String                      @unique
+  operationId   String
+  worker        String?
+  shift         String?
+  processedQty  Int                         @default(0)
+  qualifiedQty  Int                         @default(0)
+  defectQty     Int                         @default(0)
+  defectReason  String?
+  batchNo       String?
+  laborHours    Float                       @default(0)
+  machineHours  Float                       @default(0)
+  startTime     DateTime?
+  endTime       DateTime?
+  status        String                      @default("reported")
+  scanCode      String?
+  note          String?
+  createdAt     DateTime                    @default(now())
+  operation     ManufacturingOrderOperation @relation(fields: [operationId], references: [id], onDelete: Cascade)
+  @@index([operationId])
+  @@index([scanCode])
+  @@index([batchNo])
+}
+
+// 生产排产计划
+model ProductionPlan {
+  id              String                @id @default(uuid())
+  planCode        String                @unique
+  planName        String
+  planPeriod      String
+  startDate       DateTime
+  endDate         DateTime
+  status          String                @default("draft")
+  capacityHours   Float                 @default(0)
+  usedHours       Float                 @default(0)
+  description     String?
+  createdBy       String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  items           ProductionPlanItem[]
+  orders          ManufacturingOrder[]
+  @@index([status])
+  @@index([planPeriod])
+}
+
+// 排产明细 (甘特图数据)
+model ProductionPlanItem {
+  id            String         @id @default(uuid())
+  planId        String
+  orderId       String?
+  itemName      String
+  workCenter    String?
+  resourceType  String         @default("machine")
+  resourceId    String?
+  startDate     DateTime
+  endDate       DateTime
+  progress      Float          @default(0)
+  color         String?
+  status        String         @default("planned")
+  parentId      String?
+  sortOrder     Int            @default(0)
+  description   String?
+  createdAt     DateTime       @default(now())
+  plan          ProductionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  @@index([planId])
+}
+
+// 工作日历
+model WorkCalendar {
+  id            String   @id @default(uuid())
+  calendarDate  DateTime
+  isWorkingDay  Boolean  @default(true)
+  shift         String?
+  startTime     String?
+  endTime       String?
+  capacityHours Float    @default(8)
+  note          String?
+  @@unique([calendarDate, shift])
+  @@index([calendarDate])
+}
+
+
+// ===== P0-1: Batch/Serial Traceability Models =====
+
+model MaterialBatch {
+  id             String       @id @default(uuid())
+  materialId     String
+  batchNo        String
+  supplierId     String?
+  supplierName   String?
+  productionDate DateTime?
+  expiryDate     DateTime?
+  quantity       Float        @default(0)
+  unit           String       @default("pcs")
+  status         String       @default("active")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  material       ErpMaterial  @relation(fields: [materialId], references: [id])
+  records        BatchTrace[]
+
+  @@unique([materialId, batchNo])
+  @@index([materialId])
+  @@index([batchNo])
+}
+
+model BatchTrace {
+  id           String        @id @default(uuid())
+  batchNo      String
+  materialId   String
+  materialName String?
+  materialBatchId String?
+  sourceType   String
+  sourceId     String?
+  sourceCode   String?
+  targetType   String?
+  targetId     String?
+  targetCode   String?
+  operation    String
+  quantity     Float         @default(0)
+  beforeQty    Float         @default(0)
+  afterQty     Float         @default(0)
+  operator     String?
+  remark       String?
+  createdAt    DateTime      @default(now())
+  materialBatch MaterialBatch? @relation(fields: [materialBatchId], references: [id])
+
+  @@index([batchNo])
+  @@index([materialId])
+  @@index([sourceType, sourceId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+model BatchLabel {
+  id          String   @id @default(uuid())
+  batchNo     String   @unique
+  productName String?
+  productCode String?
+  qrCode      String?
+  printedBy   String?
+  printedAt   DateTime?
+  createdAt   DateTime @default(now())
+}
+
+// ===== P0-2: Training Management Models =====
+
+model TrainingCourse {
+  id           String           @id @default(uuid())
+  courseCode   String           @unique
+  courseName   String
+  courseType   String           @default("internal")
+  category     String           @default("quality")
+  description  String?
+  duration     Float            @default(0)
+  instructor   String?
+  status       String           @default("active")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  records      TrainingRecord[]
+  @@index([courseType])
+  @@index([category])
+}
+
+model TrainingRecord {
+  id           String          @id @default(uuid())
+  recordCode   String          @unique
+  courseId     String
+  employeeId   String
+  courseName   String
+  employeeName String
+  trainingDate DateTime        @default(now())
+  hours        Float           @default(0)
+  result       String          @default("completed")
+  score        Float?
+  evaluator    String?
+  remark       String?
+  certificateNo String?
+  expiryDate   DateTime?
+  createdAt    DateTime        @default(now())
+  course       TrainingCourse  @relation(fields: [courseId], references: [id])
+  employee     AdminEmployee   @relation(fields: [employeeId], references: [id])
+
+  @@index([courseId])
+  @@index([employeeId])
+  @@index([trainingDate])
+}
+
+model Qualification {
+  id               String        @id @default(uuid())
+  qualCode         String        @unique
+  employeeId       String
+  qualName         String
+  qualType         String        @default("certification")
+  issuingAuthority String?
+  issueDate        DateTime      @default(now())
+  expiryDate       DateTime?
+  certificateNo    String?
+  status           String        @default("valid")
+  attachmentPath   String?
+  remark           String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  employee         AdminEmployee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([qualType])
+  @@index([status])
+}
+
+model SkillMatrix {
+  id           String        @id @default(uuid())
+  employeeId   String
+  skillName    String
+  skillCategory String       @default("technical")
+  proficiency  String        @default("L1")
+  assessedBy   String?
+  assessedDate DateTime?
+  lastUsed     DateTime?
+  remark       String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  employee     AdminEmployee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, skillName])
+  @@index([employeeId])
+  @@index([skillCategory])
+}
+
+model TrainingPlan {
+  id          String   @id @default(uuid())
+  planCode    String   @unique
+  planName    String
+  planYear    Int
+  planMonth   Int?
+  courseId    String?
+  targetGroup String?
+  targetCount Int      @default(0)
+  completedCount Int   @default(0)
+  status      String   @default("draft")
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([planYear])
+}
+
+// ===== P0-3: Document Control Models =====
+
+model DocumentApproval {
+  id           String   @id @default(uuid())
+  approvalCode String   @unique
+  docType      String
+  docId        String
+  docCode      String?
+  docName      String
+  action       String   @default("publish")
+  requestedBy  String?
+  requestedAt  DateTime @default(now())
+  approver     String?
+  approvedAt   DateTime?
+  decision     String   @default("pending")
+  comment      String?
+  createdAt    DateTime @default(now())
+
+  @@index([docType, docId])
+  @@index([decision])
+  @@index([createdAt])
+}
+
+model DocumentDistribution {
+  id             String   @id @default(uuid())
+  distributeCode String   @unique
+  docType        String
+  docId          String
+  docName        String
+  recipient      String
+  recipientOrg   String?
+  distributedAt  DateTime @default(now())
+  recalledAt     DateTime?
+  status         String   @default("distributed")
+  createdBy      String?
+  remark         String?
+  createdAt      DateTime @default(now())
+
+  @@index([docType, docId])
+  @@index([recipient])
+  @@index([status])
+}
+
+model DocumentObsolete {
+  id             String   @id @default(uuid())
+  obsoleteCode   String   @unique
+  docType        String
+  docId          String
+  docName        String
+  replacedBy     String?
+  reason         String?
+  obsoleteDate   DateTime @default(now())
+  approvedBy     String?
+  remark         String?
+  createdAt      DateTime @default(now())
+
+  @@index([docType, docId])
+}
+
+model DocumentChangeRecord {
+  id          String   @id @default(uuid())
+  changeCode  String   @unique
+  docType     String
+  docId       String
+  docName     String
+  changeType  String   @default("revision")
+  fromVersion String?
+  toVersion   String?
+  changeNote  String
+  changedBy   String?
+  changedAt   DateTime @default(now())
+  approvedBy  String?
+  createdAt   DateTime @default(now())
+
+  @@index([docType, docId])
+ @@index([changedAt])
+}
+
+// ===== P1-4: MRP 运算 =====
+
+model MrpRun {
+  id            String   @id @default(uuid())
+  runCode       String   @unique
+  runDate       DateTime @default(now())
+  status        String   @default("running")
+  totalDemand   Float    @default(0)
+  totalShortage Float    @default(0)
+  itemsCount    Int      @default(0)
+  createdBy     String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  items         MrpRunItem[]
+}
+
+model MrpRunItem {
+  id               String   @id @default(uuid())
+  runId            String
+  materialId       String
+  materialCode     String
+  materialName     String
+  unit             String
+  totalDemand      Float    @default(0)
+  currentStock     Float    @default(0)
+  shortage         Float    @default(0)
+  suggestedQty     Float    @default(0)
+  status           String   @default("open")
+  purchaseOrderCode String?
+  sourceOrders     String?
+  createdAt        DateTime @default(now())
+  run              MrpRun   @relation(fields: [runId], references: [id], onDelete: Cascade)
+  @@index([runId])
+  @@index([materialId])
+  @@index([status])
+}
+
+// ===== P1-5: 管理驾驶舱 — 质量目标 & KPI =====
+
+model QualityObjective {
+  id              String   @id @default(uuid())
+  objCode         String   @unique
+  objName         String
+  category        String   @default("质量")
+  targetValue     Float    @default(0)
+  unit            String   @default("%")
+  currentValue    Float    @default(0)
+  period          String   @default("monthly")
+  periodYear      Int
+  periodMonth     Int?
+  status          String   @default("active")
+  responsible     String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@index([periodYear, periodMonth])
+  @@index([category])
+}
+
+model KpiSnapshot {
+  id              String   @id @default(uuid())
+  snapshotCode    String   @unique
+  snapshotDate    DateTime @default(now())
+  complaintCount  Int      @default(0)
+  complaintRate   Float    @default(0)
+  ncrCount        Int      @default(0)
+  capaCloseRate   Float    @default(0)
+  oqcPassRate     Float    @default(0)
+  iqcPassRate     Float    @default(0)
+  otifRate        Float    @default(0)
+  efficiencyScore Float    @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  @@index([snapshotDate])
+}
+
+// ===== P1-6: 内部审核管理 =====
+
+model AuditPlan {
+  id              String   @id @default(uuid())
+  planCode        String   @unique
+  planName        String
+  auditType       String   @default("内部审核")
+  planYear        Int
+  planMonth       Int?
+  startDate       DateTime?
+  endDate         DateTime?
+  scope           String?
+  leadAuditor     String?
+  team            String?
+  status          String   @default("draft")
+  notes           String?
+  createdBy       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  checklists      AuditChecklist[]
+  @@index([planYear])
+  @@index([status])
+}
+
+model AuditChecklist {
+  id              String   @id @default(uuid())
+  checklistCode   String   @unique
+  planId          String
+  itemNo          Int
+  clause          String
+  checkContent    String
+  checkMethod     String   @default("现场检查")
+  responsible     String?
+  result          String   @default("待审核")
+  evidence        String?
+  checkedBy       String?
+  checkedAt       DateTime?
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  plan            AuditPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  findings        AuditFinding[]
+  @@index([planId])
+  @@index([result])
+}
+
+model AuditFinding {
+  id              String   @id @default(uuid())
+  findingCode     String   @unique
+  checklistId     String?
+  planId          String
+  findingType     String   @default("不符合项")
+  severity        String   @default("一般")
+  description     String
+  clause          String?
+  evidence        String?
+  responsible     String?
+  deadline        DateTime?
+  correctiveAction String?
+  status          String   @default("open")
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  checklist       AuditChecklist? @relation(fields: [checklistId], references: [id])
+  @@index([planId])
+  @@index([status])
+  @@index([severity])
+}
+
+
+
+// ===== P2-3: SPC 控制图 =====
+
+model SpcStudy {
+  id               String           @id @default(uuid())
+  studyCode        String           @unique
+  studyName        String
+  chartType        String           @default("xbar-r")
+  characteristic   String
+  specificationLow Float?
+  specificationHigh Float?
+  nominalValue     Float?
+  unit             String           @default("mm")
+  subgroupSize     Int              @default(5)
+  status           String           @default("active")
+  notes            String?
+  createdBy        String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  measurements     SpcMeasurement[]
+  @@index([chartType])
+  @@index([status])
+}
+
+model SpcMeasurement {
+  id             String    @id @default(uuid())
+  studyId        String
+  subgroupNo     Int
+  sampleNo       Int
+  measuredValue  Float
+  note           String?
+  measuredBy     String?
+  measuredAt     DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  study          SpcStudy  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  @@unique([studyId, subgroupNo, sampleNo])
+  @@index([studyId])
+  @@index([subgroupNo])
+}
+// ===== P2-5: Knowledge Management =====
+
+model KnowledgeArticle {
+  id          String   @id @default(uuid())
+  articleCode String   @unique
+  title       String
+  content     String
+  category    String   @default("general")
+  tags        String?
+  author      String?
+  status      String   @default("draft")
+  version     Int      @default(1)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ===== P3+: Notification, Backup & Archive =====
+
+model Notification {
+  id            String   @id @default(uuid())
+  userId        String
+  title         String
+  body          String
+  type          String   @default("info")
+  relatedEntity String?
+  relatedId     String?
+  isRead        Boolean  @default(false)
+  readAt        DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([isRead, createdAt])
+}
+
+model SystemBackup {
+  id        String   @id @default(uuid())
+  fileName  String
+  fileSize  Int
+  path      String
+  type      String   @default("manual")
+  status    String   @default("completed")
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model ArchiveRun {
+  id           String   @id @default(uuid())
+  entityType   String
+  olderThan    DateTime
+  recordsCount Int      @default(0)
+  status       String   @default("completed")
+  error        String?
+  triggeredBy  String?
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  username  String?
+  action    String   // CREATE | UPDATE | DELETE
+  entity    String   // resource path e.g. /api/crm/customers
+  entityId  String?  // ID of the affected record
+  detail    String?  // JSON summary of changes
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity])
+  @@index([action])
+  @@index([userId])
+}
