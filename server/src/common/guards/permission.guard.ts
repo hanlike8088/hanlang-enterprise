@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   SetMetadata,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -91,6 +92,9 @@ export class PermissionGuard implements CanActivate {
       },
     });
 
+    if (!employee) {
+      throw new ForbiddenException('用户未关联员工');
+    }
 
     const userPerms = new Set<string>();
     for (const ep of employee.positions) {
@@ -101,6 +105,8 @@ export class PermissionGuard implements CanActivate {
       }
     }
 
+    const perms = [...userPerms].join(',');
+    permCache.set(cacheKey, { perms, ts: Date.now() });
     const result = requiredCodes.every(c => userPerms.has(c));
     return result;
   }

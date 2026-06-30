@@ -140,17 +140,19 @@ export class ManufacturingService implements OnModuleInit {
 
   async createOrder(data: any) {
     const code = await this.codingRule.generate("MFG_ORDER");
-    const order = await this.prisma.manufacturingOrder.create({
-      data: { ...data, orderCode: code, status: "draft" },
-    });
+    const routingOps = data.routingId
+      ? await this.prisma.routingOperation.findMany({
+          where: { routingId: data.routingId }, orderBy: { opSequence: "asc" },
+        })
+      : [];
 
-    // Auto-create operations from routing
-    if (data.routingId) {
-      const routingOps = await this.prisma.routingOperation.findMany({
-        where: { routingId: data.routingId }, orderBy: { opSequence: "asc" },
+    return this.prisma.$transaction(async (tx) => {
+      const order = await tx.manufacturingOrder.create({
+        data: { ...data, orderCode: code, status: "draft" },
       });
+
       for (const rop of routingOps) {
-        await this.prisma.manufacturingOrderOperation.create({
+        await tx.manufacturingOrderOperation.create({
           data: {
             orderId: order.id,
             routingOpId: rop.id,
@@ -163,8 +165,9 @@ export class ManufacturingService implements OnModuleInit {
           },
         });
       }
-    }
-    return order;
+
+      return order;
+    });
   }
 
   async findAllOrders(status?: string, priority?: string, keyword?: string, planId?: string) {
