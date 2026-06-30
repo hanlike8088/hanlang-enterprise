@@ -30,6 +30,7 @@ import { EquipmentModule } from './equipment/equipment.module';
 import { FinanceModule } from './finance/finance.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { WarehouseModule } from './warehouse/warehouse.module';
+import { FeishuModule } from './feishu/feishu.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
@@ -72,6 +73,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     FinanceModule,
     PurchaseModule,
     WarehouseModule,
+    FeishuModule,
    ...(process.env.NODE_ENV === 'production'
       ? [ServeStaticModule.forRoot({ rootPath: join(__dirname, '../../web/dist') })]
       : []),

@@ -38,7 +38,7 @@ export class PurchaseController {
 
   @RequirePermission('purchase', 'order:write')
   @Post(':id/status')
-  advanceStatus(@Param('id') id: string, @Body('status') status: string) { return this.s.advanceStatus(id, status); }
+  advanceStatus(@Param('id') id: string, @Body('status') status: string, @Body('operator') operator?: string) { return this.s.advanceStatus(id, status, operator); }
 
   @RequirePermission('purchase', 'receipt:write')
   @Post(':id/receipts')

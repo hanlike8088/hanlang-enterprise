@@ -6,6 +6,7 @@ import { StatusMachineService } from '../common/services/status-machine.service'
 import { PURCHASE_ORDER_TRANSITIONS } from '../common/services/status-transitions';
 import { EventBusService } from '../common/services/event-bus.service';
 import { CrossModuleEvents } from '../common/services/event-types';
+import { FeishuService } from '../feishu/feishu.service';
 
 @Injectable()
 export class PurchaseService implements OnModuleInit {
@@ -14,6 +15,7 @@ export class PurchaseService implements OnModuleInit {
     private readonly codingRule: CodingRuleService,
     private readonly sm: StatusMachineService,
     private readonly eventBus: EventBusService,
+    private readonly feishu: FeishuService,
   ) {}
 
   onModuleInit() {
@@ -116,19 +118,28 @@ export class PurchaseService implements OnModuleInit {
     return this.prisma.purchaseOrder.delete({ where: { id } });
   }
 
-  async advanceStatus(id: string, nextStatus: string) {
+  async advanceStatus(id: string, nextStatus: string, operator?: string) {
     const po = await this.findOne(id);
+    const oldStatus = po.status;
     this.sm.validateTransition(PURCHASE_ORDER_TRANSITIONS, po.status, nextStatus);
-    const result = await this.prisma.purchaseOrder.update({ where: { id }, data: { status: nextStatus } });
-    if (nextStatus === "已到货") {
-      this.eventBus.emit(CrossModuleEvents.PURCHASE_RECEIPT_COMPLETED, {
-        orderId: id,
-        orderCode: result.orderCode,
-        supplierId: result.supplierId,
-        items: result.items,
-      }, "purchase");
-    }
-    return result;
+    const updated = await this.prisma.purchaseOrder.update({ where: { id }, data: { status: nextStatus } });
+
+    // 异步飞书通知，不阻塞状态变更
+    this.feishu.sendPurchaseStatusCard({
+      orderCode: po.orderCode,
+      supplierName: po.supplier?.supplierName || '未知供应商',
+      oldStatus,
+      newStatus: nextStatus,
+      totalAmount: po.totalAmount || 0,
+      operator,
+      items: po.items?.map(it => ({
+        materialName: it.materialName,
+        quantity: it.quantity,
+        unit: it.unit,
+      })),
+    }).catch(() => {});
+
+    return updated;
   }
 
   async getDeliveryWarnings() {

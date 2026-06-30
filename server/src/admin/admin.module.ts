@@ -1,4 +1,5 @@
  import { Module } from '@nestjs/common';
+import { FeishuModule } from '../feishu/feishu.module';
  import { AdminController } from './admin.controller';
 import { AdminExtendedController } from './admin-extended.controller';
  import { AdminService } from './admin.service';
@@ -26,6 +27,7 @@ import { AdminExtendedController } from './admin-extended.controller';
  ]);
  
  @Module({
+  imports: [FeishuModule],
   controllers: [AdminController, AdminExtendedController],
   providers: [AdminService],
   exports: [AdminService],
