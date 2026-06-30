@@ -1,0 +1,15 @@
+import { PrismaClient } from '@prisma/client';
+const db = new PrismaClient();
+const states = await db.adminWorkflowState.groupBy({ by: ['module'], _count: true, orderBy: { module: 'asc' } });
+console.log('=== STATES ===');
+for (const s of states) console.log(`  ${s.module}: ${s._count} states`);
+const trans = await db.adminWorkflowTransition.groupBy({ by: ['module'], _count: true, orderBy: { module: 'asc' } });
+console.log('\n=== TRANSITIONS ===');
+for (const t of trans) console.log(`  ${t.module}: ${t._count} transitions`);
+const npi = await db.npiProject.count();
+const swo = await db.samplingWorkOrder.count();
+console.log(`\nNpiProject: ${npi}  SamplingWorkOrder: ${swo}  CrmQuote: ${await db.crmQuote.count()}  CrmOrder: ${await db.crmOrder.count()}`);
+console.log('\n=== TRANSITION DETAILS ===');
+const allTrans = await db.adminWorkflowTransition.findMany({ orderBy: [{ module: 'asc' }, { sortOrder: 'asc' }], take: 60, include: { fromState: true, toState: true } });
+for (const t of allTrans) console.log(`  [${t.module}] ${t.fromState?.stateName || t.fromStateId} -> ${t.toState?.stateName || t.toStateId}  (${t.transitionName})`);
+await db.$disconnect();
