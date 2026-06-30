@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import { PlusOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { crmApi } from '../../services/api';
+import { crmApi } from '../../services/crm';;
 
 interface Complaint {
   id: string;

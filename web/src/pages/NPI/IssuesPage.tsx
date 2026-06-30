@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Space, Card, Tag, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { npiApi } from '../../services/api';
+import { npiApi } from '../../services/npi';;
 
 const severityColors: Record<string, string> = {
   严重: 'red',

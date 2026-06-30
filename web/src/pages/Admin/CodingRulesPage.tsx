@@ -21,7 +21,7 @@ import {
   NumberOutlined,
   CopyOutlined,
 } from '@ant-design/icons';
-import { adminApi } from '../../services/api';
+import { adminApi } from '../../services/admin';;
 
 interface CodingRule {
   id: string;

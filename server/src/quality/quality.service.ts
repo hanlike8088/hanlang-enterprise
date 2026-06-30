@@ -174,6 +174,22 @@ export class QualityService implements OnModuleInit {
       where: { id: incomingId },
       data: { status: '已处置' },
     });
+    
+    // IQC检验合格 -> 触发仓库入库
+    if (status === '合格') {
+      const incoming = await this.getIncoming(incomingId);
+      this.eventBus.emit(CrossModuleEvents.IQC_INSPECTION_PASSED, {
+        inspectionId: incoming.id,
+        inspectionCode: incoming.inspectionCode,
+        purchaseOrderId: incoming.purchaseOrderId,
+        materialCode: incoming.materialCode,
+        materialName: incoming.materialName,
+        batchNo: incoming.batchNo,
+        quantity: incoming.quantity,
+        supplierName: incoming.supplierName,
+      }, 'quality');
+    }
+
     return disp;
   }
 

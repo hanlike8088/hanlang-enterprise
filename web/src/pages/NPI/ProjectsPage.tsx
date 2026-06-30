@@ -1,3 +1,4 @@
+import WorkflowActions from '../components/WorkflowActions';
 import { useEffect, useState } from 'react';
 import {
   Table,
@@ -15,7 +16,7 @@ import {
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { npiApi } from '../../services/api';
+import { npiApi } from '../../services/npi';;
 
 const statusColors: Record<string, string> = {
   立项: 'blue',
@@ -143,6 +144,7 @@ export default function ProjectsPage() {
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
           新建项目
         </Button>
+            <WorkflowActions module="NPI项目" docId={r.id} docCode={r.projectCode} docType="npi_project" currentStatus={r.status} onTransitionDone={fetch} />
       }
     >
       <Table

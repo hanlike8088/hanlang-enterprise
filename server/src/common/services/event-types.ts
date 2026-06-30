@@ -36,6 +36,7 @@ export const CrossModuleEvents = {
 
   // Chain 13: Supplier Score Updated -> Supplier tier review
   SUPPLIER_SCORE_UPDATED: 'supplier:score:updated',
+  IQC_INSPECTION_PASSED: 'quality:iqc:passed',
 } as const;
 
 export interface CrossModuleEvent {

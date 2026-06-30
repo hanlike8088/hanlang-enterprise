@@ -23,7 +23,9 @@ import {
   SettingOutlined,
   FileProtectOutlined,
 } from '@ant-design/icons';
-import { plmApi, erpApi, drawingApi } from '../../services/api';
+import { plmApi } from '../../services/plm';
+import { erpApi } from '../../services/erp';
+import { drawingApi } from '../../services/drawing';;
 import dayjs from 'dayjs';
 
 const statusColors: Record<string, string> = {

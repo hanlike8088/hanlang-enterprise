@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Table, Card, Tag, Space, Statistic, Row, Col } from 'antd';
 import { WarningOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { manufacturingApi } from '../../services/api';
+import { manufacturingApi } from '../../services/manufacturing';;
 
 const statusColors: Record<string, string> = {
   released: 'blue',

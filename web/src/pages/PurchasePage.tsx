@@ -1,3 +1,4 @@
+import WorkflowActions from '../components/WorkflowActions';
 ﻿import { useEffect, useState } from 'react';
 import {
   Card,
@@ -33,8 +34,11 @@ import {
   FileDoneOutlined,
 } from '@ant-design/icons';
 import { CloudSyncOutlined } from '@ant-design/icons';
-import { purchaseApi, supplierApi, crmApi, warehouseApi } from '../services/api';
-import { erpApi } from '../services/api';
+import { purchaseApi } from '../services/purchase';
+import { supplierApi } from '../services/supplier';
+import { crmApi } from '../services/crm';
+import { warehouseApi } from '../services/warehouse';;
+import { erpApi } from '../services/erp';;
 import dayjs from 'dayjs';
 
 const STATUS_ORDER = [
@@ -57,16 +61,6 @@ const statusColors: Record<string, string> = {
   已入库: 'green',
   已关闭: 'default',
 };
-const NEXT_STATUS_MAP: Record<string, string> = {
-  草稿: '已确认',
-  已确认: '供应商确认',
-  供应商确认: '已发货',
-  已发货: '已到货',
-  已到货: '检验中',
-  检验中: '已入库',
-  已入库: '已关闭',
-};
-
 export default function PurchasePage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -150,17 +144,6 @@ export default function PurchasePage() {
     fetch();
   };
 
-  const advanceStatus = async (id: string) => {
-    const order = data.find((d) => d.id === id);
-    const nextStatus = NEXT_STATUS_MAP[order?.status || ''];
-    if (!nextStatus) {
-      message.warning('当前状态无法继续流转');
-      return;
-    }
-    await purchaseApi.advanceStatus(id, nextStatus);
-    message.success(`状态已更新为: ${nextStatus}`);
-    fetch();
-  };
 
   const openReceipt = async (order: any) => {
     setSelected(order);
@@ -252,16 +235,7 @@ export default function PurchasePage() {
           <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openEdit(r)}>
             编辑
           </Button>
-          {NEXT_STATUS_MAP[r.status] && (
-            <Button
-              type="link"
-              size="small"
-              icon={<SendOutlined />}
-              onClick={() => advanceStatus(r.id)}
-            >
-              {NEXT_STATUS_MAP[r.status]}
-            </Button>
-          )}
+          <WorkflowActions module="采购订单" docId={r.id} docCode={r.orderCode} docType="purchase_order" currentStatus={r.status} onTransitionDone={fetch} />
           <Button type="link" size="small" icon={<InboxOutlined />} onClick={() => openReceipt(r)}>
             到货
           </Button>

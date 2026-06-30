@@ -1991,3 +1991,34 @@ model AuditLog {
   @@index([action])
   @@index([userId])
 }
+
+model K3Department {
+  id        String   @id @default(uuid())
+  deptCode  String   @unique
+  deptName  String
+  orgCode   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model K3Bom {
+  id               String   @id @default(uuid())
+  bomCode          String   @unique
+  billType         String?
+  parentMaterialId String
+  status           String?
+  useStatus        String?
+  isMain           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model K3Account {
+  id          String   @id @default(uuid())
+  accountCode String   @unique
+  accountName String
+  accountType String?
+  parentCode  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

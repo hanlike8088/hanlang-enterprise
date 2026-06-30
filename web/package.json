@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run type-check && npm run test && npm run build",
-    "check:full": "npm run format && npm run lint && npm run stylelint && npm run type-check && npm run test && npm run test:e2e && npm run build"
+    "check:full": "npm run format && npm run lint && npm run stylelint && npm run type-check && npm run test && npm run test:e2e && npm run build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.0",

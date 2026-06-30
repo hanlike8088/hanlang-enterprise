@@ -26,7 +26,7 @@ import {
   SafetyOutlined,
   ToolOutlined,
 } from '@ant-design/icons';
-import { qualityApi } from '../../services/api';
+import { qualityApi } from '../../services/quality';;
 
 const oqcStatusColors: Record<string, string> = {
   待检: 'blue',

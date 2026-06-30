@@ -19,7 +19,8 @@ import {
   DatePicker,
 } from 'antd';
 import { PlusOutlined, DeleteOutlined, EyeOutlined, RetweetOutlined } from '@ant-design/icons';
-import { crmApi, plmApi } from '../../services/api';
+import { crmApi } from '../../services/crm';
+import { plmApi } from '../../services/plm';;
 import dayjs from 'dayjs';
 
 interface OrderItem {

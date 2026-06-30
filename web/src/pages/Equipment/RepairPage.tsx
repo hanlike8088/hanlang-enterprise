@@ -23,7 +23,7 @@ import {
   PlayCircleOutlined,
   StopOutlined,
 } from '@ant-design/icons';
-import { equipmentApi } from '../../services/api';
+import { equipmentApi } from '../../services/equipment';;
 import dayjs from 'dayjs';
 
 const sevColors: Record<string, string> = { 一般: 'blue', 紧急: 'orange', 停机: 'red' };

@@ -25,7 +25,8 @@ import {
   SwapOutlined,
   DiffOutlined,
 } from '@ant-design/icons';
-import { drawingApi, plmApi } from '../../services/api';
+import { drawingApi } from '../../services/drawing';
+import { plmApi } from '../../services/plm';;
 import dayjs from 'dayjs';
 
 const { Text, Title } = Typography;

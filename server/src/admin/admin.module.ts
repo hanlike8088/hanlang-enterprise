@@ -1,5 +1,6 @@
  import { Module } from '@nestjs/common';
  import { AdminController } from './admin.controller';
+import { AdminExtendedController } from './admin-extended.controller';
  import { AdminService } from './admin.service';
 
  import { PermissionRegistry } from '../common/permission-registry';
@@ -25,7 +26,7 @@
  ]);
  
  @Module({
-  controllers: [AdminController],
+  controllers: [AdminController, AdminExtendedController],
   providers: [AdminService],
   exports: [AdminService],
 })

@@ -1,3 +1,6 @@
 #!/bin/sh
-cd "$(dirname "$0")/../web"
+cd "$(dirname "$(readlink -f "$0")")/../web"
+echo '[pre-commit] Running type-check...'
+npx tsc --noEmit
+echo '[pre-commit] Running lint-staged...'
 npx lint-staged

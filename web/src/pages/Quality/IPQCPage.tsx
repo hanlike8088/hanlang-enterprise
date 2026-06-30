@@ -24,7 +24,7 @@ import {
   WarningOutlined,
   ScheduleOutlined,
 } from '@ant-design/icons';
-import { qualityApi } from '../../services/api';
+import { qualityApi } from '../../services/quality';;
 import dayjs from 'dayjs';
 
 const fpStatusColors: Record<string, string> = {

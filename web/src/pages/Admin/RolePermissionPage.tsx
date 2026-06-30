@@ -21,7 +21,7 @@ import {
   KeyOutlined,
   LinkOutlined,
 } from '@ant-design/icons';
-import { adminApi } from '../../services/api';
+import { adminApi } from '../../services/admin';;
 
 interface Role {
   id: string;

@@ -21,7 +21,8 @@ import {
   DollarOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
-import { costApi, plmApi } from '../services/api';
+import { costApi } from '../services/cost';
+import { plmApi } from '../services/plm';;
 import {
   LineChart,
   Line,

@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { npiApi } from '../../services/api';
+import { npiApi } from '../../services/npi';;
 
 const statusColors: Record<string, string> = {
   计划中: 'blue',

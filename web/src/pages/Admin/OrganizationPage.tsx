@@ -25,7 +25,7 @@ import {
   TeamOutlined,
   NodeIndexOutlined,
 } from '@ant-design/icons';
-import { adminApi } from '../../services/api';
+import { adminApi } from '../../services/admin';;
 
 interface OrgItem {
   id: string;

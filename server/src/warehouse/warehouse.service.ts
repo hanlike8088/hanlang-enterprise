@@ -1,15 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, OnModuleInit, NotFoundException, BadRequestException } from '@nestjs/common';
+import { EventBusService } from '../common/services/event-bus.service';
+import { CrossModuleEvents } from '../common/services/event-types';
 import { PrismaService } from '../prisma/prisma.service';
 import { CodingRuleService } from '../common/services/coding-rule.service';
 
 @Injectable()
-export class WarehouseService {
+export class WarehouseService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly codingRule: CodingRuleService,
+    private readonly eventBus: EventBusService,
   ) {}
 
-  // ===== ≤÷ø‚ CRUD =====
+  // ===== ÔøΩ÷øÔøΩ CRUD =====
   async createWarehouse(data: any) {
     const code = await this.codingRule.generate('WH_WAREHOUSE');
     return this.prisma.warehouse.create({ data: { ...data, warehouseCode: code } });
@@ -21,7 +24,7 @@ export class WarehouseService {
 
   async findOneWarehouse(id: string) {
     const wh = await this.prisma.warehouse.findUnique({ where: { id }, include: { locations: true, inventories: { include: { location: true } } } });
-    if (!wh) throw new NotFoundException('≤÷ø‚≤ª¥Ê‘⁄');
+    if (!wh) throw new NotFoundException('ÔøΩ÷ø‚≤ªÔøΩÔøΩÔøΩÔøΩ');
     return wh;
   }
 
@@ -35,7 +38,7 @@ export class WarehouseService {
     return this.prisma.warehouse.delete({ where: { id } });
   }
 
-  // ===== ø‚Œª CRUD =====
+  // ===== ÔøΩÔøΩŒª CRUD =====
   async createLocation(warehouseId: string, data: any) {
     await this.findOneWarehouse(warehouseId);
     const code = await this.codingRule.generate('WH_LOCATION');
@@ -54,9 +57,9 @@ export class WarehouseService {
     return this.prisma.warehouseLocation.delete({ where: { id } });
   }
 
-  // ===== ≥ˆ»Îø‚≤Ÿ◊˜ =====
+  // ===== ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ =====
   async stockIn(data: { warehouseId: string; locationId?: string; materialId: string; materialName: string; materialCode?: string; batchNo?: string; quantity: number; operator?: string; reference?: string }) {
-    if (data.quantity <= 0) throw new BadRequestException(' ˝¡ø±ÿ–Î¥Û”⁄0');
+    if (data.quantity <= 0) throw new BadRequestException('ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ0');
     const { warehouseId, locationId, materialId, materialName, materialCode, batchNo, quantity, operator, reference } = data;
     const existing = await this.prisma.warehouseInventory.findUnique({ where: { warehouseId_materialId: { warehouseId, materialId } } });
     const beforeQty = existing?.quantity || 0;
@@ -67,24 +70,24 @@ export class WarehouseService {
       update: { quantity: afterQty, batchNo, updatedAt: new Date() },
     });
     await this.prisma.inventoryRecord.create({
-      data: { materialId, warehouse: warehouseId, type: '»Îø‚', batchNo, quantity, beforeQty, afterQty, reference, operator },
+      data: { materialId, warehouse: warehouseId, type: 'ÔøΩÔøΩÔøΩ', batchNo, quantity, beforeQty, afterQty, reference, operator },
     });
     return { beforeQty, afterQty };
   }
 
   async stockOut(data: { warehouseId: string; materialId: string; materialName: string; materialCode?: string; batchNo?: string; quantity: number; operator?: string; reference?: string }) {
-    if (data.quantity <= 0) throw new BadRequestException(' ˝¡ø±ÿ–Î¥Û”⁄0');
+    if (data.quantity <= 0) throw new BadRequestException('ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ0');
     const { warehouseId, materialId, materialName, materialCode, batchNo, quantity, operator, reference } = data;
     const existing = await this.prisma.warehouseInventory.findUnique({ where: { warehouseId_materialId: { warehouseId, materialId } } });
     const beforeQty = existing?.quantity || 0;
-    if (beforeQty < quantity) throw new BadRequestException('ø‚¥Ê≤ª◊„£¨µ±«∞ø‚¥Ê: ' + beforeQty);
+    if (beforeQty < quantity) throw new BadRequestException('ÔøΩÔøΩÊ≤ªÔøΩ„£¨ÔøΩÔøΩ«∞ÔøΩÔøΩÔøΩ: ' + beforeQty);
     const afterQty = beforeQty - quantity;
     await this.prisma.warehouseInventory.update({
       where: { warehouseId_materialId: { warehouseId, materialId } },
       data: { quantity: afterQty, updatedAt: new Date() },
     });
     await this.prisma.inventoryRecord.create({
-      data: { materialId, warehouse: warehouseId, type: '≥ˆø‚', batchNo, quantity: -quantity, beforeQty, afterQty, reference, operator },
+      data: { materialId, warehouse: warehouseId, type: 'ÔøΩÔøΩÔøΩÔøΩ', batchNo, quantity: -quantity, beforeQty, afterQty, reference, operator },
     });
     return { beforeQty, afterQty };
   }
@@ -122,7 +125,7 @@ export class WarehouseService {
   }
 
   async updateAbcClass(id: string, abcClass: string) {
-    if (!['A', 'B', 'C'].includes(abcClass)) throw new BadRequestException('∑÷¿‡±ÿ–Î « A/B/C');
+    if (!['A', 'B', 'C'].includes(abcClass)) throw new BadRequestException('ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ A/B/C');
     return this.prisma.warehouseInventory.update({ where: { id }, data: { abcClass } });
   }
 
@@ -137,13 +140,13 @@ export class WarehouseService {
       this.prisma.warehouseLocation.count(),
       this.prisma.warehouseInventory.count(),
       this.prisma.warehouseInventory.aggregate({ _sum: { quantity: true } }),
-      this.prisma.inventoryRecord.aggregate({ where: { type: '»Îø‚', createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } }, _sum: { quantity: true } }),
-      this.prisma.inventoryRecord.aggregate({ where: { type: '≥ˆø‚', createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } }, _sum: { quantity: true } }),
+      this.prisma.inventoryRecord.aggregate({ where: { type: 'ÔøΩÔøΩÔøΩ', createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } }, _sum: { quantity: true } }),
+      this.prisma.inventoryRecord.aggregate({ where: { type: 'ÔøΩÔøΩÔøΩÔøΩ', createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } }, _sum: { quantity: true } }),
     ]);
     return { warehouseCount, locationCount, invCount, totalQty: totalQty._sum.quantity || 0, todayIn: todayIn._sum.quantity || 0, todayOut: Math.abs(todayOut._sum.quantity || 0) };
   }
 
-  // ===== FIFO ≈˙¥Œø‚¥Ê∑Ω∑® =====
+  // ===== FIFO ÔøΩÔøΩÔøΩŒøÔøΩÊ∑ΩÔøΩÔøΩ =====
   async getBatchInventories(warehouseId?: string, materialId?: string) {
     const where: any = {};
     if (warehouseId) where.warehouseId = warehouseId;
@@ -171,15 +174,15 @@ export class WarehouseService {
     const now = new Date();
     return batches.map(b => {
       const ageDays = Math.floor((now.getTime() - new Date(b.receivedDate).getTime()) / (1000 * 60 * 60 * 24));
-      return { ...b, ageDays, aging: ageDays > 180 ? '≥¨∆⁄' : ageDays > daysThreshold ? '‘§æØ' : '’˝≥£' };
+      return { ...b, ageDays, aging: ageDays > 180 ? 'ÔøΩÔøΩÔøΩÔøΩ' : ageDays > daysThreshold ? '‘§ÔøΩÔøΩ' : 'ÔøΩÔøΩÔøΩÔøΩ' };
     });
   }
 
   async stockInWithBatch(data: { warehouseId: string; locationId?: string; materialId: string; materialName: string; materialCode?: string; batchNo?: string; quantity: number; operator?: string; reference?: string }) {
-    if (data.quantity <= 0) throw new BadRequestException(' ˝¡ø±ÿ–Î¥Û”⁄0');
+    if (data.quantity <= 0) throw new BadRequestException('ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ0');
     const { warehouseId, locationId, materialId, materialName, materialCode, batchNo, quantity, operator, reference } = data;
 
-    // ª„◊‹ø‚¥Ê∏¸–¬
+    // ÔøΩÔøΩÔøΩ‹øÔøΩÔøΩÔøΩÔøΩÔøΩ
     const existing = await this.prisma.warehouseInventory.findUnique({ where: { warehouseId_materialId: { warehouseId, materialId } } });
     const beforeQty = existing?.quantity || 0;
     const afterQty = beforeQty + quantity;
@@ -189,7 +192,7 @@ export class WarehouseService {
       update: { quantity: afterQty, updatedAt: new Date() },
     });
 
-    // ≈˙¥Œø‚¥Ê∏¸–¬
+    // ÔøΩÔøΩÔøΩŒøÔøΩÔøΩÔøΩÔøΩÔøΩ
     const effectiveBatchNo = batchNo || `DEF-${Date.now()}`;
     const existingBatch = await this.prisma.batchInventory.findUnique({
       where: { warehouseId_materialId_batchNo: { warehouseId, materialId, batchNo: effectiveBatchNo } },
@@ -205,24 +208,24 @@ export class WarehouseService {
       });
     }
 
-    // ≥ˆ»Îø‚º«¬º
+    // ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ¬º
     await this.prisma.inventoryRecord.create({
-      data: { materialId, warehouse: warehouseId, type: '»Îø‚', batchNo: effectiveBatchNo, quantity, beforeQty, afterQty, reference, operator },
+      data: { materialId, warehouse: warehouseId, type: 'ÔøΩÔøΩÔøΩ', batchNo: effectiveBatchNo, quantity, beforeQty, afterQty, reference, operator },
     });
 
     return { beforeQty, afterQty, batchNo: effectiveBatchNo };
   }
 
   async stockOutFifo(data: { warehouseId: string; materialId: string; materialName: string; materialCode?: string; quantity: number; operator?: string; reference?: string }): Promise<{ beforeQty: number; afterQty: number; fifoPicks: { batchNo: string; pickedQty: number; receivedDate: Date; remainingQty: number }[] }> {
-    if (data.quantity <= 0) throw new BadRequestException(' ˝¡ø±ÿ–Î¥Û”⁄0');
+    if (data.quantity <= 0) throw new BadRequestException('ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ0');
     const { warehouseId, materialId, materialName, materialCode, quantity, operator, reference } = data;
 
-    // ª„◊‹ø‚¥ÊºÏ≤È
+    // ÔøΩÔøΩÔøΩ‹øÔøΩÔøΩÔøΩÔøΩ
     const existing = await this.prisma.warehouseInventory.findUnique({ where: { warehouseId_materialId: { warehouseId, materialId } } });
     const beforeQty = existing?.quantity || 0;
-    if (beforeQty < quantity) throw new BadRequestException('ø‚¥Ê≤ª◊„£¨µ±«∞ø‚¥Ê: ' + beforeQty);
+    if (beforeQty < quantity) throw new BadRequestException('ÔøΩÔøΩÊ≤ªÔøΩ„£¨ÔøΩÔøΩ«∞ÔøΩÔøΩÔøΩ: ' + beforeQty);
 
-    // FIFO ≈˙¥Œ—°»°
+    // FIFO ÔøΩÔøΩÔøΩÔøΩ—°»°
     const batches = await this.prisma.batchInventory.findMany({
       where: { warehouseId, materialId, status: 'available', quantity: { gt: 0 } },
       orderBy: { receivedDate: 'asc' },
@@ -243,7 +246,7 @@ export class WarehouseService {
       fifoPicks.push({ batchNo: batch.batchNo, pickedQty: pickQty, receivedDate: batch.receivedDate, remainingQty: newBatchQty });
     }
 
-    if (remaining > 0) throw new BadRequestException('FIFO∑÷≈‰“Ï≥£: ≈˙¥Œø‚¥Ê≤ª◊„');
+    if (remaining > 0) throw new BadRequestException('FIFOÔøΩÔøΩÔøΩÔøΩÔøΩÏ≥£: ÔøΩÔøΩÔøΩŒøÔøΩÊ≤ªÔøΩÔøΩ');
 
     const afterQty = beforeQty - quantity;
     await this.prisma.warehouseInventory.update({
@@ -253,10 +256,29 @@ export class WarehouseService {
 
     const batchDesc = fifoPicks.map(p => `${p.batchNo}(${p.pickedQty})`).join(',');
     await this.prisma.inventoryRecord.create({
-      data: { materialId, warehouse: warehouseId, type: '≥ˆø‚', batchNo: batchDesc.substring(0, 200), quantity: -quantity, beforeQty, afterQty, reference, operator },
+      data: { materialId, warehouse: warehouseId, type: 'ÔøΩÔøΩÔøΩÔøΩ', batchNo: batchDesc.substring(0, 200), quantity: -quantity, beforeQty, afterQty, reference, operator },
     });
 
     return { beforeQty, afterQty, fifoPicks };
   }
 
+
+  onModuleInit() {
+    this.eventBus.on(CrossModuleEvents.IQC_INSPECTION_PASSED,
+      async (event) => { await this.handleIqcPassed(event.data); });
+  }
+
+  private async handleIqcPassed(data: any) {
+    const batchNo = data.batchNo || 'IQC-' + data.inspectionCode;
+    await this.stockInWithBatch({
+      warehouseId: '',
+      materialId: '',
+      materialName: data.materialName,
+      materialCode: data.materialCode,
+      batchNo,
+      quantity: data.quantity,
+      operator: 'system',
+      reference: 'IQCÊ£ÄÈ™åÂêàÊ†º- ' + data.inspectionCode,
+    });
+  }
 }

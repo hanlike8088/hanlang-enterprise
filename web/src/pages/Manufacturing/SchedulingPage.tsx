@@ -24,7 +24,7 @@ import {
   CalendarOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
-import { manufacturingApi } from '../../services/api';
+import { manufacturingApi } from '../../services/manufacturing';;
 
 const statusColors: Record<string, string> = {
   draft: 'default',

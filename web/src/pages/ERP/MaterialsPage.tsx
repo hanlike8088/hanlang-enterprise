@@ -22,7 +22,7 @@ import {
   SyncOutlined,
   DatabaseOutlined,
 } from '@ant-design/icons';
-import { erpApi } from '../../services/api';
+import { erpApi } from '../../services/erp';;
 import dayjs from 'dayjs';
 
 export default function MaterialsPage() {

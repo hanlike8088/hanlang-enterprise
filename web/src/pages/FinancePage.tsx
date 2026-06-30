@@ -30,7 +30,8 @@ import {
   BankOutlined,
   PieChartOutlined,
 } from '@ant-design/icons';
-import { financeApi, purchaseApi } from '../services/api';
+import { financeApi } from '../services/finance';
+import { purchaseApi } from '../services/purchase';;
 import dayjs from 'dayjs';
 
 const recStatusColors: Record<string, string> = {

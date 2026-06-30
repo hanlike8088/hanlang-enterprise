@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { Table, Button, Select, Space, Card, Tag, message, Popconfirm, Input } from 'antd';
 import { DeleteOutlined, FilePdfOutlined, ReloadOutlined } from '@ant-design/icons';
-import { plmApi } from '../../services/api';
+import { plmApi } from '../../services/plm';;
 import { UploadOutlined } from '@ant-design/icons';
 
 const typeColors: Record<string, string> = {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Card, Row, Col, Statistic, Select, Space } from 'antd';
-import { manufacturingApi } from '../../services/api';
+import { manufacturingApi } from '../../services/manufacturing';;
 
 export default function EfficiencyPage() {
   const [orders, setOrders] = useState<any[]>([]);

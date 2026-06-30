@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Popconfirm, Space, Tag, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { adminApi } from '../../services/api';
+import { adminApi } from '../../services/admin';;
 
 interface Position {
   id: string;

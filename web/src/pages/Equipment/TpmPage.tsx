@@ -23,7 +23,7 @@ import {
   ToolOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
-import { equipmentApi } from '../../services/api';
+import { equipmentApi } from '../../services/equipment';;
 import dayjs from 'dayjs';
 
 const statusColors: Record<string, string> = { 待执行: 'blue', 已完成: 'green', 异常: 'red' };

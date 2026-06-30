@@ -28,7 +28,7 @@ import {
   ToolOutlined,
   CalendarOutlined,
 } from '@ant-design/icons';
-import { qualityApi } from '../../services/api';
+import { qualityApi } from '../../services/quality';;
 import dayjs from 'dayjs';
 
 const gaugeStatusColors: Record<string, string> = {

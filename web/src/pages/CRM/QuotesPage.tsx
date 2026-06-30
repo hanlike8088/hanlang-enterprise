@@ -26,7 +26,8 @@ import {
   EyeOutlined,
   CalculatorOutlined,
 } from '@ant-design/icons';
-import { crmApi, plmApi } from '../../services/api';
+import { crmApi } from '../../services/crm';
+import { plmApi } from '../../services/plm';;
 
 interface Product {
   id: string;

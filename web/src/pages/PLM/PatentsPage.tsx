@@ -19,7 +19,7 @@ import {
   LinkOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
-import { plmApi } from '../../services/api';
+import { plmApi } from '../../services/plm';;
 import dayjs from 'dayjs';
 
 const patentTypeColors: Record<string, string> = {

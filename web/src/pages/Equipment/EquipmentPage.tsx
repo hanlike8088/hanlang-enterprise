@@ -25,7 +25,7 @@ import {
   UploadOutlined,
   ToolOutlined,
 } from '@ant-design/icons';
-import { equipmentApi } from '../../services/api';
+import { equipmentApi } from '../../services/equipment';;
 
 const statusColors: Record<string, string> = {
   运行中: 'green',

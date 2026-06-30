@@ -21,7 +21,7 @@ import {
   BranchesOutlined,
   SwapOutlined,
 } from '@ant-design/icons';
-import { adminApi } from '../../services/api';
+import { adminApi } from '../../services/admin';;
 
 interface WorkflowState {
   id: string;

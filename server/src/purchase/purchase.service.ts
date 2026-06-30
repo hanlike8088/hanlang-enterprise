@@ -119,7 +119,16 @@ export class PurchaseService implements OnModuleInit {
   async advanceStatus(id: string, nextStatus: string) {
     const po = await this.findOne(id);
     this.sm.validateTransition(PURCHASE_ORDER_TRANSITIONS, po.status, nextStatus);
-    return this.prisma.purchaseOrder.update({ where: { id }, data: { status: nextStatus } });
+    const result = await this.prisma.purchaseOrder.update({ where: { id }, data: { status: nextStatus } });
+    if (nextStatus === "已到货") {
+      this.eventBus.emit(CrossModuleEvents.PURCHASE_RECEIPT_COMPLETED, {
+        orderId: id,
+        orderCode: result.orderCode,
+        supplierId: result.supplierId,
+        items: result.items,
+      }, "purchase");
+    }
+    return result;
   }
 
   async getDeliveryWarnings() {

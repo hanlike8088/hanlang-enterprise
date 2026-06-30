@@ -20,7 +20,7 @@ import {
   Statistic,
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { supplierApi } from '../services/api';
+import { supplierApi } from '../services/supplier';;
 
 const catColors: Record<string, string> = {
   原材料: 'blue',

@@ -25,7 +25,8 @@ import {
   PauseCircleOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
-import { samplingApi, drawingApi } from '../../services/api';
+import { samplingApi } from '../../services/sampling';
+import { drawingApi } from '../../services/drawing';;
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;

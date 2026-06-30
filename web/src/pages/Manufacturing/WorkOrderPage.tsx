@@ -1,3 +1,4 @@
+import WorkflowActions from '../components/WorkflowActions';
 import { useEffect, useState } from 'react';
 import {
   Table,
@@ -23,7 +24,7 @@ import {
   PlayCircleOutlined,
   PauseCircleOutlined,
 } from '@ant-design/icons';
-import { manufacturingApi } from '../../services/api';
+import { manufacturingApi } from '../../services/manufacturing';;
 
 const statusColors: Record<string, string> = {
   draft: 'default',
@@ -481,6 +482,7 @@ export default function WorkOrderPage() {
                         >
                           报完工
                         </Button>
+            <WorkflowActions module="制造工单" docId={r.id} docCode={r.orderCode} docType="manufacturing_order" currentStatus={r.status} onTransitionDone={fetch} />
                       )}
                     </Space>
                   </div>

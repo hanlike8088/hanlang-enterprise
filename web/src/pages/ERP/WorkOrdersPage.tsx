@@ -16,7 +16,8 @@ import {
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { erpApi, plmApi } from '../../services/api';
+import { erpApi } from '../../services/erp';
+import { plmApi } from '../../services/plm';;
 
 const statusColors: Record<string, string> = {
   待生产: 'blue',

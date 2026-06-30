@@ -30,7 +30,7 @@ import {
   SyncOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { crmApi } from '../../services/api';
+import { crmApi } from '../../services/crm';;
 
 const { Title } = Typography;
 

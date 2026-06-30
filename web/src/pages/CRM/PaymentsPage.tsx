@@ -17,7 +17,7 @@ import {
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { crmApi } from '../../services/api';
+import { crmApi } from '../../services/crm';;
 
 interface Payment {
   id: string;

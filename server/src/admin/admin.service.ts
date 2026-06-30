@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationDto, UpdateOrganizationDto } from './dto/create-organization.dto';
 import { CreatePositionDto, UpdatePositionDto } from './dto/create-position.dto';
@@ -417,5 +417,59 @@ export class AdminService {
     const setting = await this.prisma.adminSystemSetting.findUnique({ where: { id } });
     if (!setting) throw new NotFoundException('系统设置不存在');
     return this.prisma.adminSystemSetting.delete({ where: { id } });
+  }
+
+  // ========== Workflow Engine ==========
+  async getAvailableTransitions(module: string, fromStatus: string) {
+    const state = await this.prisma.adminWorkflowState.findFirst({
+      where: { module, stateCode: fromStatus },
+    });
+    if (!state) return [];
+    return this.prisma.adminWorkflowTransition.findMany({
+      where: { module, fromStateId: state.id },
+      include: { toState: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async executeTransition(dto: {
+    module: string; docType: string; docId: string; docCode: string;
+    fromStatus: string; transitionId: string; requestedBy?: string;
+  }) {
+    const transition = await this.prisma.adminWorkflowTransition.findUnique({
+      where: { id: dto.transitionId },
+      include: { fromState: true, toState: true },
+    });
+    if (!transition) throw new NotFoundException('Transition not found');
+    if (transition.fromState.stateCode !== dto.fromStatus) {
+      throw new BadRequestException(
+        `Invalid transition: from "${dto.fromStatus}", expected "${transition.fromState.stateCode}"`
+      );
+    }
+    const needsApproval = !!transition.requiredPerm;
+    return this.prisma.approvalRecord.create({
+      data: {
+        approvalCode: `APR-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        module: dto.module, docType: dto.docType, docId: dto.docId,
+        docCode: dto.docCode, fromStatus: dto.fromStatus,
+        toStatus: transition.toState.stateCode,
+        requestedBy: dto.requestedBy || 'system', transitionId: dto.transitionId,
+        status: needsApproval ? 'pending' : 'approved',
+        decision: needsApproval ? null : 'approved',
+        approvedAt: needsApproval ? null : new Date(),
+      },
+    });
+  }
+
+  async getWorkflowSummary(module: string) {
+    const states = await this.prisma.adminWorkflowState.findMany({
+      where: { module }, orderBy: { sortOrder: 'asc' },
+    });
+    const transitions = await this.prisma.adminWorkflowTransition.findMany({
+      where: { module },
+      include: { fromState: true, toState: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+    return { states, transitions };
   }
 }

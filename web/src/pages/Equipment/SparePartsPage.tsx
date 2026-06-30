@@ -24,7 +24,7 @@ import {
   SearchOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
-import { equipmentApi } from '../../services/api';
+import { equipmentApi } from '../../services/equipment';;
 
 export default function SparePartsPage() {
   const [data, setData] = useState<any[]>([]);

@@ -1,3 +1,4 @@
+import WorkflowActions from '../components/WorkflowActions';
 import { useEffect, useState } from 'react';
 import {
   Table,
@@ -27,7 +28,7 @@ import {
   WarningOutlined,
   ExperimentOutlined,
 } from '@ant-design/icons';
-import { qualityApi } from '../../services/api';
+import { qualityApi } from '../../services/quality';;
 
 const statusColors: Record<string, string> = {
   待检: 'blue',
@@ -375,6 +376,7 @@ export default function IQCPage() {
                   <Button type="primary" icon={<PlusOutlined />} onClick={openStdCreate}>
                     新增标准
                   </Button>
+            <WorkflowActions module="IQC来料" docId={r.id} docCode={r.incomingCode} docType="iqc_incoming" currentStatus={r.status} onTransitionDone={fetch} />
                 </Space>
                 <Table columns={stdColumns} dataSource={standards} rowKey="id" size="small" />
               </>

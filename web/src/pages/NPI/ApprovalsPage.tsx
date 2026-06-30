@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Space, Card, Tag, message } from 'antd';
 import { PlusOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { npiApi } from '../../services/api';
+import { npiApi } from '../../services/npi';;
 
 const statusColors: Record<string, string> = { 待审批: 'orange', 已通过: 'green', 已驳回: 'red' };
 const typeColors: Record<string, string> = {
