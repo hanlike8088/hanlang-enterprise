@@ -106,7 +106,7 @@ export class AdminService {
 
   async getEmployees(orgId?: string) {
     const where = orgId ? { orgId } : {};
-    return this.prisma.adminEmployee.findMany({
+    const employees = await this.prisma.adminEmployee.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -114,6 +114,15 @@ export class AdminService {
         positions: { include: { position: true } },
       },
     });
+    // Attach linked username from User table (matched by name)
+    const names = employees.map(e => e.name).filter(Boolean);
+    const users = await this.prisma.user.findMany({
+      where: { name: { in: names } },
+      select: { name: true, username: true },
+    });
+    const userMap = {};
+    for (const u of users) userMap[u.name] = u.username;
+    return employees.map(e => ({ ...e, username: userMap[e.name] || null }));
   }
 
   async getEmployee(id: string) {

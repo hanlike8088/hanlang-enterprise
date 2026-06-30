@@ -27,6 +27,7 @@ interface Employee {
   status: string;
   organization: { id: string; orgName: string };
   positions: { position: { id: string; positionName: string } }[];
+  username?: string | null;
 }
 
 interface Organization {
@@ -136,6 +137,7 @@ export default function EmployeePage() {
   const columns = [
     { title: '工号', dataIndex: 'employeeCode', key: 'employeeCode', width: 100 },
     { title: '姓名', dataIndex: 'name', key: 'name', width: 100 },
+    { title: '账号', dataIndex: 'username', key: 'username', width: 130, render: (v: string) => v || <span style={{color:'#ccc'}}>未绑定</span> },
     { title: '邮箱', dataIndex: 'email', key: 'email' },
     { title: '手机', dataIndex: 'phone', key: 'phone', width: 130 },
     {
