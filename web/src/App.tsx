@@ -233,10 +233,8 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
-  const [user, setUser] = useState<any>(
-    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
-  );
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [perms, setPerms] = useState<string[]>([]);
   const [permsLoaded, setPermsLoaded] = useState(false);
   const { token: themeToken } = theme.useToken();
