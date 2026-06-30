@@ -13,6 +13,7 @@ model NpiProject {
   projectName    String
   status         String    @default("initiated")
   priority       String    @default("medium")
+  orgId          String?
   productId      String?
   startDate      DateTime
   targetDate     DateTime
@@ -380,6 +381,7 @@ model SamplingWorkOrder {
   productCategory String?
   quantity        Int
   unit            String    @default("pcs")
+  orgId           String?
   deadline        DateTime
   description     String?
   attachmentPaths String?

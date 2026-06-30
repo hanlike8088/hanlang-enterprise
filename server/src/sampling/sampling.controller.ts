@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
+﻿import { Controller, Get, Post, Put, Delete, Body, Param, Query, Req } from '@nestjs/common';
 import { SamplingService } from './sampling.service';
 import { CreateSamplingOrderDto, UpdateSamplingOrderDto, ApproveOrderDto, AssignOrderDto } from './dto/sampling-order.dto';
 import { RequirePermission } from '../common/guards/permission.guard';
@@ -8,9 +8,9 @@ export class SamplingController {
   constructor(private readonly samplingService: SamplingService) {}
 
   @RequirePermission('sampling', 'order:write')
-  @Post() create(@Body() dto: CreateSamplingOrderDto) { return this.samplingService.create(dto); }
+  @Post() create(@Body() dto: CreateSamplingOrderDto, @Req() req: any) { return this.samplingService.create(dto, req.user?.orgId); }
   @RequirePermission('sampling', 'order:read')
-  @Get() findAll(@Query('status') status?: string) { return this.samplingService.findAll(status); }
+  @Get() findAll(@Query('status') status?: string, @Req() req: any) { return this.samplingService.findAll(status, req.user?.orgId); }
   @RequirePermission('sampling', 'order:read')
   @Get('stats') getStats() { return this.samplingService.getStats(); }
   @RequirePermission('sampling', 'order:read')

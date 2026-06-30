@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common';
+﻿import { Controller, Get, Post, Patch, Delete, Param, Body, Query, Req } from '@nestjs/common';
 import { NpiService } from './npi.service';
 import { CreateProjectDto, UpdateProjectDto } from './dto/create-project.dto';
 import { CreateTrialRunDto, UpdateTrialRunDto } from './dto/create-trial-run.dto';

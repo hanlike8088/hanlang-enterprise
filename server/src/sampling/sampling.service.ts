@@ -13,7 +13,7 @@ export class SamplingService {
         private readonly sm: StatusMachineService,
   ) {}
 
-  async create(dto: CreateSamplingOrderDto) {
+  async create(dto: CreateSamplingOrderDto, orgId?: string) {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const orderCode = await this.codingRule.generate('SAMPLING_WO');

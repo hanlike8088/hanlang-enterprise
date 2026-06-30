@@ -45,10 +45,10 @@ export class NpiService implements OnModuleInit {
   }
 
   // ---- Projects ----
-  async createProject(dto: CreateProjectDto) {
+  async createProject(dto: CreateProjectDto, orgId?: string) {
     const projectCode = await this.codingRule.generate('NPI_PROJECT');
     return this.prisma.npiProject.create({
-      data: { ...dto, projectCode, startDate: new Date(dto.startDate), targetDate: new Date(dto.targetDate) },
+      data: { ...dto, projectCode, startDate: new Date(dto.startDate), targetDate: new Date(dto.targetDate), orgId },
     });
   }
 
