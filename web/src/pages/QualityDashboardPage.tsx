@@ -1,12 +1,36 @@
 ﻿import { useState, useEffect } from 'react';
 import {
-  Card, Row, Col, Statistic, Typography, Progress, Table, Tag, Spin, Empty,
-  Modal, Form, Input, Select, InputNumber, Button, Space, Popconfirm, message,
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Typography,
+  Progress,
+  Table,
+  Tag,
+  Spin,
+  Empty,
+  Modal,
+  Form,
+  Input,
+  Select,
+  InputNumber,
+  Button,
+  Space,
+  Popconfirm,
+  message,
 } from 'antd';
 import {
-  WarningOutlined, CheckCircleOutlined, CloseCircleOutlined, ExperimentOutlined,
-  SafetyCertificateOutlined, RiseOutlined, FallOutlined,
-  PlusOutlined, EditOutlined, DeleteOutlined,
+  WarningOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ExperimentOutlined,
+  SafetyCertificateOutlined,
+  RiseOutlined,
+  FallOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -21,15 +45,16 @@ export default function QualityDashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/dashboard/quality-kpi').then(r => r.json()),
-      fetch('/api/quality/objectives').then(r => r.json()),
-    ]).then(([d, objs]) => {
-      setData(d);
-      setObjectives(objs);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+      fetch('/api/dashboard/quality-kpi').then((r) => r.json()),
+      fetch('/api/quality/objectives').then((r) => r.json()),
+    ])
+      .then(([d, objs]) => {
+        setData(d);
+        setObjectives(objs);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
-
 
   const fetchObjectives = async () => {
     const res = await fetch('/api/quality/objectives');
@@ -54,10 +79,10 @@ export default function QualityDashboardPage() {
     setObjModalOpen(true);
   };
 
- const handleObjOk = async () => {
-   const values = await objForm.validateFields();
+  const handleObjOk = async () => {
+    const values = await objForm.validateFields();
     const url = editingObj ? `/api/quality/objectives/${editingObj.id}` : '/api/quality/objectives';
-   const method = editingObj ? 'PATCH' : 'POST';
+    const method = editingObj ? 'PATCH' : 'POST';
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -72,9 +97,9 @@ export default function QualityDashboardPage() {
     }
   };
 
- const deleteObj = async (id: string) => {
+  const deleteObj = async (id: string) => {
     await fetch(`/api/quality/objectives/${id}`, { method: 'DELETE' });
-   message.success('已删除');
+    message.success('已删除');
     await fetchObjectives();
   };
 
@@ -87,26 +112,50 @@ export default function QualityDashboardPage() {
     { title: '目标名称', dataIndex: 'objName', key: 'objName' },
     { title: '类别', dataIndex: 'category', key: 'category', width: 80 },
     {
-      title: '达成率', key: 'rate', width: 200,
+      title: '达成率',
+      key: 'rate',
+      width: 200,
       render: (_: any, r: any) => {
-        const pct = r.targetValue > 0 ? (r.currentValue / r.targetValue * 100) : 0;
-        return <Progress percent={Math.min(pct, 100)} size="small" status={pct >= 100 ? 'success' : pct >= 80 ? 'active' : 'exception'} format={() => `${r.currentValue}/${r.targetValue}${r.unit}`} />;
+        const pct = r.targetValue > 0 ? (r.currentValue / r.targetValue) * 100 : 0;
+        return (
+          <Progress
+            percent={Math.min(pct, 100)}
+            size="small"
+            status={pct >= 100 ? 'success' : pct >= 80 ? 'active' : 'exception'}
+            format={() => `${r.currentValue}/${r.targetValue}${r.unit}`}
+          />
+        );
       },
     },
     {
-      title: '状态', dataIndex: 'status', key: 'status', width: 80,
-      render: (s: string) => <Tag color={s === 'active' ? 'green' : 'default'}>{s === 'active' ? '进行中' : s}</Tag>,
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80,
+      render: (s: string) => (
+        <Tag color={s === 'active' ? 'green' : 'default'}>{s === 'active' ? '进行中' : s}</Tag>
+      ),
     },
   ];
 
   const complaintMonthColumns = [
     { title: '月份', dataIndex: 'month', key: 'month', width: 60, render: (v: number) => `${v}月` },
     {
-      title: '投诉数', dataIndex: 'count', key: 'count',
+      title: '投诉数',
+      dataIndex: 'count',
+      key: 'count',
       render: (v: number, _: any, i: number) => {
         const max = Math.max(...complaints.byMonth.map((m: any) => m.count), 1);
-        const pct = (v / max * 100);
-        return <Progress percent={pct} showInfo={false} size="small" strokeColor={v > (max * 0.7) ? '#ff4d4f' : '#52c41a'} format={() => `${v}`} />;
+        const pct = (v / max) * 100;
+        return (
+          <Progress
+            percent={pct}
+            showInfo={false}
+            size="small"
+            strokeColor={v > max * 0.7 ? '#ff4d4f' : '#52c41a'}
+            format={() => `${v}`}
+          />
+        );
       },
     },
     { title: '', dataIndex: 'count', key: 'count2', width: 40 },
@@ -119,22 +168,44 @@ export default function QualityDashboardPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="客诉总数 (本年)" value={complaints.total} prefix={<WarningOutlined />} />
+            <Statistic
+              title="客诉总数 (本年)"
+              value={complaints.total}
+              prefix={<WarningOutlined />}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="未关闭客诉" value={complaints.openCount} valueStyle={{ color: complaints.openCount > 0 ? '#ff4d4f' : undefined }} />
+            <Statistic
+              title="未关闭客诉"
+              value={complaints.openCount}
+              valueStyle={{ color: complaints.openCount > 0 ? '#ff4d4f' : undefined }}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="OQC 合格率" value={quality.oqcPassRate} suffix="%" precision={1} valueStyle={{ color: quality.oqcPassRate >= 95 ? '#52c41a' : '#ff4d4f' }} prefix={<CheckCircleOutlined />} />
+            <Statistic
+              title="OQC 合格率"
+              value={quality.oqcPassRate}
+              suffix="%"
+              precision={1}
+              valueStyle={{ color: quality.oqcPassRate >= 95 ? '#52c41a' : '#ff4d4f' }}
+              prefix={<CheckCircleOutlined />}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="IQC 合格率" value={quality.iqcPassRate} suffix="%" precision={1} valueStyle={{ color: quality.iqcPassRate >= 95 ? '#52c41a' : '#ff4d4f' }} prefix={<ExperimentOutlined />} />
+            <Statistic
+              title="IQC 合格率"
+              value={quality.iqcPassRate}
+              suffix="%"
+              precision={1}
+              valueStyle={{ color: quality.iqcPassRate >= 95 ? '#52c41a' : '#ff4d4f' }}
+              prefix={<ExperimentOutlined />}
+            />
           </Card>
         </Col>
       </Row>
@@ -142,22 +213,42 @@ export default function QualityDashboardPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="CAPA 关闭率" value={quality.capa.closeRate} suffix="%" precision={1} valueStyle={{ color: quality.capa.closeRate >= 80 ? '#52c41a' : '#ff4d4f' }} />
+            <Statistic
+              title="CAPA 关闭率"
+              value={quality.capa.closeRate}
+              suffix="%"
+              precision={1}
+              valueStyle={{ color: quality.capa.closeRate >= 80 ? '#52c41a' : '#ff4d4f' }}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="OTIF 准时交付率" value={quality.otifRate} suffix="%" precision={1} valueStyle={{ color: quality.otifRate >= 90 ? '#52c41a' : '#ff4d4f' }} />
+            <Statistic
+              title="OTIF 准时交付率"
+              value={quality.otifRate}
+              suffix="%"
+              precision={1}
+              valueStyle={{ color: quality.otifRate >= 90 ? '#52c41a' : '#ff4d4f' }}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="NCR 总数" value={quality.ncr.total} prefix={<CloseCircleOutlined />} />
+            <Statistic
+              title="NCR 总数"
+              value={quality.ncr.total}
+              prefix={<CloseCircleOutlined />}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="未关闭 NCR" value={quality.ncr.open} valueStyle={{ color: quality.ncr.open > 0 ? '#ff4d4f' : undefined }} />
+            <Statistic
+              title="未关闭 NCR"
+              value={quality.ncr.open}
+              valueStyle={{ color: quality.ncr.open > 0 ? '#ff4d4f' : undefined }}
+            />
           </Card>
         </Col>
       </Row>
@@ -170,17 +261,32 @@ export default function QualityDashboardPage() {
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="即将过期资质" value={training.expiringQualifications} valueStyle={{ color: training.expiringQualifications > 0 ? '#faad14' : undefined }} />
+            <Statistic
+              title="即将过期资质"
+              value={training.expiringQualifications}
+              valueStyle={{ color: training.expiringQualifications > 0 ? '#faad14' : undefined }}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="合格供应商" value={suppliers.ratings?.filter((r: any) => r.rating === 'A' || r.rating === 'B').reduce((s: number, r: any) => s + r.count, 0) || 0} />
+            <Statistic
+              title="合格供应商"
+              value={
+                suppliers.ratings
+                  ?.filter((r: any) => r.rating === 'A' || r.rating === 'B')
+                  .reduce((s: number, r: any) => s + r.count, 0) || 0
+              }
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="需淘汰供应商" value={suppliers.ratings?.find((r: any) => r.rating === 'D')?.count || 0} valueStyle={{ color: '#ff4d4f' }} />
+            <Statistic
+              title="需淘汰供应商"
+              value={suppliers.ratings?.find((r: any) => r.rating === 'D')?.count || 0}
+              valueStyle={{ color: '#ff4d4f' }}
+            />
           </Card>
         </Col>
       </Row>
@@ -189,25 +295,51 @@ export default function QualityDashboardPage() {
         <Col span={12}>
           <Card title="质量目标达成" size="small">
             {objectives && objectives.length > 0 ? (
-              <Table dataSource={objectives} columns={objectiveColumns} rowKey="id" size="small" pagination={false} />
-            ) : <Empty description="暂无质量目标数据" />}
+              <Table
+                dataSource={objectives}
+                columns={objectiveColumns}
+                rowKey="id"
+                size="small"
+                pagination={false}
+              />
+            ) : (
+              <Empty description="暂无质量目标数据" />
+            )}
           </Card>
         </Col>
         <Col span={12}>
           <Card title={`客诉月度趋势 (${new Date().getFullYear()})`} size="small">
             {complaints.byMonth && complaints.byMonth.length > 0 ? (
-              <Table dataSource={complaints.byMonth} columns={complaintMonthColumns} rowKey="month" size="small" pagination={false} showHeader={false} />
-            ) : <Empty description="暂无客诉数据" />}
+              <Table
+                dataSource={complaints.byMonth}
+                columns={complaintMonthColumns}
+                rowKey="month"
+                size="small"
+                pagination={false}
+                showHeader={false}
+              />
+            ) : (
+              <Empty description="暂无客诉数据" />
+            )}
             <div style={{ marginTop: 12 }}>
               <Text type="secondary">按类型: </Text>
               {complaints.byType?.map((t: any) => (
-                <Tag key={t.type}>{t.type}: {t.count}</Tag>
+                <Tag key={t.type}>
+                  {t.type}: {t.count}
+                </Tag>
               ))}
             </div>
             <div style={{ marginTop: 4 }}>
               <Text type="secondary">按严重度: </Text>
               {complaints.bySeverity?.map((s: any) => (
-                <Tag key={s.severity} color={s.severity === 'critical' ? 'red' : s.severity === 'major' ? 'orange' : 'blue'}>{s.severity}: {s.count}</Tag>
+                <Tag
+                  key={s.severity}
+                  color={
+                    s.severity === 'critical' ? 'red' : s.severity === 'major' ? 'orange' : 'blue'
+                  }
+                >
+                  {s.severity}: {s.count}
+                </Tag>
               ))}
             </div>
           </Card>
@@ -221,10 +353,15 @@ export default function QualityDashboardPage() {
               quality.ncr.byDefectType.map((d: any) => (
                 <div key={d.type} style={{ marginBottom: 8 }}>
                   <Text>{d.type}</Text>
-                  <Progress percent={Math.round(d.count / quality.ncr.total * 100)} size="small" />
+                  <Progress
+                    percent={Math.round((d.count / quality.ncr.total) * 100)}
+                    size="small"
+                  />
                 </div>
               ))
-            ) : <Empty description="暂无 NCR 数据" />}
+            ) : (
+              <Empty description="暂无 NCR 数据" />
+            )}
           </Card>
         </Col>
         <Col span={12}>
@@ -234,23 +371,49 @@ export default function QualityDashboardPage() {
                 const total = suppliers.ratings.reduce((s: number, x: any) => s + x.count, 0);
                 return (
                   <div key={r.rating} style={{ marginBottom: 8 }}>
-                    <Tag color={r.rating === 'A' ? 'green' : r.rating === 'B' ? 'blue' : r.rating === 'C' ? 'orange' : 'red'}>{r.rating}级</Tag>
-                    <Progress percent={Math.round(r.count / total * 100)} size="small" format={() => `${r.count}家`} />
+                    <Tag
+                      color={
+                        r.rating === 'A'
+                          ? 'green'
+                          : r.rating === 'B'
+                            ? 'blue'
+                            : r.rating === 'C'
+                              ? 'orange'
+                              : 'red'
+                      }
+                    >
+                      {r.rating}级
+                    </Tag>
+                    <Progress
+                      percent={Math.round((r.count / total) * 100)}
+                      size="small"
+                      format={() => `${r.count}家`}
+                    />
                   </div>
                 );
               })
-            ) : <Empty description="暂无供应商评级数据" />}
+            ) : (
+              <Empty description="暂无供应商评级数据" />
+            )}
           </Card>
         </Col>
       </Row>
-
 
       <Row gutter={16} style={{ marginTop: 16 }}>
         <Col span={24}>
           <Card
             title="质量目标管理"
             size="small"
-            extra={<Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => openObjModal()}>新建目标</Button>}
+            extra={
+              <Button
+                type="primary"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={() => openObjModal()}
+              >
+                新建目标
+              </Button>
+            }
           >
             {objectives && objectives.length > 0 ? (
               <Table
@@ -262,18 +425,46 @@ export default function QualityDashboardPage() {
                   { title: '目标编号', dataIndex: 'objCode', width: 140 },
                   { title: '目标名称', dataIndex: 'objName' },
                   { title: '类别', dataIndex: 'category', width: 80 },
-                  { title: '目标值', dataIndex: 'targetValue', width: 80, render: (v: number) => v },
-                  { title: '当前值', dataIndex: 'currentValue', width: 80, render: (v: number) => v },
-                  { title: '周期', key: 'period', width: 120, render: (_: any, r: any) => `${r.periodYear}年` },
                   {
-                    title: '状态', dataIndex: 'status', width: 80,
-                    render: (s: string) => <Tag color={s === 'active' ? 'green' : 'default'}>{s === 'active' ? '进行中' : s}</Tag>,
+                    title: '目标值',
+                    dataIndex: 'targetValue',
+                    width: 80,
+                    render: (v: number) => v,
                   },
                   {
-                    title: '', key: 'actions', width: 100,
+                    title: '当前值',
+                    dataIndex: 'currentValue',
+                    width: 80,
+                    render: (v: number) => v,
+                  },
+                  {
+                    title: '周期',
+                    key: 'period',
+                    width: 120,
+                    render: (_: any, r: any) => `${r.periodYear}年`,
+                  },
+                  {
+                    title: '状态',
+                    dataIndex: 'status',
+                    width: 80,
+                    render: (s: string) => (
+                      <Tag color={s === 'active' ? 'green' : 'default'}>
+                        {s === 'active' ? '进行中' : s}
+                      </Tag>
+                    ),
+                  },
+                  {
+                    title: '',
+                    key: 'actions',
+                    width: 100,
                     render: (_: any, r: any) => (
                       <Space size="small">
-                        <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openObjModal(r)} />
+                        <Button
+                          type="link"
+                          size="small"
+                          icon={<EditOutlined />}
+                          onClick={() => openObjModal(r)}
+                        />
                         <Popconfirm title="确认删除？" onConfirm={() => deleteObj(r.id)}>
                           <Button type="link" danger size="small" icon={<DeleteOutlined />} />
                         </Popconfirm>
@@ -282,7 +473,9 @@ export default function QualityDashboardPage() {
                   },
                 ]}
               />
-            ) : <Empty description="暂未设定质量目标，点击右上角新建" />}
+            ) : (
+              <Empty description="暂未设定质量目标，点击右上角新建" />
+            )}
           </Card>
         </Col>
       </Row>
@@ -297,19 +490,25 @@ export default function QualityDashboardPage() {
         width={560}
       >
         <Form form={objForm} layout="vertical">
-          <Form.Item name="objName" label="目标名称" rules={[{ required: true, message: '请输入目标名称' }]}>
+          <Form.Item
+            name="objName"
+            label="目标名称"
+            rules={[{ required: true, message: '请输入目标名称' }]}
+          >
             <Input placeholder="如：OQC合格率" />
           </Form.Item>
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="category" label="类别" initialValue="质量">
-                <Select options={[
-                  { label: '质量', value: '质量' },
-                  { label: '交付', value: '交付' },
-                  { label: '成本', value: '成本' },
-                  { label: '安全', value: '安全' },
-                  { label: '培训', value: '培训' },
-                ]} />
+                <Select
+                  options={[
+                    { label: '质量', value: '质量' },
+                    { label: '交付', value: '交付' },
+                    { label: '成本', value: '成本' },
+                    { label: '安全', value: '安全' },
+                    { label: '培训', value: '培训' },
+                  ]}
+                />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -319,7 +518,14 @@ export default function QualityDashboardPage() {
             </Col>
             <Col span={8}>
               <Form.Item name="unit" label="单位" initialValue="%">
-                <Select options={[{ label: '%', value: '%' }, { label: '次', value: '次' }, { label: '件', value: '件' }, { label: '天', value: '天' }]} />
+                <Select
+                  options={[
+                    { label: '%', value: '%' },
+                    { label: '次', value: '次' },
+                    { label: '件', value: '件' },
+                    { label: '天', value: '天' },
+                  ]}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -343,20 +549,24 @@ export default function QualityDashboardPage() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="period" label="周期" initialValue="monthly">
-                <Select options={[
-                  { label: '月度', value: 'monthly' },
-                  { label: '季度', value: 'quarterly' },
-                  { label: '年度', value: 'yearly' },
-                ]} />
+                <Select
+                  options={[
+                    { label: '月度', value: 'monthly' },
+                    { label: '季度', value: 'quarterly' },
+                    { label: '年度', value: 'yearly' },
+                  ]}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="status" label="状态" initialValue="active">
-                <Select options={[
-                  { label: '进行中', value: 'active' },
-                  { label: '已达成', value: 'achieved' },
-                  { label: '已关闭', value: 'closed' },
-                ]} />
+                <Select
+                  options={[
+                    { label: '进行中', value: 'active' },
+                    { label: '已达成', value: 'achieved' },
+                    { label: '已关闭', value: 'closed' },
+                  ]}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -370,9 +580,10 @@ export default function QualityDashboardPage() {
       </Modal>
 
       <div style={{ marginTop: 12, textAlign: 'right' }}>
-        <Text type="secondary">数据快照时间: {data.snapshotDate ? new Date(data.snapshotDate).toLocaleString() : '-'}</Text>
+        <Text type="secondary">
+          数据快照时间: {data.snapshotDate ? new Date(data.snapshotDate).toLocaleString() : '-'}
+        </Text>
       </div>
     </div>
   );
 }
-

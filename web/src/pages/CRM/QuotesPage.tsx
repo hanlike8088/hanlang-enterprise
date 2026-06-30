@@ -1,34 +1,84 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, Popconfirm, Space, Tag, message, Descriptions, Card, Table as AntTable, Row, Col, Statistic } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, EyeOutlined, CalculatorOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Popconfirm,
+  Space,
+  Tag,
+  message,
+  Descriptions,
+  Card,
+  Table as AntTable,
+  Row,
+  Col,
+  Statistic,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  EyeOutlined,
+  CalculatorOutlined,
+} from '@ant-design/icons';
 import { crmApi, plmApi } from '../../services/api';
 
 interface Product {
-  id: string; productCode: string; productName: string; category?: string;
+  id: string;
+  productCode: string;
+  productName: string;
+  category?: string;
 }
 
 interface Customer {
-  id: string; customerName: string; customerCode: string;
+  id: string;
+  customerName: string;
+  customerCode: string;
 }
 
 interface QuoteItem {
-  id?: string; materialCode: string; materialName: string;
-  specification?: string; unit: string; quantity: number;
-  unitPrice: number; totalPrice: number; sortOrder: number;
+  id?: string;
+  materialCode: string;
+  materialName: string;
+  specification?: string;
+  unit: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  sortOrder: number;
 }
 
 interface Quote {
-  id: string; quoteCode: string; productId: string;
-  customerId?: string; customerName?: string;
+  id: string;
+  quoteCode: string;
+  productId: string;
+  customerId?: string;
+  customerName?: string;
   customer?: { id: string; customerName: string };
-  materialCost: number; laborCost: number; manufacturingFee: number;
-  referencePrice: number; profitRate: number; finalPrice: number;
-  status: string; notes?: string; validUntil?: string;
-  items: QuoteItem[]; createdAt: string;
+  materialCost: number;
+  laborCost: number;
+  manufacturingFee: number;
+  referencePrice: number;
+  profitRate: number;
+  finalPrice: number;
+  status: string;
+  notes?: string;
+  validUntil?: string;
+  items: QuoteItem[];
+  createdAt: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: 'default', submitted: 'blue', confirmed: 'green', rejected: 'red', expired: 'orange',
+  draft: 'default',
+  submitted: 'blue',
+  confirmed: 'green',
+  rejected: 'red',
+  expired: 'orange',
 };
 
 export default function 报价管理Page() {
@@ -50,23 +100,29 @@ export default function 报价管理Page() {
 
   const fetch报价管理 = async () => {
     setLoading(true);
-    try { set报价管理(await crmApi.getQuotes(keyword || undefined, statusFilter)); }
-    catch { message.error('加载报价列表失败'); }
-    finally { setLoading(false); }
+    try {
+      set报价管理(await crmApi.getQuotes(keyword || undefined, statusFilter));
+    } catch {
+      message.error('加载报价列表失败');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchBasics = async () => {
     try {
-      const [prods, custs] = await Promise.all([
-        plmApi.getProducts(),
-        crmApi.getCustomers(),
-      ]);
+      const [prods, custs] = await Promise.all([plmApi.getProducts(), crmApi.getCustomers()]);
       set产品管理(prods);
       set客户管理(custs);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
-  useEffect(() => { fetch报价管理(); fetchBasics(); }, []);
+  useEffect(() => {
+    fetch报价管理();
+    fetchBasics();
+  }, []);
 
   const handleCreate = () => {
     setEditingQuote(null);
@@ -78,7 +134,7 @@ export default function 报价管理Page() {
 
   const handleEdit = async (quote: Quote) => {
     setEditingQuote(quote);
-    setBomItems(quote.items.map(i => ({ ...i })));
+    setBomItems(quote.items.map((i) => ({ ...i })));
     form.setFieldsValue({
       productId: quote.productId,
       customerId: quote.customerId,
@@ -97,24 +153,33 @@ export default function 报价管理Page() {
       const detail = await crmApi.getQuote(quote.id);
       setSelectedQuote(detail);
       setDetailVisible(true);
-    } catch { message.error('加载报价详情失败'); }
+    } catch {
+      message.error('加载报价详情失败');
+    }
   };
 
   const handleSelectProduct = async (productId: string) => {
-    if (!productId) { setBomItems([]); return; }
+    if (!productId) {
+      setBomItems([]);
+      return;
+    }
     try {
       const bom = await crmApi.getProductBom(productId);
-      setBomItems(bom.items.map((item: any, idx: number) => ({
-        materialCode: item.materialCode,
-        materialName: item.materialName,
-        specification: item.specification,
-        unit: item.unit,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice || 0,
-        totalPrice: (item.unitPrice || 0) * item.quantity,
-        sortOrder: idx,
-      })));
-    } catch { message.error('加载BOM失败'); }
+      setBomItems(
+        bom.items.map((item: any, idx: number) => ({
+          materialCode: item.materialCode,
+          materialName: item.materialName,
+          specification: item.specification,
+          unit: item.unit,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice || 0,
+          totalPrice: (item.unitPrice || 0) * item.quantity,
+          sortOrder: idx,
+        })),
+      );
+    } catch {
+      message.error('加载BOM失败');
+    }
   };
 
   const handleItemPriceChange = (index: number, unitPrice: number) => {
@@ -157,7 +222,7 @@ export default function 报价管理Page() {
       }
       const payload = {
         ...values,
-        items: bomItems.map(i => ({
+        items: bomItems.map((i) => ({
           materialCode: i.materialCode,
           materialName: i.materialName,
           specification: i.specification,
@@ -184,41 +249,97 @@ export default function 报价管理Page() {
   };
 
   const handleDelete = async (id: string) => {
-    try { await crmApi.deleteQuote(id); message.success('报价已删除'); fetch报价管理(); }
-    catch { message.error('删除失败'); }
+    try {
+      await crmApi.deleteQuote(id);
+      message.success('报价已删除');
+      fetch报价管理();
+    } catch {
+      message.error('删除失败');
+    }
   };
 
   const columns = [
     { title: '报价单号', dataIndex: 'quoteCode', key: 'quoteCode', width: 140 },
     {
-      title: '客户', key: 'customer', width: 160,
+      title: '客户',
+      key: 'customer',
+      width: 160,
       render: (_: any, r: Quote) => r.customer?.customerName || r.customerName || '-',
     },
-    { title: '物料成本', dataIndex: 'materialCost', key: 'materialCost', width: 100, render: (v: number) => `¥${v.toFixed(2)}` },
-    { title: '人工', dataIndex: 'laborCost', key: 'laborCost', width: 80, render: (v: number) => `¥${v.toFixed(2)}` },
-    { title: '制造费', dataIndex: 'manufacturingFee', key: 'manufacturingFee', width: 80, render: (v: number) => `¥${v.toFixed(2)}` },
-    { title: '参考价', dataIndex: 'referencePrice', key: 'referencePrice', width: 100, render: (v: number) => `¥${v.toFixed(2)}` },
-    { title: '利润率', dataIndex: 'profitRate', key: 'profitRate', width: 80, render: (v: number) => `${v}%` },
     {
-      title: '最终报价', dataIndex: 'finalPrice', key: 'finalPrice', width: 110,
-      render: (v: number, r: Quote) => <strong style={{ color: '#1890ff' }}>¥{v.toFixed(2)}</strong>,
+      title: '物料成本',
+      dataIndex: 'materialCost',
+      key: 'materialCost',
+      width: 100,
+      render: (v: number) => `¥${v.toFixed(2)}`,
     },
     {
-      title: '状态', dataIndex: 'status', key: 'status', width: 80,
+      title: '人工',
+      dataIndex: 'laborCost',
+      key: 'laborCost',
+      width: 80,
+      render: (v: number) => `¥${v.toFixed(2)}`,
+    },
+    {
+      title: '制造费',
+      dataIndex: 'manufacturingFee',
+      key: 'manufacturingFee',
+      width: 80,
+      render: (v: number) => `¥${v.toFixed(2)}`,
+    },
+    {
+      title: '参考价',
+      dataIndex: 'referencePrice',
+      key: 'referencePrice',
+      width: 100,
+      render: (v: number) => `¥${v.toFixed(2)}`,
+    },
+    {
+      title: '利润率',
+      dataIndex: 'profitRate',
+      key: 'profitRate',
+      width: 80,
+      render: (v: number) => `${v}%`,
+    },
+    {
+      title: '最终报价',
+      dataIndex: 'finalPrice',
+      key: 'finalPrice',
+      width: 110,
+      render: (v: number, r: Quote) => (
+        <strong style={{ color: '#1890ff' }}>¥{v.toFixed(2)}</strong>
+      ),
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80,
       render: (s: string) => <Tag color={STATUS_COLORS[s] || 'default'}>{s}</Tag>,
     },
     {
-      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 120,
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 120,
       render: (v: string) => new Date(v).toLocaleDateString('zh-CN'),
     },
     {
-      title: '操作', key: 'actions', width: 220,
+      title: '操作',
+      key: 'actions',
+      width: 220,
       render: (_: any, r: Quote) => (
         <Space>
-          <Button size="small" icon={<EyeOutlined />} onClick={() => handleViewDetail(r)}>查看</Button>
-          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>编辑</Button>
+          <Button size="small" icon={<EyeOutlined />} onClick={() => handleViewDetail(r)}>
+            查看
+          </Button>
+          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>
+            编辑
+          </Button>
           <Popconfirm title="确定删除此报价？" onConfirm={() => handleDelete(r.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />}>删除</Button>
+            <Button size="small" danger icon={<DeleteOutlined />}>
+              删除
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -233,10 +354,15 @@ export default function 报价管理Page() {
     { title: '单位', dataIndex: 'unit', width: 50 },
     { title: '数量', dataIndex: 'quantity', width: 60 },
     {
-      title: '单价', dataIndex: 'unitPrice', width: 100,
+      title: '单价',
+      dataIndex: 'unitPrice',
+      width: 100,
       render: (_: any, __: any, idx: number) => (
         <InputNumber
-          size="small" min={0} step={0.01} style={{ width: 80 }}
+          size="small"
+          min={0}
+          step={0.01}
+          style={{ width: 80 }}
           value={bomItems[idx]?.unitPrice || 0}
           onChange={(v) => handleItemPriceChange(idx, v || 0)}
           prefix="¥"
@@ -244,7 +370,9 @@ export default function 报价管理Page() {
       ),
     },
     {
-      title: '小计', dataIndex: 'totalPrice', width: 100,
+      title: '小计',
+      dataIndex: 'totalPrice',
+      width: 100,
       render: (v: number) => <strong>¥{v.toFixed(2)}</strong>,
     },
   ];
@@ -253,39 +381,71 @@ export default function 报价管理Page() {
     <div>
       <Space style={{ marginBottom: 16 }} wrap>
         <Input.Search
-          placeholder="搜索报价单号/客户" allowClear style={{ width: 220 }}
-          value={keyword} onChange={(e) => setKeyword(e.target.value)}
+          placeholder="搜索报价单号/客户"
+          allowClear
+          style={{ width: 220 }}
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
           onSearch={() => fetch报价管理()}
         />
         <Select
-          allowClear placeholder="状态筛选" style={{ width: 120 }}
-          value={statusFilter} onChange={(v) => { setStatusFilter(v); setTimeout(fetch报价管理, 0); }}
+          allowClear
+          placeholder="状态筛选"
+          style={{ width: 120 }}
+          value={statusFilter}
+          onChange={(v) => {
+            setStatusFilter(v);
+            setTimeout(fetch报价管理, 0);
+          }}
           options={[
-            { label: '草稿', value: 'draft' }, { label: '已提交', value: 'submitted' },
-            { label: '已确认', value: 'confirmed' }, { label: '已驳回', value: 'rejected' },
+            { label: '草稿', value: 'draft' },
+            { label: '已提交', value: 'submitted' },
+            { label: '已确认', value: 'confirmed' },
+            { label: '已驳回', value: 'rejected' },
           ]}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>新建报价</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+          新建报价
+        </Button>
       </Space>
 
-      <Table rowKey="id" dataSource={quotes} columns={columns} loading={loading} pagination={{ pageSize: 20 }} bordered size="small" />
+      <Table
+        rowKey="id"
+        dataSource={quotes}
+        columns={columns}
+        loading={loading}
+        pagination={{ pageSize: 20 }}
+        bordered
+        size="small"
+      />
 
       {/* Create/Edit Modal */}
       <Modal
         title={editingQuote ? '编辑报价' : '新建报价'}
-        open={modalVisible} onOk={handleSave}
+        open={modalVisible}
+        onOk={handleSave}
         onCancel={() => setModalVisible(false)}
-        width={900} confirmLoading={submitting} destroyOnClose
+        width={900}
+        confirmLoading={submitting}
+        destroyOnClose
       >
         <Form form={form} layout="vertical">
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="productId" label="选择产品" rules={[{ required: true, message: '请选择产品' }]}>
+              <Form.Item
+                name="productId"
+                label="选择产品"
+                rules={[{ required: true, message: '请选择产品' }]}
+              >
                 <Select
-                  showSearch optionFilterProp="label"
+                  showSearch
+                  optionFilterProp="label"
                   placeholder="选择产品"
                   onChange={handleSelectProduct}
-                  options={products.map(p => ({ label: `${p.productCode} ${p.productName}`, value: p.id }))}
+                  options={products.map((p) => ({
+                    label: `${p.productCode} ${p.productName}`,
+                    value: p.id,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -296,10 +456,14 @@ export default function 报价管理Page() {
             </Col>
             <Col span={6}>
               <Form.Item name="status" label="状态">
-                <Select options={[
-                  { label: '草稿', value: 'draft' }, { label: '已提交', value: 'submitted' },
-                  { label: '已确认', value: 'confirmed' }, { label: '已驳回', value: 'rejected' },
-                ]} />
+                <Select
+                  options={[
+                    { label: '草稿', value: 'draft' },
+                    { label: '已提交', value: 'submitted' },
+                    { label: '已确认', value: 'confirmed' },
+                    { label: '已驳回', value: 'rejected' },
+                  ]}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -307,8 +471,15 @@ export default function 报价管理Page() {
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="customerId" label="现有客户">
-                <Select allowClear showSearch optionFilterProp="label" placeholder="选择客户"
-                  options={customers.map(c => ({ label: `${c.customerName} (${c.customerCode})`, value: c.id }))}
+                <Select
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder="选择客户"
+                  options={customers.map((c) => ({
+                    label: `${c.customerName} (${c.customerCode})`,
+                    value: c.id,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -325,19 +496,42 @@ export default function 报价管理Page() {
           </Row>
 
           <Card title="物料清单" size="small" style={{ marginTop: 8 }}>
-            <AntTable rowKey="sortOrder" dataSource={bomItems} columns={bomColumns} pagination={false} bordered size="small" />
+            <AntTable
+              rowKey="sortOrder"
+              dataSource={bomItems}
+              columns={bomColumns}
+              pagination={false}
+              bordered
+              size="small"
+            />
             <Row gutter={16} style={{ marginTop: 12 }} justify="end">
               <Col>
                 <Space direction="vertical" size={4}>
-                  <Statistic title="物料成本" value={totals.materialCost} precision={2} prefix="¥" />
+                  <Statistic
+                    title="物料成本"
+                    value={totals.materialCost}
+                    precision={2}
+                    prefix="¥"
+                  />
                   <Form.Item name="laborCost" label="人工费" style={{ marginBottom: 0 }}>
                     <InputNumber min={0} step={1} prefix="¥" style={{ width: 140 }} />
                   </Form.Item>
                   <Form.Item name="manufacturingFee" label="制造费" style={{ marginBottom: 0 }}>
                     <InputNumber min={0} step={1} prefix="¥" style={{ width: 140 }} />
                   </Form.Item>
-                  <Statistic title="参考价格" value={totals.referencePrice} precision={2} prefix="¥" />
-                  <Statistic title="最终报价" value={totals.finalPrice} precision={2} prefix="¥" valueStyle={{ color: '#1890ff' }} />
+                  <Statistic
+                    title="参考价格"
+                    value={totals.referencePrice}
+                    precision={2}
+                    prefix="¥"
+                  />
+                  <Statistic
+                    title="最终报价"
+                    value={totals.finalPrice}
+                    precision={2}
+                    prefix="¥"
+                    valueStyle={{ color: '#1890ff' }}
+                  />
                 </Space>
               </Col>
             </Row>
@@ -348,34 +542,85 @@ export default function 报价管理Page() {
       {/* Detail Modal */}
       <Modal
         title={selectedQuote ? `报价详情 - ${selectedQuote.quoteCode}` : ''}
-        open={detailVisible} onCancel={() => setDetailVisible(false)}
-        width={800} footer={null}
+        open={detailVisible}
+        onCancel={() => setDetailVisible(false)}
+        width={800}
+        footer={null}
       >
         {selectedQuote && (
           <div>
             <Descriptions bordered size="small" column={3}>
               <Descriptions.Item label="报价单号">{selectedQuote.quoteCode}</Descriptions.Item>
-              <Descriptions.Item label="客户">{selectedQuote.customer?.customerName || selectedQuote.customerName || '-'}</Descriptions.Item>
-              <Descriptions.Item label="状态"><Tag color={STATUS_COLORS[selectedQuote.status]}>{selectedQuote.status}</Tag></Descriptions.Item>
-              <Descriptions.Item label="物料成本">¥{selectedQuote.materialCost?.toFixed(2)}</Descriptions.Item>
-              <Descriptions.Item label="人工费">¥{selectedQuote.laborCost?.toFixed(2)}</Descriptions.Item>
-              <Descriptions.Item label="制造费">¥{selectedQuote.manufacturingFee?.toFixed(2)}</Descriptions.Item>
-              <Descriptions.Item label="参考价格">¥{selectedQuote.referencePrice?.toFixed(2)}</Descriptions.Item>
+              <Descriptions.Item label="客户">
+                {selectedQuote.customer?.customerName || selectedQuote.customerName || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="状态">
+                <Tag color={STATUS_COLORS[selectedQuote.status]}>{selectedQuote.status}</Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="物料成本">
+                ¥{selectedQuote.materialCost?.toFixed(2)}
+              </Descriptions.Item>
+              <Descriptions.Item label="人工费">
+                ¥{selectedQuote.laborCost?.toFixed(2)}
+              </Descriptions.Item>
+              <Descriptions.Item label="制造费">
+                ¥{selectedQuote.manufacturingFee?.toFixed(2)}
+              </Descriptions.Item>
+              <Descriptions.Item label="参考价格">
+                ¥{selectedQuote.referencePrice?.toFixed(2)}
+              </Descriptions.Item>
               <Descriptions.Item label="利润率">{selectedQuote.profitRate}%</Descriptions.Item>
-              <Descriptions.Item label="最终报价"><strong style={{ color: '#1890ff', fontSize: 16 }}>¥{selectedQuote.finalPrice?.toFixed(2)}</strong></Descriptions.Item>
-              <Descriptions.Item label="创建时间" span={3}>{new Date(selectedQuote.createdAt).toLocaleString('zh-CN')}</Descriptions.Item>
-              {selectedQuote.notes && <Descriptions.Item label="备注" span={3}>{selectedQuote.notes}</Descriptions.Item>}
+              <Descriptions.Item label="最终报价">
+                <strong style={{ color: '#1890ff', fontSize: 16 }}>
+                  ¥{selectedQuote.finalPrice?.toFixed(2)}
+                </strong>
+              </Descriptions.Item>
+              <Descriptions.Item label="创建时间" span={3}>
+                {new Date(selectedQuote.createdAt).toLocaleString('zh-CN')}
+              </Descriptions.Item>
+              {selectedQuote.notes && (
+                <Descriptions.Item label="备注" span={3}>
+                  {selectedQuote.notes}
+                </Descriptions.Item>
+              )}
             </Descriptions>
             <Card title="物料清单" size="small" style={{ marginTop: 16 }}>
-              <AntTable rowKey="sortOrder" dataSource={selectedQuote.items} columns={[
-                { title: '#', key: 'idx', width: 40, render: (_: any, __: any, idx: number) => idx + 1 },
-                { title: '物料编码', dataIndex: 'materialCode', width: 120 },
-                { title: '物料名称', dataIndex: 'materialName' },
-                { title: '规格', dataIndex: 'specification', width: 80, render: (v: string) => v || '-' },
-                { title: '数量', dataIndex: 'quantity', width: 60 },
-                { title: '单价', dataIndex: 'unitPrice', width: 80, render: (v: number) => `¥${v.toFixed(2)}` },
-                { title: '小计', dataIndex: 'totalPrice', width: 90, render: (v: number) => <strong>¥{v.toFixed(2)}</strong> },
-              ]} pagination={false} bordered size="small" />
+              <AntTable
+                rowKey="sortOrder"
+                dataSource={selectedQuote.items}
+                columns={[
+                  {
+                    title: '#',
+                    key: 'idx',
+                    width: 40,
+                    render: (_: any, __: any, idx: number) => idx + 1,
+                  },
+                  { title: '物料编码', dataIndex: 'materialCode', width: 120 },
+                  { title: '物料名称', dataIndex: 'materialName' },
+                  {
+                    title: '规格',
+                    dataIndex: 'specification',
+                    width: 80,
+                    render: (v: string) => v || '-',
+                  },
+                  { title: '数量', dataIndex: 'quantity', width: 60 },
+                  {
+                    title: '单价',
+                    dataIndex: 'unitPrice',
+                    width: 80,
+                    render: (v: number) => `¥${v.toFixed(2)}`,
+                  },
+                  {
+                    title: '小计',
+                    dataIndex: 'totalPrice',
+                    width: 90,
+                    render: (v: number) => <strong>¥{v.toFixed(2)}</strong>,
+                  },
+                ]}
+                pagination={false}
+                bordered
+                size="small"
+              />
             </Card>
           </div>
         )}

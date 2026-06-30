@@ -61,64 +61,79 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}
+    >
       <Card style={{ width: 420, borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Title level={3} style={{ margin: 0 }}>瀚朗电机</Title>
+          <Title level={3} style={{ margin: 0 }}>
+            瀚朗电机
+          </Title>
           <Text type="secondary">企业管理平台</Text>
         </div>
-        <Tabs activeKey={activeTab} onChange={setActiveTab} centered items={[
-          {
-            key: 'login',
-            label: '登录',
-            children: (
-              <Form onFinish={handleLogin} layout="vertical" size="large">
-                <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
-                  <Input prefix={<UserOutlined />} placeholder="用户名" />
-                </Form.Item>
-                <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-                  <Input.Password prefix={<LockOutlined />} placeholder="密码" />
-                </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" block loading={loading}>
-                    登录
-                  </Button>
-                </Form.Item>
-              </Form>
-            ),
-          },
-          {
-            key: 'register',
-            label: '注册',
-            children: (
-              <Form onFinish={handleRegister} layout="vertical" size="large">
-                <Form.Item name="name" rules={[{ required: true, message: '请输入姓名' }]}>
-                  <Input prefix={<UserOutlined />} placeholder="姓名" />
-                </Form.Item>
-                <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
-                  <Input prefix={<UserOutlined />} placeholder="用户名" />
-                </Form.Item>
-                <Form.Item name="email" rules={[{ required: true, type: 'email', message: '请输入有效邮箱' }]}>
-                  <Input prefix={<MailOutlined />} placeholder="邮箱" />
-                </Form.Item>
-                <Form.Item name="password" rules={[{ required: true, min: 6, message: '密码至少6位' }]}>
-                  <Input.Password prefix={<LockOutlined />} placeholder="密码" />
-                </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" block loading={loading}>
-                    注册
-                  </Button>
-                </Form.Item>
-              </Form>
-            ),
-          },
-        ]} />
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          centered
+          items={[
+            {
+              key: 'login',
+              label: '登录',
+              children: (
+                <Form onFinish={handleLogin} layout="vertical" size="large">
+                  <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
+                    <Input prefix={<UserOutlined />} placeholder="用户名" />
+                  </Form.Item>
+                  <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
+                    <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+                  </Form.Item>
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit" block loading={loading}>
+                      登录
+                    </Button>
+                  </Form.Item>
+                </Form>
+              ),
+            },
+            {
+              key: 'register',
+              label: '注册',
+              children: (
+                <Form onFinish={handleRegister} layout="vertical" size="large">
+                  <Form.Item name="name" rules={[{ required: true, message: '请输入姓名' }]}>
+                    <Input prefix={<UserOutlined />} placeholder="姓名" />
+                  </Form.Item>
+                  <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
+                    <Input prefix={<UserOutlined />} placeholder="用户名" />
+                  </Form.Item>
+                  <Form.Item
+                    name="email"
+                    rules={[{ required: true, type: 'email', message: '请输入有效邮箱' }]}
+                  >
+                    <Input prefix={<MailOutlined />} placeholder="邮箱" />
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    rules={[{ required: true, min: 6, message: '密码至少6位' }]}
+                  >
+                    <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+                  </Form.Item>
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit" block loading={loading}>
+                      注册
+                    </Button>
+                  </Form.Item>
+                </Form>
+              ),
+            },
+          ]}
+        />
       </Card>
     </div>
   );

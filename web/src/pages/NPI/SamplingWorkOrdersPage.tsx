@@ -1,10 +1,29 @@
 import { useState, useEffect } from 'react';
 import {
-  Table, Button, Modal, Form, Input, InputNumber, DatePicker, Select, Tag, Space, message, Statistic, Row, Col, Card,
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  DatePicker,
+  Select,
+  Tag,
+  Space,
+  message,
+  Statistic,
+  Row,
+  Col,
+  Card,
 } from 'antd';
 import {
-  PlusOutlined, CheckCircleOutlined, CloseCircleOutlined, UserSwitchOutlined,
-  PlayCircleOutlined, PauseCircleOutlined, EyeOutlined,
+  PlusOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  UserSwitchOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+  EyeOutlined,
 } from '@ant-design/icons';
 import { samplingApi, drawingApi } from '../../services/api';
 import dayjs from 'dayjs';
@@ -48,13 +67,18 @@ export default function 打样管理Work销售订单Page() {
     try {
       const data = await samplingApi.getStats();
       setStats(data);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   useEffect(() => {
     load销售订单();
     loadStats();
-    drawingApi.getDrawings().then(set图纸管理).catch(() => {});
+    drawingApi
+      .getDrawings()
+      .then(set图纸管理)
+      .catch(() => {});
   }, [filterStatus]);
 
   const handleCreate = async (values: any) => {
@@ -103,12 +127,15 @@ export default function 打样管理Work销售订单Page() {
       title: '分配打样任务',
       content: <Input placeholder="打样技术员" id="assigneeInput" defaultValue={assignee} />,
       onOk: async () => {
-        const val = (document.getElementById('assigneeInput') as HTMLInputElement)?.value || assignee;
+        const val =
+          (document.getElementById('assigneeInput') as HTMLInputElement)?.value || assignee;
         try {
           await samplingApi.assignOrder(id, { assignee: val });
           message.success('分配成功');
           load销售订单();
-        } catch { message.error('分配失败'); }
+        } catch {
+          message.error('分配失败');
+        }
       },
     });
   };
@@ -118,7 +145,9 @@ export default function 打样管理Work销售订单Page() {
       await samplingApi.startProgress(id);
       message.success('开始打样');
       load销售订单();
-    } catch (e: any) { message.error(e.response?.data?.message || '操作失败'); }
+    } catch (e: any) {
+      message.error(e.response?.data?.message || '操作失败');
+    }
   };
 
   const handlePause = (id: string) => {
@@ -126,12 +155,15 @@ export default function 打样管理Work销售订单Page() {
       title: '暂停打样',
       content: <Input.TextArea placeholder="暂停原因" id="pauseReason" rows={3} />,
       onOk: async () => {
-        const reason = (document.getElementById('pauseReason') as HTMLTextAreaElement)?.value || '未说明';
+        const reason =
+          (document.getElementById('pauseReason') as HTMLTextAreaElement)?.value || '未说明';
         try {
           await samplingApi.pauseProgress(id, reason);
           message.success('已暂停');
           load销售订单();
-        } catch { message.error('暂停失败'); }
+        } catch {
+          message.error('暂停失败');
+        }
       },
     });
   };
@@ -145,7 +177,9 @@ export default function 打样管理Work销售订单Page() {
           await samplingApi.completeProgress(id);
           message.success('打样完成');
           load销售订单();
-        } catch { message.error('操作失败'); }
+        } catch {
+          message.error('操作失败');
+        }
       },
     });
   };
@@ -171,31 +205,86 @@ export default function 打样管理Work销售订单Page() {
         return <Tag color={st.color}>{st.label}</Tag>;
       },
     },
-    { title: '截止日期', dataIndex: 'deadline', key: 'deadline', width: 120, render: (d: string) => dayjs(d).format('YYYY-MM-DD') },
-    { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 120, render: (d: string) => dayjs(d).format('YYYY-MM-DD') },
+    {
+      title: '截止日期',
+      dataIndex: 'deadline',
+      key: 'deadline',
+      width: 120,
+      render: (d: string) => dayjs(d).format('YYYY-MM-DD'),
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 120,
+      render: (d: string) => dayjs(d).format('YYYY-MM-DD'),
+    },
     {
       title: '操作',
       key: 'actions',
       width: 280,
       render: (_: any, record: any) => (
         <Space size="small">
-          <Button size="small" icon={<EyeOutlined />} onClick={() => handleViewDetail(record)}>详情</Button>
+          <Button size="small" icon={<EyeOutlined />} onClick={() => handleViewDetail(record)}>
+            详情
+          </Button>
           {record.status === 'pending_approval' && (
             <>
-              <Button size="small" type="primary" icon={<CheckCircleOutlined />} onClick={() => handleApprove(record.id)}>通过</Button>
-              <Button size="small" danger icon={<CloseCircleOutlined />} onClick={() => handleReject(record.id)}>驳回</Button>
+              <Button
+                size="small"
+                type="primary"
+                icon={<CheckCircleOutlined />}
+                onClick={() => handleApprove(record.id)}
+              >
+                通过
+              </Button>
+              <Button
+                size="small"
+                danger
+                icon={<CloseCircleOutlined />}
+                onClick={() => handleReject(record.id)}
+              >
+                驳回
+              </Button>
             </>
           )}
           {record.status === 'approved' && (
-            <Button size="small" icon={<UserSwitchOutlined />} onClick={() => handleAssign(record.id, record.assignee)}>分配</Button>
+            <Button
+              size="small"
+              icon={<UserSwitchOutlined />}
+              onClick={() => handleAssign(record.id, record.assignee)}
+            >
+              分配
+            </Button>
           )}
           {(record.status === 'assigned' || record.status === 'exception_paused') && (
-            <Button size="small" type="primary" icon={<PlayCircleOutlined />} onClick={() => handleStart(record.id)}>开始</Button>
+            <Button
+              size="small"
+              type="primary"
+              icon={<PlayCircleOutlined />}
+              onClick={() => handleStart(record.id)}
+            >
+              开始
+            </Button>
           )}
           {record.status === 'in_progress' && (
             <>
-              <Button size="small" danger icon={<PauseCircleOutlined />} onClick={() => handlePause(record.id)}>暂停</Button>
-              <Button size="small" type="primary" icon={<CheckCircleOutlined />} onClick={() => handleComplete(record.id)}>完成</Button>
+              <Button
+                size="small"
+                danger
+                icon={<PauseCircleOutlined />}
+                onClick={() => handlePause(record.id)}
+              >
+                暂停
+              </Button>
+              <Button
+                size="small"
+                type="primary"
+                icon={<CheckCircleOutlined />}
+                onClick={() => handleComplete(record.id)}
+              >
+                完成
+              </Button>
             </>
           )}
         </Space>
@@ -206,8 +295,20 @@ export default function 打样管理Work销售订单Page() {
   return (
     <div>
       <Row gutter={24} style={{ marginBottom: 24 }}>
-        <Col span={6}><Card><Statistic title="总工单数" value={stats?.total || 0} /></Card></Col>
-        <Col span={6}><Card><Statistic title="超期工单" value={stats?.overdue || 0} valueStyle={{ color: '#cf1322' }} /></Card></Col>
+        <Col span={6}>
+          <Card>
+            <Statistic title="总工单数" value={stats?.total || 0} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="超期工单"
+              value={stats?.overdue || 0}
+              valueStyle={{ color: '#cf1322' }}
+            />
+          </Card>
+        </Col>
         <Col span={12}>
           <Card>
             <Space>
@@ -243,7 +344,10 @@ export default function 打样管理Work销售订单Page() {
       <Modal
         title="新建打样工单"
         open={modalOpen}
-        onCancel={() => { setModalOpen(false); form.resetFields(); }}
+        onCancel={() => {
+          setModalOpen(false);
+          form.resetFields();
+        }}
         footer={null}
         width={600}
       >
@@ -264,13 +368,21 @@ export default function 打样管理Work销售订单Page() {
             <Input placeholder="可选" />
           </Form.Item>
           <Form.Item name="drawingId" label="参考图纸">
-            <Select allowClear placeholder="选择相关图纸" options={drawings.filter((d:any) => d.status === 'active').map((d:any) => ({ value: d.id, label: d.drawingCode + ' - ' + d.drawingName }))} />
+            <Select
+              allowClear
+              placeholder="选择相关图纸"
+              options={drawings
+                .filter((d: any) => d.status === 'active')
+                .map((d: any) => ({ value: d.id, label: d.drawingCode + ' - ' + d.drawingName }))}
+            />
           </Form.Item>
           <Form.Item name="description" label="打样说明">
             <TextArea rows={3} placeholder="打样要求、规格说明等" />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit">提交</Button>
+            <Button type="primary" htmlType="submit">
+              提交
+            </Button>
           </Form.Item>
         </Form>
       </Modal>
@@ -284,18 +396,56 @@ export default function 打样管理Work销售订单Page() {
       >
         {detailOrder && (
           <div>
-            <p><strong>工单号：</strong>{detailOrder.orderCode}</p>
-            <p><strong>产品名称：</strong>{detailOrder.productName}</p>
-            <p><strong>数量：</strong>{detailOrder.quantity}</p>
-            <p><strong>状态：</strong><Tag color={STATUS_MAP[detailOrder.status]?.color}>{STATUS_MAP[detailOrder.status]?.label}</Tag></p>
-            <p><strong>申请人：</strong>{detailOrder.applicant}</p>
-            <p><strong>客户：</strong>{detailOrder.customerName || '-'}</p>
-            <p><strong>截止日期：</strong>{detailOrder.deadline ? dayjs(detailOrder.deadline).format('YYYY-MM-DD') : '-'}</p>
-            <p><strong>打样说明：</strong>{detailOrder.description || '-'}</p>
-            <p><strong>打样技术员：</strong>{detailOrder.assignee || '-'}</p>
-            <p><strong>审批人：</strong>{detailOrder.approver || '-'}</p>
-            <p><strong>审批意见：</strong>{detailOrder.approverComment || '-'}</p>
-            <p><strong>异常原因：</strong>{detailOrder.exceptionReason || '-'}</p>
+            <p>
+              <strong>工单号：</strong>
+              {detailOrder.orderCode}
+            </p>
+            <p>
+              <strong>产品名称：</strong>
+              {detailOrder.productName}
+            </p>
+            <p>
+              <strong>数量：</strong>
+              {detailOrder.quantity}
+            </p>
+            <p>
+              <strong>状态：</strong>
+              <Tag color={STATUS_MAP[detailOrder.status]?.color}>
+                {STATUS_MAP[detailOrder.status]?.label}
+              </Tag>
+            </p>
+            <p>
+              <strong>申请人：</strong>
+              {detailOrder.applicant}
+            </p>
+            <p>
+              <strong>客户：</strong>
+              {detailOrder.customerName || '-'}
+            </p>
+            <p>
+              <strong>截止日期：</strong>
+              {detailOrder.deadline ? dayjs(detailOrder.deadline).format('YYYY-MM-DD') : '-'}
+            </p>
+            <p>
+              <strong>打样说明：</strong>
+              {detailOrder.description || '-'}
+            </p>
+            <p>
+              <strong>打样技术员：</strong>
+              {detailOrder.assignee || '-'}
+            </p>
+            <p>
+              <strong>审批人：</strong>
+              {detailOrder.approver || '-'}
+            </p>
+            <p>
+              <strong>审批意见：</strong>
+              {detailOrder.approverComment || '-'}
+            </p>
+            <p>
+              <strong>异常原因：</strong>
+              {detailOrder.exceptionReason || '-'}
+            </p>
           </div>
         )}
       </Modal>

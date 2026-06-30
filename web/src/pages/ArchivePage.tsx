@@ -22,50 +22,99 @@ export default function ArchivePage() {
 
   const fetchRuns = async () => {
     setLoading(true);
-    try { const res = await fetch('/api/archives/runs'); setRuns(await res.json()); }
-    finally { setLoading(false); }
+    try {
+      const res = await fetch('/api/archives/runs');
+      setRuns(await res.json());
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchRuns(); }, []);
+  useEffect(() => {
+    fetchRuns();
+  }, []);
 
   const handleArchive = async () => {
     setRunning(true);
     try {
       const res = await fetch('/api/archives/run', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ entityType, olderThanMonths: months, triggeredBy: 'admin' }),
       });
       const result = await res.json();
       if (result.status === 'failed') message.error(`Failed: ${result.error}`);
       else message.success(`Archived ${result.recordsCount} records`);
       fetchRuns();
-    } catch { message.error('归档失败'); }
-    finally { setRunning(false); }
+    } catch {
+      message.error('归档失败');
+    } finally {
+      setRunning(false);
+    }
   };
 
   const columns = [
     { title: 'Entity', dataIndex: 'entityType', render: (v: string) => <Tag>{v}</Tag> },
-    { title: 'Cutoff', dataIndex: 'olderThan', render: (v: string) => new Date(v).toLocaleDateString('zh-CN') },
+    {
+      title: 'Cutoff',
+      dataIndex: 'olderThan',
+      render: (v: string) => new Date(v).toLocaleDateString('zh-CN'),
+    },
     { title: 'Records', dataIndex: 'recordsCount' },
-    { title: 'Status', dataIndex: 'status', render: (v: string) => <Tag color={v === 'completed' ? 'green' : 'red'}>{v}</Tag> },
-    { title: 'Error', dataIndex: 'error', render: (v: string) => v ? <Tag color="red">{v}</Tag> : '-' },
-    { title: 'When', dataIndex: 'createdAt', render: (v: string) => new Date(v).toLocaleString('zh-CN') },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      render: (v: string) => <Tag color={v === 'completed' ? 'green' : 'red'}>{v}</Tag>,
+    },
+    {
+      title: 'Error',
+      dataIndex: 'error',
+      render: (v: string) => (v ? <Tag color="red">{v}</Tag> : '-'),
+    },
+    {
+      title: 'When',
+      dataIndex: 'createdAt',
+      render: (v: string) => new Date(v).toLocaleString('zh-CN'),
+    },
   ];
 
   return (
     <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
-      <Title level={4}><FolderOpenOutlined /> Data Archive</Title>
+      <Title level={4}>
+        <FolderOpenOutlined /> Data Archive
+      </Title>
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space>
           <span>Entity:</span>
-          <Select value={entityType} onChange={setEntityType} options={ENTITY_OPTIONS} style={{ width: 220 }} />
+          <Select
+            value={entityType}
+            onChange={setEntityType}
+            options={ENTITY_OPTIONS}
+            style={{ width: 220 }}
+          />
           <span>Older than (months):</span>
-          <InputNumber min={1} max={60} value={months} onChange={v => setMonths(v || 12)} />
-          <Button type="primary" icon={<PlayCircleOutlined />} loading={running} onClick={handleArchive}>Run Archive</Button>
+          <InputNumber min={1} max={60} value={months} onChange={(v) => setMonths(v || 12)} />
+          <Button
+            type="primary"
+            icon={<PlayCircleOutlined />}
+            loading={running}
+            onClick={handleArchive}
+          >
+            Run Archive
+          </Button>
         </Space>
       </Card>
-      <Title level={5}><HistoryOutlined /> Archive History</Title>
-      <Table columns={columns} dataSource={runs} loading={loading} rowKey="id" size="small" locale={{ emptyText: 'No archive runs yet' }} />
+      <Title level={5}>
+        <HistoryOutlined /> Archive History
+      </Title>
+      <Table
+        columns={columns}
+        dataSource={runs}
+        loading={loading}
+        rowKey="id"
+        size="small"
+        locale={{ emptyText: 'No archive runs yet' }}
+      />
     </div>
   );
 }

@@ -1,6 +1,23 @@
 ﻿import { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Typography, Descriptions, Space, message, Button } from 'antd';
-import { CloudSyncOutlined, CheckCircleOutlined, CloseCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Table,
+  Tag,
+  Typography,
+  Descriptions,
+  Space,
+  message,
+  Button,
+} from 'antd';
+import {
+  CloudSyncOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 import axios from 'axios';
 
 const { Title, Text } = Typography;
@@ -15,9 +32,9 @@ export default function K3CloudPage() {
     setLoading(true);
     try {
       const [login, mat, sup] = await Promise.all([
-        axios.get('/api/k3cloud/login').then(r => r.data),
-        axios.get('/api/k3cloud/materials').then(r => r.data),
-        axios.get('/api/k3cloud/suppliers').then(r => r.data),
+        axios.get('/api/k3cloud/login').then((r) => r.data),
+        axios.get('/api/k3cloud/materials').then((r) => r.data),
+        axios.get('/api/k3cloud/suppliers').then((r) => r.data),
       ]);
       setLoginInfo(login);
       setMaterials(mat?.Result || mat || []);
@@ -25,10 +42,14 @@ export default function K3CloudPage() {
       message.success('金蝶数据同步成功');
     } catch (e: any) {
       message.error('金蝶连接失败: ' + (e?.response?.data?.message || e.message));
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const matColumns = [
     { title: '物料编码', dataIndex: 0, key: 'code', width: 160 },
@@ -43,21 +64,36 @@ export default function K3CloudPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={4} style={{ margin: 0 }}><CloudSyncOutlined /> 金蝶云星空对接</Title>
-        <Button icon={<ReloadOutlined />} onClick={fetchData} loading={loading}>刷新数据</Button>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
+        <Title level={4} style={{ margin: 0 }}>
+          <CloudSyncOutlined /> 金蝶云星空对接
+        </Title>
+        <Button icon={<ReloadOutlined />} onClick={fetchData} loading={loading}>
+          刷新数据
+        </Button>
       </div>
 
       {loginInfo && (
         <Card size="small" style={{ marginBottom: 16, background: '#f6ffed' }}>
           <Descriptions size="small" column={3}>
             <Descriptions.Item label="连接状态">
-              <Tag icon={<CheckCircleOutlined />} color="success">已连接</Tag>
+              <Tag icon={<CheckCircleOutlined />} color="success">
+                已连接
+              </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="服务器">{loginInfo.server}</Descriptions.Item>
             <Descriptions.Item label="公司">{loginInfo.company}</Descriptions.Item>
             <Descriptions.Item label="数据库">{loginInfo.dataCenter}</Descriptions.Item>
-            <Descriptions.Item label="Session">{loginInfo.sessionId?.substring(0, 16)}...</Descriptions.Item>
+            <Descriptions.Item label="Session">
+              {loginInfo.sessionId?.substring(0, 16)}...
+            </Descriptions.Item>
           </Descriptions>
         </Card>
       )}
@@ -74,7 +110,9 @@ export default function K3CloudPage() {
               loading={loading}
             />
             {Array.isArray(materials) && materials.length > 10 && (
-              <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>共 {materials.length} 条，仅显示前 10 条</Text>
+              <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+                共 {materials.length} 条，仅显示前 10 条
+              </Text>
             )}
           </Card>
         </Col>
@@ -89,7 +127,9 @@ export default function K3CloudPage() {
               loading={loading}
             />
             {Array.isArray(suppliers) && suppliers.length > 10 && (
-              <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>共 {suppliers.length} 条，仅显示前 10 条</Text>
+              <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+                共 {suppliers.length} 条，仅显示前 10 条
+              </Text>
             )}
           </Card>
         </Col>

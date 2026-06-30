@@ -42,7 +42,9 @@ export default function PositionPage() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleCreate = () => {
     setEditingPos(null);
@@ -94,21 +96,32 @@ export default function PositionPage() {
     { title: '岗位编码', dataIndex: 'positionCode', key: 'positionCode', width: 120 },
     { title: '岗位名称', dataIndex: 'positionName', key: 'positionName' },
     {
-      title: '所属组织', dataIndex: 'organization', key: 'orgName',
+      title: '所属组织',
+      dataIndex: 'organization',
+      key: 'orgName',
       render: (org: { orgName: string }) => org?.orgName || '-',
     },
     { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
     {
-      title: '状态', dataIndex: 'status', key: 'status', width: 80,
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80,
       render: (status: string) => <Tag color={status === '启用' ? 'green' : 'red'}>{status}</Tag>,
     },
     {
-      title: '操作', key: 'actions', width: 150,
+      title: '操作',
+      key: 'actions',
+      width: 150,
       render: (_: any, r: Position) => (
         <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>编辑</Button>
+          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>
+            编辑
+          </Button>
           <Popconfirm title="确定删除此岗位？" onConfirm={() => handleDelete(r.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />}>删除</Button>
+            <Button size="small" danger icon={<DeleteOutlined />}>
+              删除
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -118,7 +131,9 @@ export default function PositionPage() {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>新建岗位</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+          新建岗位
+        </Button>
       </Space>
       <Table
         rowKey="id"
@@ -136,20 +151,40 @@ export default function PositionPage() {
         destroyOnClose
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="positionCode" label="岗位编码" rules={[{ required: true, message: '请输入编码' }]}>
+          <Form.Item
+            name="positionCode"
+            label="岗位编码"
+            rules={[{ required: true, message: '请输入编码' }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="positionName" label="岗位名称" rules={[{ required: true, message: '请输入名称' }]}>
+          <Form.Item
+            name="positionName"
+            label="岗位名称"
+            rules={[{ required: true, message: '请输入名称' }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="orgId" label="所属组织" rules={[{ required: true, message: '请选择组织' }]}>
-            <Select placeholder="选择组织" options={orgs.map(o => ({ label: o.orgName, value: o.id }))} />
+          <Form.Item
+            name="orgId"
+            label="所属组织"
+            rules={[{ required: true, message: '请选择组织' }]}
+          >
+            <Select
+              placeholder="选择组织"
+              options={orgs.map((o) => ({ label: o.orgName, value: o.id }))}
+            />
           </Form.Item>
           <Form.Item name="description" label="描述">
             <Input.TextArea rows={2} />
           </Form.Item>
           <Form.Item name="status" label="状态">
-            <Select options={[{ label: '启用', value: '启用' }, { label: '停用', value: '停用' }]} />
+            <Select
+              options={[
+                { label: '启用', value: '启用' },
+                { label: '停用', value: '停用' },
+              ]}
+            />
           </Form.Item>
         </Form>
       </Modal>

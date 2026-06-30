@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
-import { useIsMobile } from "./hooks/useIsMobile";
-import { ResponsiveContext } from "./hooks/ResponsiveContext";
-import "./mobile.css";
+import { useIsMobile } from './hooks/useIsMobile';
+import { ResponsiveContext } from './hooks/ResponsiveContext';
+import './mobile.css';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Menu, Typography, theme, Dropdown, Avatar, Space } from 'antd';
 import {
@@ -229,13 +229,14 @@ const menuItems = [
   },
 ];
 
-
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
-  const [user, setUser] = useState<any>(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null);
+  const [user, setUser] = useState<any>(
+    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
+  );
   const [perms, setPerms] = useState<string[]>([]);
   const [permsLoaded, setPermsLoaded] = useState(false);
   const { token: themeToken } = theme.useToken();
@@ -244,8 +245,8 @@ export default function App() {
   const handleLoginSuccess = (newToken: string, newUser: any) => {
     // Fetch user permissions
     fetch('/api/auth/permissions', { headers: { Authorization: 'Bearer ' + newToken } })
-      .then(r => r.json())
-      .then(data => {
+      .then((r) => r.json())
+      .then((data) => {
         if (Array.isArray(data)) {
           setPerms(data);
           localStorage.setItem('permissions', JSON.stringify(data));
@@ -276,7 +277,9 @@ export default function App() {
       }
       return origFetch(input, { ...init, headers });
     };
-    return () => { window.fetch = origFetch; };
+    return () => {
+      window.fetch = origFetch;
+    };
   }, []);
 
   if (!token) {
@@ -292,145 +295,165 @@ export default function App() {
 
   return (
     <ResponsiveContext.Provider value={{ isMobile }}>
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        style={{ background: themeToken.colorBgContainer }}
-      >
-        <div style={{
-          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
-        }}>
-          <Title level={4} style={{ margin: 0, color: themeToken.colorPrimary, whiteSpace: 'nowrap' }}>
-            {collapsed ? '瀚' : '瀚朗电机'}
-          </Title>
-        </div>
-        <Menu
-          mode="inline"
-          defaultOpenKeys={['rd', 'marketing']} selectedKeys={[selectedKey]}
-          items={menuItems.filter(group => {
-            const hasAll = perms.includes('*');
-            if (hasAll) return true;
-            const filteredChildren = group.children.filter(item => {
-              const permMap: Record<string, string> = {
-                '/crm/customers': 'crm:customer:read',
-                '/crm/quotes': 'crm:quote:read',
-                '/crm/orders': 'crm:order:read',
-                '/crm/complaints': 'crm:complaint:read',
-                '/crm/payments': 'crm:payment:read',
-                '/crm/reconciliations': 'crm:reconciliation:read',
-                '/npi/sampling': 'sampling:order:read',
-              };
-              const needed = permMap[item.key as string];
-              if (!needed) return false;
-              return perms.includes(needed);
-            });
-            return filteredChildren.length > 0;
-          }).map(group => ({
-            ...group,
-            children: group.children.filter(item => {
-              const hasAll = perms.includes('*');
-              if (hasAll) return true;
-              const permMap: Record<string, string> = {
-                '/crm/customers': 'crm:customer:read',
-                '/crm/quotes': 'crm:quote:read',
-                '/crm/orders': 'crm:order:read',
-                '/crm/complaints': 'crm:complaint:read',
-                '/crm/payments': 'crm:payment:read',
-                '/crm/reconciliations': 'crm:reconciliation:read',
-                '/npi/sampling': 'sampling:order:read',
-              };
-              const needed = permMap[item.key as string];
-              if (!needed) return false;
-              return perms.includes(needed);
-            })
-          }))}
-          onClick={({ key }) => navigate(key)}
-          style={{ borderInlineEnd: 'none' }}
-        />
-      </Sider>
-      <Layout>
-        <Header style={{
-          background: themeToken.colorBgContainer, padding: '0 24px',
-          borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <Title level={5} style={{ margin: 0 }}>瀚朗电机 — 企业管理系统</Title>
-          <Dropdown menu={{
-            items: userMenuItems,
-            onClick: ({ key }) => {
-              if (key === 'logout') handleLogout();
-            },
-          }}>
-            <Space style={{ cursor: 'pointer' }}>
-              <Avatar size="small" icon={<UserOutlined />} />
-              <Text>{user?.name || user?.username}</Text>
-            </Space>
-          </Dropdown>
-        </Header>
-        <Content style={{ margin: 24 }}>
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/npi/sampling" element={<SamplingWorkOrdersPage />} />
-            <Route path="/npi/projects" element={<ProjectsPage />} />
-            <Route path="/npi/trial-runs" element={<TrialRunsPage />} />
-            <Route path="/npi/issues" element={<IssuesPage />} />
-            <Route path="/npi/approvals" element={<ApprovalsPage />} />
-            <Route path="/plm/products" element={<ProductsPage />} />
-            <Route path="/plm/documents" element={<DocumentsPage />} />
-            <Route path="/plm/patents" element={<PatentsPage />} />
-            <Route path="/plm/drawing-versions" element={<DrawingVersionsPage />} />
-            <Route path="/crm/customers" element={<CustomersPage />} />
-            <Route path="/crm/quotes" element={<QuotesPage />} />
-            <Route path="/crm/orders" element={<OrdersPage />} />
-            <Route path="/crm/complaints" element={<ComplaintsPage />} />
-            <Route path="/crm/payments" element={<PaymentsPage />} />
-            <Route path="/crm/reconciliations" element={<ReconciliationPage />} />
-            <Route path="/erp/materials" element={<MaterialsPage />} />
-            <Route path="/erp/work-orders" element={<WorkOrdersPage />} />
-            <Route path="/supplier" element={<SupplierPage />} />
-            <Route path="/purchase" element={<PurchasePage />} />
-            <Route path="/warehouse" element={<WarehousePage />} />
-            <Route path="/finance" element={<FinancePage />} />
-            <Route path="/manufacturing/scheduling" element={<SchedulingPage />} />
-            <Route path="/manufacturing/orders" element={<WorkOrderPage />} />
-            <Route path="/manufacturing/wip" element={<WipPage />} />
-            <Route path="/manufacturing/efficiency" element={<EfficiencyPage />} />
-            <Route path="/quality/iqc" element={<IQCPage />} />
-            <Route path="/quality/ipqc" element={<IPQCPage />} />
-            <Route path="/quality/oqc" element={<OQCPage />} />
-            <Route path="/quality/gauge" element={<GaugePage />} />
-            <Route path="/equipment" element={<EquipmentPage />} />
-            <Route path="/equipment/tpm" element={<TpmPage />} />
-            <Route path="/equipment/repair" element={<RepairPage />} />
-            <Route path="/equipment/parts" element={<SparePartsPage />} />
-            <Route path="/mrp" element={<MRPPage />} />
-            <Route path="/quality/dashboard" element={<QualityDashboardPage />} />
-            <Route path="/audit" element={<AuditPage />} />
-            <Route path="/spc" element={<SPCPage />} />
-            <Route path="/trace" element={<TracePage />} />
-            <Route path="/cost" element={<CostPage />} />
-            <Route path="/training" element={<TrainingPage />} />
-            <Route path="/docs/control" element={<DocumentControlPage />} />
-            <Route path="/knowledge" element={<KnowledgePage />} />
-            <Route path="/notifications" element={<NotificationPage />} />
-            <Route path="/backup" element={<BackupPage />} />
-            <Route path="/archive" element={<ArchivePage />} />
-            <Route path="/k3cloud" element={<K3CloudPage />} />
-            <Route path="/admin/org" element={<OrganizationPage />} />
-            <Route path="/admin/position" element={<PositionPage />} />
-            <Route path="/admin/employee" element={<EmployeePage />} />
-            <Route path="/admin/role-permission" element={<RolePermissionPage />} />
-            <Route path="/admin/coding-rules" element={<CodingRulesPage />} />
-            <Route path="/admin/workflow-states" element={<WorkflowStatesPage />} />
-            <Route path="/admin/system-settings" element={<SystemSettingsPage />} />
-          </Routes>
-        </Content>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={setCollapsed}
+          style={{ background: themeToken.colorBgContainer }}
+        >
+          <div
+            style={{
+              height: 64,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
+            }}
+          >
+            <Title
+              level={4}
+              style={{ margin: 0, color: themeToken.colorPrimary, whiteSpace: 'nowrap' }}
+            >
+              {collapsed ? '瀚' : '瀚朗电机'}
+            </Title>
+          </div>
+          <Menu
+            mode="inline"
+            defaultOpenKeys={['rd', 'marketing']}
+            selectedKeys={[selectedKey]}
+            items={menuItems
+              .filter((group) => {
+                const hasAll = perms.includes('*');
+                if (hasAll) return true;
+                const filteredChildren = group.children.filter((item) => {
+                  const permMap: Record<string, string> = {
+                    '/crm/customers': 'crm:customer:read',
+                    '/crm/quotes': 'crm:quote:read',
+                    '/crm/orders': 'crm:order:read',
+                    '/crm/complaints': 'crm:complaint:read',
+                    '/crm/payments': 'crm:payment:read',
+                    '/crm/reconciliations': 'crm:reconciliation:read',
+                    '/npi/sampling': 'sampling:order:read',
+                  };
+                  const needed = permMap[item.key as string];
+                  if (!needed) return false;
+                  return perms.includes(needed);
+                });
+                return filteredChildren.length > 0;
+              })
+              .map((group) => ({
+                ...group,
+                children: group.children.filter((item) => {
+                  const hasAll = perms.includes('*');
+                  if (hasAll) return true;
+                  const permMap: Record<string, string> = {
+                    '/crm/customers': 'crm:customer:read',
+                    '/crm/quotes': 'crm:quote:read',
+                    '/crm/orders': 'crm:order:read',
+                    '/crm/complaints': 'crm:complaint:read',
+                    '/crm/payments': 'crm:payment:read',
+                    '/crm/reconciliations': 'crm:reconciliation:read',
+                    '/npi/sampling': 'sampling:order:read',
+                  };
+                  const needed = permMap[item.key as string];
+                  if (!needed) return false;
+                  return perms.includes(needed);
+                }),
+              }))}
+            onClick={({ key }) => navigate(key)}
+            style={{ borderInlineEnd: 'none' }}
+          />
+        </Sider>
+        <Layout>
+          <Header
+            style={{
+              background: themeToken.colorBgContainer,
+              padding: '0 24px',
+              borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Title level={5} style={{ margin: 0 }}>
+              瀚朗电机 — 企业管理系统
+            </Title>
+            <Dropdown
+              menu={{
+                items: userMenuItems,
+                onClick: ({ key }) => {
+                  if (key === 'logout') handleLogout();
+                },
+              }}
+            >
+              <Space style={{ cursor: 'pointer' }}>
+                <Avatar size="small" icon={<UserOutlined />} />
+                <Text>{user?.name || user?.username}</Text>
+              </Space>
+            </Dropdown>
+          </Header>
+          <Content style={{ margin: 24 }}>
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/npi/sampling" element={<SamplingWorkOrdersPage />} />
+              <Route path="/npi/projects" element={<ProjectsPage />} />
+              <Route path="/npi/trial-runs" element={<TrialRunsPage />} />
+              <Route path="/npi/issues" element={<IssuesPage />} />
+              <Route path="/npi/approvals" element={<ApprovalsPage />} />
+              <Route path="/plm/products" element={<ProductsPage />} />
+              <Route path="/plm/documents" element={<DocumentsPage />} />
+              <Route path="/plm/patents" element={<PatentsPage />} />
+              <Route path="/plm/drawing-versions" element={<DrawingVersionsPage />} />
+              <Route path="/crm/customers" element={<CustomersPage />} />
+              <Route path="/crm/quotes" element={<QuotesPage />} />
+              <Route path="/crm/orders" element={<OrdersPage />} />
+              <Route path="/crm/complaints" element={<ComplaintsPage />} />
+              <Route path="/crm/payments" element={<PaymentsPage />} />
+              <Route path="/crm/reconciliations" element={<ReconciliationPage />} />
+              <Route path="/erp/materials" element={<MaterialsPage />} />
+              <Route path="/erp/work-orders" element={<WorkOrdersPage />} />
+              <Route path="/supplier" element={<SupplierPage />} />
+              <Route path="/purchase" element={<PurchasePage />} />
+              <Route path="/warehouse" element={<WarehousePage />} />
+              <Route path="/finance" element={<FinancePage />} />
+              <Route path="/manufacturing/scheduling" element={<SchedulingPage />} />
+              <Route path="/manufacturing/orders" element={<WorkOrderPage />} />
+              <Route path="/manufacturing/wip" element={<WipPage />} />
+              <Route path="/manufacturing/efficiency" element={<EfficiencyPage />} />
+              <Route path="/quality/iqc" element={<IQCPage />} />
+              <Route path="/quality/ipqc" element={<IPQCPage />} />
+              <Route path="/quality/oqc" element={<OQCPage />} />
+              <Route path="/quality/gauge" element={<GaugePage />} />
+              <Route path="/equipment" element={<EquipmentPage />} />
+              <Route path="/equipment/tpm" element={<TpmPage />} />
+              <Route path="/equipment/repair" element={<RepairPage />} />
+              <Route path="/equipment/parts" element={<SparePartsPage />} />
+              <Route path="/mrp" element={<MRPPage />} />
+              <Route path="/quality/dashboard" element={<QualityDashboardPage />} />
+              <Route path="/audit" element={<AuditPage />} />
+              <Route path="/spc" element={<SPCPage />} />
+              <Route path="/trace" element={<TracePage />} />
+              <Route path="/cost" element={<CostPage />} />
+              <Route path="/training" element={<TrainingPage />} />
+              <Route path="/docs/control" element={<DocumentControlPage />} />
+              <Route path="/knowledge" element={<KnowledgePage />} />
+              <Route path="/notifications" element={<NotificationPage />} />
+              <Route path="/backup" element={<BackupPage />} />
+              <Route path="/archive" element={<ArchivePage />} />
+              <Route path="/k3cloud" element={<K3CloudPage />} />
+              <Route path="/admin/org" element={<OrganizationPage />} />
+              <Route path="/admin/position" element={<PositionPage />} />
+              <Route path="/admin/employee" element={<EmployeePage />} />
+              <Route path="/admin/role-permission" element={<RolePermissionPage />} />
+              <Route path="/admin/coding-rules" element={<CodingRulesPage />} />
+              <Route path="/admin/workflow-states" element={<WorkflowStatesPage />} />
+              <Route path="/admin/system-settings" element={<SystemSettingsPage />} />
+            </Routes>
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
     </ResponsiveContext.Provider>
   );
 }

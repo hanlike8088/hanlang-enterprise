@@ -1,11 +1,33 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
 import {
-  Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm,
-  Card, Row, Col, Typography, message, Descriptions, Timeline, DatePicker,
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Space,
+  Tag,
+  Popconfirm,
+  Card,
+  Row,
+  Col,
+  Typography,
+  message,
+  Descriptions,
+  Timeline,
+  DatePicker,
 } from 'antd';
 import {
-  PlusOutlined, EditOutlined, CloudSyncOutlined, DeleteOutlined, SearchOutlined,
-  ContactsOutlined, PhoneOutlined, MailOutlined, SyncOutlined,
+  PlusOutlined,
+  EditOutlined,
+  CloudSyncOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+  ContactsOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  SyncOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { crmApi } from '../../services/api';
@@ -74,7 +96,9 @@ export default function 客户管理Page() {
     }
   }, [keyword, categoryFilter]);
 
-  useEffect(() => { load客户管理(); }, [load客户管理]);
+  useEffect(() => {
+    load客户管理();
+  }, [load客户管理]);
 
   const handleCreate = () => {
     setEditingCustomer(null);
@@ -169,29 +193,51 @@ export default function 客户管理Page() {
 
   const columns = [
     { title: '客户编码', dataIndex: 'customerCode', width: 140 },
-    { title: '客户名称', dataIndex: 'customerName', width: 180,
-      render: (text: string, record: any) => (
-        <a onClick={() => handleViewDetail(record)}>{text}</a>
-      ),
+    {
+      title: '客户名称',
+      dataIndex: 'customerName',
+      width: 180,
+      render: (text: string, record: any) => <a onClick={() => handleViewDetail(record)}>{text}</a>,
     },
     {
-      title: '分类', dataIndex: 'category', width: 110,
-      render: (v: string) => <Tag color={CATEGORY_COLORS[v] || 'default'}>{CATEGORY_OPTIONS.find(o => o.value === v)?.label || v}</Tag>,
+      title: '分类',
+      dataIndex: 'category',
+      width: 110,
+      render: (v: string) => (
+        <Tag color={CATEGORY_COLORS[v] || 'default'}>
+          {CATEGORY_OPTIONS.find((o) => o.value === v)?.label || v}
+        </Tag>
+      ),
     },
     { title: '联系人', dataIndex: 'contactName', width: 100 },
     { title: '电话', dataIndex: 'contact电话', width: 120 },
     {
-      title: '最近联系', dataIndex: 'contactRecords', width: 160,
-      render: (records: any[]) => records?.length > 0
-        ? dayjs(records[0].contactDate).format('YYYY-MM-DD HH:mm')
-        : <span style={{ color: '#999' }}>暂无</span>,
+      title: '最近联系',
+      dataIndex: 'contactRecords',
+      width: 160,
+      render: (records: any[]) =>
+        records?.length > 0 ? (
+          dayjs(records[0].contactDate).format('YYYY-MM-DD HH:mm')
+        ) : (
+          <span style={{ color: '#999' }}>暂无</span>
+        ),
     },
     {
-      title: '操作', key: 'actions', width: 200,
+      title: '操作',
+      key: 'actions',
+      width: 200,
       render: (_: any, record: any) => (
         <Space>
-          <Button size="small" icon={<ContactsOutlined />} onClick={() => handle联系人Records(record)}>联系</Button>
-          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>编辑</Button>
+          <Button
+            size="small"
+            icon={<ContactsOutlined />}
+            onClick={() => handle联系人Records(record)}
+          >
+            联系
+          </Button>
+          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+            编辑
+          </Button>
           <Popconfirm title="确认删除此客户？" onConfirm={() => handleDelete(record.id)}>
             <Button size="small" danger icon={<DeleteOutlined />} />
           </Popconfirm>
@@ -212,7 +258,7 @@ export default function 客户管理Page() {
                 placeholder="搜索客户名称/编码/联系人"
                 prefix={<SearchOutlined />}
                 value={keyword}
-                onChange={e => setKeyword(e.target.value)}
+                onChange={(e) => setKeyword(e.target.value)}
                 style={{ width: 260 }}
                 allowClear
               />
@@ -227,7 +273,14 @@ export default function 客户管理Page() {
             </Space>
           </Col>
           <Col>
-            <Space><Button icon={<SyncOutlined />} onClick={handleK3Sync}>同步金蝶</Button><Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>新增客户</Button></Space>
+            <Space>
+              <Button icon={<SyncOutlined />} onClick={handleK3Sync}>
+                同步金蝶
+              </Button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                新增客户
+              </Button>
+            </Space>
           </Col>
         </Row>
       </Card>
@@ -252,7 +305,11 @@ export default function 客户管理Page() {
         <Form form={form} layout="vertical">
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="customerName" label="客户名称" rules={[{ required: true, message: '请输入客户名称' }]}>
+              <Form.Item
+                name="customerName"
+                label="客户名称"
+                rules={[{ required: true, message: '请输入客户名称' }]}
+              >
                 <Input />
               </Form.Item>
             </Col>
@@ -313,32 +370,58 @@ export default function 客户管理Page() {
             <Descriptions.Item label="客户编码">{detailCustomer.customerCode}</Descriptions.Item>
             <Descriptions.Item label="客户名称">{detailCustomer.customerName}</Descriptions.Item>
             <Descriptions.Item label="分类">
-              <Tag color={CATEGORY_COLORS[detailCustomer.category]}>{CATEGORY_OPTIONS.find((o: any) => o.value === detailCustomer.category)?.label}</Tag>
+              <Tag color={CATEGORY_COLORS[detailCustomer.category]}>
+                {CATEGORY_OPTIONS.find((o: any) => o.value === detailCustomer.category)?.label}
+              </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="状态">
-              <Tag color={detailCustomer.status === 'active' ? 'green' : 'default'}>{detailCustomer.status === 'active' ? '活跃' : '停用'}</Tag>
+              <Tag color={detailCustomer.status === 'active' ? 'green' : 'default'}>
+                {detailCustomer.status === 'active' ? '活跃' : '停用'}
+              </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="联系人">{detailCustomer.contactName}</Descriptions.Item>
             <Descriptions.Item label="电话">{detailCustomer.contact电话}</Descriptions.Item>
             <Descriptions.Item label="邮箱">{detailCustomer.contact邮箱}</Descriptions.Item>
             <Descriptions.Item label="地址">{detailCustomer.address}</Descriptions.Item>
-            <Descriptions.Item label="信用额度">{detailCustomer.creditLimit ? `¥${detailCustomer.creditLimit}` : '-'}</Descriptions.Item>
+            <Descriptions.Item label="信用额度">
+              {detailCustomer.creditLimit ? `¥${detailCustomer.creditLimit}` : '-'}
+            </Descriptions.Item>
             <Descriptions.Item label="账期">{detailCustomer.paymentTerms || '-'}</Descriptions.Item>
-            <Descriptions.Item label="备注" span={2}>{detailCustomer.notes || '-'}</Descriptions.Item>
+            <Descriptions.Item label="备注" span={2}>
+              {detailCustomer.notes || '-'}
+            </Descriptions.Item>
           </Descriptions>
         )}
         {detailCustomer?.contactRecords?.length > 0 && (
-          <Card title={`最近联系记录 (${detailCustomer.contactRecords.length})`} size="small" style={{ marginTop: 16 }}>
-            <Timeline items={detailCustomer.contactRecords.slice(0, 10).map((r: any) => ({
-              color: r.nextFollowUp && !r.followUpDone && dayjs(r.nextFollowUp).isBefore(dayjs()) ? 'red' : 'blue',
-              children: (
-                <div>
-                  <div style={{ fontWeight: 500 }}>{dayjs(r.contactDate).format('YYYY-MM-DD HH:mm')} · {CONTACT_TYPES.find((t: any) => t.value === r.contactType)?.label || r.contactType}</div>
-                  <div>{r.content}</div>
-                  {r.nextFollowUp && <div style={{ fontSize: 12, color: '#999' }}>下次跟进: {dayjs(r.nextFollowUp).format('YYYY-MM-DD')} {r.followUpDone ? '✓已完成' : ''}</div>}
-                </div>
-              ),
-            }))} />
+          <Card
+            title={`最近联系记录 (${detailCustomer.contactRecords.length})`}
+            size="small"
+            style={{ marginTop: 16 }}
+          >
+            <Timeline
+              items={detailCustomer.contactRecords.slice(0, 10).map((r: any) => ({
+                color:
+                  r.nextFollowUp && !r.followUpDone && dayjs(r.nextFollowUp).isBefore(dayjs())
+                    ? 'red'
+                    : 'blue',
+                children: (
+                  <div>
+                    <div style={{ fontWeight: 500 }}>
+                      {dayjs(r.contactDate).format('YYYY-MM-DD HH:mm')} ·{' '}
+                      {CONTACT_TYPES.find((t: any) => t.value === r.contactType)?.label ||
+                        r.contactType}
+                    </div>
+                    <div>{r.content}</div>
+                    {r.nextFollowUp && (
+                      <div style={{ fontSize: 12, color: '#999' }}>
+                        下次跟进: {dayjs(r.nextFollowUp).format('YYYY-MM-DD')}{' '}
+                        {r.followUpDone ? '✓已完成' : ''}
+                      </div>
+                    )}
+                  </div>
+                ),
+              }))}
+            />
           </Card>
         )}
       </Modal>
@@ -363,22 +446,40 @@ export default function 客户管理Page() {
               <DatePicker placeholder="下次跟进日期" style={{ width: 160 }} />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit">添加记录</Button>
+              <Button type="primary" htmlType="submit">
+                添加记录
+              </Button>
             </Form.Item>
           </Form>
         </Card>
 
         <Timeline
           items={contactRecords.map((r: any) => ({
-            color: r.nextFollowUp && !r.followUpDone && dayjs(r.nextFollowUp).isBefore(dayjs()) ? 'red' : 'blue',
+            color:
+              r.nextFollowUp && !r.followUpDone && dayjs(r.nextFollowUp).isBefore(dayjs())
+                ? 'red'
+                : 'blue',
             children: (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                }}
+              >
                 <div>
                   <div style={{ fontWeight: 500 }}>
-                    {dayjs(r.contactDate).format('YYYY-MM-DD HH:mm')} · {CONTACT_TYPES.find((t: any) => t.value === r.contactType)?.label || r.contactType}
+                    {dayjs(r.contactDate).format('YYYY-MM-DD HH:mm')} ·{' '}
+                    {CONTACT_TYPES.find((t: any) => t.value === r.contactType)?.label ||
+                      r.contactType}
                   </div>
                   <div>{r.content}</div>
-                  {r.nextFollowUp && <div style={{ fontSize: 12, color: '#999' }}>下次跟进: {dayjs(r.nextFollowUp).format('YYYY-MM-DD')} {r.followUpDone ? '✓ 已跟进' : '⏳ 待跟进'}</div>}
+                  {r.nextFollowUp && (
+                    <div style={{ fontSize: 12, color: '#999' }}>
+                      下次跟进: {dayjs(r.nextFollowUp).format('YYYY-MM-DD')}{' '}
+                      {r.followUpDone ? '✓ 已跟进' : '⏳ 待跟进'}
+                    </div>
+                  )}
                 </div>
                 <Popconfirm title="删除此记录？" onConfirm={() => handleDelete联系人(r.id)}>
                   <Button size="small" danger type="text" icon={<DeleteOutlined />} />

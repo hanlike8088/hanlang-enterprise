@@ -9,10 +9,6 @@ export function ResponsiveTable<T extends object = any>(props: TableProps<T>) {
     : props.scroll;
 
   return (
-    <Table<T>
-      {...props}
-      scroll={mergedScroll}
-      size={isMobile ? 'small' : (props.size || 'middle')}
-    />
+    <Table<T> {...props} scroll={mergedScroll} size={isMobile ? 'small' : props.size || 'middle'} />
   );
 }

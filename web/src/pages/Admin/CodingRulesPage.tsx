@@ -1,6 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, Space, Popconfirm, Tag, message, Card, Descriptions } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, NumberOutlined, CopyOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Space,
+  Popconfirm,
+  Tag,
+  message,
+  Card,
+  Descriptions,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  NumberOutlined,
+  CopyOutlined,
+} from '@ant-design/icons';
 import { adminApi } from '../../services/api';
 
 interface CodingRule {
@@ -35,16 +55,29 @@ export default function CodingRulesPage() {
 
   const fetchRules = async () => {
     setLoading(true);
-    try { setRules(await adminApi.getCodingRules()); } catch { message.error('加载编码规则失败'); }
-    finally { setLoading(false); }
+    try {
+      setRules(await adminApi.getCodingRules());
+    } catch {
+      message.error('加载编码规则失败');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchRules(); }, []);
+  useEffect(() => {
+    fetchRules();
+  }, []);
 
   const handleCreate = () => {
     setEditingRule(null);
     form.resetFields();
-    form.setFieldsValue({ yearDigits: 4, serialDigits: 4, separator: '-', resetPeriod: 'yearly', currentSerial: 1 });
+    form.setFieldsValue({
+      yearDigits: 4,
+      serialDigits: 4,
+      separator: '-',
+      resetPeriod: 'yearly',
+      currentSerial: 1,
+    });
     setModalVisible(true);
   };
 
@@ -66,12 +99,19 @@ export default function CodingRulesPage() {
       }
       setModalVisible(false);
       fetchRules();
-    } catch (err: any) { if (err?.message) message.error(err.message); }
+    } catch (err: any) {
+      if (err?.message) message.error(err.message);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    try { await adminApi.deleteCodingRule(id); message.success('规则已删除'); fetchRules(); }
-    catch { message.error('删除失败'); }
+    try {
+      await adminApi.deleteCodingRule(id);
+      message.success('规则已删除');
+      fetchRules();
+    } catch {
+      message.error('删除失败');
+    }
   };
 
   const handleGenerate = async (docType: string) => {
@@ -79,7 +119,9 @@ export default function CodingRulesPage() {
       const code = await adminApi.generateCode(docType);
       message.success('生成编码: ' + code);
       fetchRules();
-    } catch { message.error('生成失败'); }
+    } catch {
+      message.error('生成失败');
+    }
   };
 
   const previewCode = (rule: CodingRule): string => {
@@ -90,48 +132,102 @@ export default function CodingRulesPage() {
   };
 
   const columns = [
-    { title: '单据类型', dataIndex: 'docType', key: 'docType', width: 120,
-      render: (v: string) => <Tag color="blue">{v}</Tag> },
+    {
+      title: '单据类型',
+      dataIndex: 'docType',
+      key: 'docType',
+      width: 120,
+      render: (v: string) => <Tag color="blue">{v}</Tag>,
+    },
     { title: '前缀', dataIndex: 'prefix', key: 'prefix', width: 80 },
     { title: '分隔符', dataIndex: 'separator', key: 'separator', width: 60 },
-    { title: '年份位数', dataIndex: 'yearDigits', key: 'yearDigits', width: 80,
-      render: (v: number) => v + '位' },
-    { title: '流水号位数', dataIndex: 'serialDigits', key: 'serialDigits', width: 90,
-      render: (v: number) => v + '位' },
-    { title: '重置周期', dataIndex: 'resetPeriod', key: 'resetPeriod', width: 90,
-      render: (v: string) => ({ yearly: '每年', monthly: '每月', none: '不重置' }[v] || v) },
+    {
+      title: '年份位数',
+      dataIndex: 'yearDigits',
+      key: 'yearDigits',
+      width: 80,
+      render: (v: number) => v + '位',
+    },
+    {
+      title: '流水号位数',
+      dataIndex: 'serialDigits',
+      key: 'serialDigits',
+      width: 90,
+      render: (v: number) => v + '位',
+    },
+    {
+      title: '重置周期',
+      dataIndex: 'resetPeriod',
+      key: 'resetPeriod',
+      width: 90,
+      render: (v: string) => ({ yearly: '每年', monthly: '每月', none: '不重置' })[v] || v,
+    },
     { title: '当前流水号', dataIndex: 'currentSerial', key: 'currentSerial', width: 90 },
-    { title: '预览', key: 'preview', width: 180,
+    {
+      title: '预览',
+      key: 'preview',
+      width: 180,
       render: (_: any, r: CodingRule) => (
         <Space>
-          <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: 4 }}>{previewCode(r)}</code>
-          <Button size="small" type="link" icon={<CopyOutlined />} onClick={() => handleGenerate(r.docType)}>生成</Button>
+          <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: 4 }}>
+            {previewCode(r)}
+          </code>
+          <Button
+            size="small"
+            type="link"
+            icon={<CopyOutlined />}
+            onClick={() => handleGenerate(r.docType)}
+          >
+            生成
+          </Button>
         </Space>
-      ) },
+      ),
+    },
     { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
-    { title: '操作', key: 'actions', width: 150,
+    {
+      title: '操作',
+      key: 'actions',
+      width: 150,
       render: (_: any, r: CodingRule) => (
         <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>编辑</Button>
+          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>
+            编辑
+          </Button>
           <Popconfirm title="确定删除此规则？" onConfirm={() => handleDelete(r.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />}>删除</Button>
+            <Button size="small" danger icon={<DeleteOutlined />}>
+              删除
+            </Button>
           </Popconfirm>
         </Space>
-      ) },
+      ),
+    },
   ];
 
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>新建编码规则</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+          新建编码规则
+        </Button>
       </Space>
-      <Table rowKey="id" dataSource={rules} columns={columns} loading={loading} pagination={false} bordered />
+      <Table
+        rowKey="id"
+        dataSource={rules}
+        columns={columns}
+        loading={loading}
+        pagination={false}
+        bordered
+      />
 
       <Card title="编码示例" style={{ marginTop: 16 }} bordered>
-        {rules.map(r => (
+        {rules.map((r) => (
           <Descriptions key={r.id} size="small" column={1} style={{ marginBottom: 12 }}>
             <Descriptions.Item label={r.docType}>
-              <code style={{ fontSize: 14, background: '#e6f7ff', padding: '2px 8px', borderRadius: 4 }}>{previewCode(r)}</code>
+              <code
+                style={{ fontSize: 14, background: '#e6f7ff', padding: '2px 8px', borderRadius: 4 }}
+              >
+                {previewCode(r)}
+              </code>
               <span style={{ marginLeft: 8, color: '#999', fontSize: 12 }}>{r.description}</span>
             </Descriptions.Item>
           </Descriptions>
@@ -147,17 +243,34 @@ export default function CodingRulesPage() {
         destroyOnClose
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="docType" label="单据类型" rules={[{ required: true, message: '请选择单据类型' }]}>
-            <Select options={DOC_TYPE_OPTIONS} disabled={!!editingRule} placeholder="选择单据类型" />
+          <Form.Item
+            name="docType"
+            label="单据类型"
+            rules={[{ required: true, message: '请选择单据类型' }]}
+          >
+            <Select
+              options={DOC_TYPE_OPTIONS}
+              disabled={!!editingRule}
+              placeholder="选择单据类型"
+            />
           </Form.Item>
-          <Form.Item name="prefix" label="编码前缀" rules={[{ required: true, message: '请输入前缀，如 DY' }]}>
+          <Form.Item
+            name="prefix"
+            label="编码前缀"
+            rules={[{ required: true, message: '请输入前缀，如 DY' }]}
+          >
             <Input placeholder="DY / BJ / SO / KS" />
           </Form.Item>
           <Form.Item name="separator" label="分隔符" rules={[{ required: true }]}>
             <Input placeholder="-" maxLength={2} />
           </Form.Item>
           <Form.Item name="yearDigits" label="年份位数">
-            <Select options={[{ label: '2位（如26）', value: 2 }, { label: '4位（如2026）', value: 4 }]} />
+            <Select
+              options={[
+                { label: '2位（如26）', value: 2 },
+                { label: '4位（如2026）', value: 4 },
+              ]}
+            />
           </Form.Item>
           <Form.Item name="serialDigits" label="流水号位数">
             <InputNumber min={2} max={8} />
@@ -166,11 +279,13 @@ export default function CodingRulesPage() {
             <InputNumber min={1} />
           </Form.Item>
           <Form.Item name="resetPeriod" label="重置周期">
-            <Select options={[
-              { label: '每年重置', value: 'yearly' },
-              { label: '每月重置', value: 'monthly' },
-              { label: '不重置', value: 'none' },
-            ]} />
+            <Select
+              options={[
+                { label: '每年重置', value: 'yearly' },
+                { label: '每月重置', value: 'monthly' },
+                { label: '不重置', value: 'none' },
+              ]}
+            />
           </Form.Item>
           <Form.Item name="description" label="描述">
             <Input.TextArea rows={2} />

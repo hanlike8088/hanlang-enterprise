@@ -1,5 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, DatePicker, Popconfirm, Space, Tag, message } from 'antd';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Popconfirm,
+  Space,
+  Tag,
+  message,
+} from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi } from '../../services/api';
 import dayjs from 'dayjs';
@@ -56,7 +68,9 @@ export default function EmployeePage() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredPositions = selectedOrgId
     ? allPositions.filter((p: any) => p.orgId === selectedOrgId)
@@ -72,7 +86,8 @@ export default function EmployeePage() {
 
   const handleEdit = (emp: Employee) => {
     setEditingEmp(emp);
-    const positionIds = emp.positions?.map((ep: any) => ep.position?.id || ep.positionId).filter(Boolean) || [];
+    const positionIds =
+      emp.positions?.map((ep: any) => ep.position?.id || ep.positionId).filter(Boolean) || [];
     setSelectedOrgId(emp.orgId);
     form.setFieldsValue({
       employeeCode: emp.employeeCode,
@@ -124,34 +139,53 @@ export default function EmployeePage() {
     { title: '邮箱', dataIndex: 'email', key: 'email' },
     { title: '手机', dataIndex: 'phone', key: 'phone', width: 130 },
     {
-      title: '组织', dataIndex: 'organization', key: 'orgName',
+      title: '组织',
+      dataIndex: 'organization',
+      key: 'orgName',
       render: (org: { orgName: string }) => org?.orgName || '-',
     },
     {
-      title: '岗位', dataIndex: 'positions', key: 'positions',
+      title: '岗位',
+      dataIndex: 'positions',
+      key: 'positions',
       render: (positions: any[]) => {
-        const names = positions?.map((ep: any) => ep.position?.positionName || ep.positionName).filter(Boolean) || [];
+        const names =
+          positions
+            ?.map((ep: any) => ep.position?.positionName || ep.positionName)
+            .filter(Boolean) || [];
         return names.length > 0 ? names.join(', ') : '-';
       },
     },
     {
-      title: '入职日期', dataIndex: 'hireDate', key: 'hireDate', width: 120,
-      render: (d: string) => d ? dayjs(d).format('YYYY-MM-DD') : '-',
+      title: '入职日期',
+      dataIndex: 'hireDate',
+      key: 'hireDate',
+      width: 120,
+      render: (d: string) => (d ? dayjs(d).format('YYYY-MM-DD') : '-'),
     },
     {
-      title: '状态', dataIndex: 'status', key: 'status', width: 80,
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80,
       render: (status: string) => {
         const color = status === '在职' ? 'green' : status === '离职' ? 'red' : 'orange';
         return <Tag color={color}>{status}</Tag>;
       },
     },
     {
-      title: '操作', key: 'actions', width: 150,
+      title: '操作',
+      key: 'actions',
+      width: 150,
       render: (_: any, r: Employee) => (
         <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>编辑</Button>
+          <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)}>
+            编辑
+          </Button>
           <Popconfirm title="确定删除此员工？" onConfirm={() => handleDelete(r.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />}>删除</Button>
+            <Button size="small" danger icon={<DeleteOutlined />}>
+              删除
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -161,7 +195,9 @@ export default function EmployeePage() {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>新建员工</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+          新建员工
+        </Button>
       </Space>
       <Table
         rowKey="id"
@@ -180,23 +216,38 @@ export default function EmployeePage() {
         width={560}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="employeeCode" label="工号" rules={[{ required: true, message: '请输入工号' }]}>
+          <Form.Item
+            name="employeeCode"
+            label="工号"
+            rules={[{ required: true, message: '请输入工号' }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item name="name" label="姓名" rules={[{ required: true, message: '请输入姓名' }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="email" label="邮箱" rules={[{ type: 'email', message: '邮箱格式不正确' }]}>
+          <Form.Item
+            name="email"
+            label="邮箱"
+            rules={[{ type: 'email', message: '邮箱格式不正确' }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item name="phone" label="手机">
             <Input />
           </Form.Item>
-          <Form.Item name="orgId" label="所属组织" rules={[{ required: true, message: '请选择组织' }]}>
+          <Form.Item
+            name="orgId"
+            label="所属组织"
+            rules={[{ required: true, message: '请选择组织' }]}
+          >
             <Select
               placeholder="选择组织"
-              options={orgs.map(o => ({ label: o.orgName, value: o.id }))}
-              onChange={(value) => { setSelectedOrgId(value); form.setFieldsValue({ positionIds: [] }); }}
+              options={orgs.map((o) => ({ label: o.orgName, value: o.id }))}
+              onChange={(value) => {
+                setSelectedOrgId(value);
+                form.setFieldsValue({ positionIds: [] });
+              }}
             />
           </Form.Item>
           <Form.Item name="positionIds" label="分配岗位">
@@ -213,11 +264,13 @@ export default function EmployeePage() {
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item name="status" label="状态">
-            <Select options={[
-              { label: '在职', value: '在职' },
-              { label: '离职', value: '离职' },
-              { label: '停薪留职', value: '停薪留职' },
-            ]} />
+            <Select
+              options={[
+                { label: '在职', value: '在职' },
+                { label: '离职', value: '离职' },
+                { label: '停薪留职', value: '停薪留职' },
+              ]}
+            />
           </Form.Item>
         </Form>
       </Modal>
