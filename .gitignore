@@ -7,3 +7,11 @@ coverage/
 .turbo/
 playwright-report/
 test-results/
+
+# 运行时文件
+.codex/
+.feishu_queue.json
+server/feishu-worker.js
+check.html
+server/prisma/dev.db
+server/prisma/data.db
