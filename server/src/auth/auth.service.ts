@@ -21,7 +21,7 @@ export class AuthService {
       data: { ...dto, password: hashedPassword },
     });
 
-    const token = this.jwtService.sign({ sub: user.id, username: user.username, role: user.role, name: user.name, orgId: empOrgId });
+    const token = this.jwtService.sign({ sub: user.id, username: user.username, role: user.role, name: user.name, orgId: null });
     const { password, ...result } = user;
     return { user: result, access_token: token };
   }
@@ -34,7 +34,7 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('用户名或密码错误');
 
-    const token = this.jwtService.sign({ sub: user.id, username: user.username, role: user.role, name: user.name, orgId: empOrgId });
+    const token = this.jwtService.sign({ sub: user.id, username: user.username, role: user.role, name: user.name, orgId: null });
     const { password, ...result } = user;
     return { user: result, access_token: token };
   }
