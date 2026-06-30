@@ -1,3 +1,4 @@
+import WorkflowPanel from '../components/WorkflowPanel';
 import WorkflowActions from '../components/WorkflowActions';
 ﻿import { useEffect, useState } from 'react';
 import {
@@ -375,6 +376,15 @@ export default function PurchasePage() {
           </Card>
         </Col>
       </Row>
+
+      <WorkflowPanel
+        module="采购订单"
+        currentStatus={selected?.status || ""}
+        docId={selected?.id || ""}
+        docCode={selected?.orderCode || ""}
+        docType="purchase_order"
+        onTransitioned={fetch}
+      />
 
       <Tabs
         activeKey={activeTab}

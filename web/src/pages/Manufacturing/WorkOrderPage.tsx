@@ -482,7 +482,6 @@ export default function WorkOrderPage() {
                         >
                           报完工
                         </Button>
-            <WorkflowActions module="制造工单" docId={r.id} docCode={r.orderCode} docType="manufacturing_order" currentStatus={r.status} onTransitionDone={fetch} />
                       )}
                     </Space>
                   </div>

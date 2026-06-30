@@ -1,4 +1,4 @@
-import WorkflowActions from '../components/WorkflowActions';
+import WorkflowActions from '../../components/WorkflowActions';
 import { useEffect, useState } from 'react';
 import {
   Table,

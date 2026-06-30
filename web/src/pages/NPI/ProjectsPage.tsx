@@ -144,7 +144,6 @@ export default function ProjectsPage() {
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
           新建项目
         </Button>
-            <WorkflowActions module="NPI项目" docId={r.id} docCode={r.projectCode} docType="npi_project" currentStatus={r.status} onTransitionDone={fetch} />
       }
     >
       <Table

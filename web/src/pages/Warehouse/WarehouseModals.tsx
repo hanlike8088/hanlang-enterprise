@@ -33,21 +33,6 @@ export default function WarehouseModals(props: WarehouseModalsProps) {
   const { whModalOpen, locModalOpen, stockInOpen, stockOutOpen, fifoStockInOpen, fifoStockOutOpen, editingWh, selectedWh, warehouses, locations, whForm, locForm, stockForm, batchForm, setWhModalOpen, setLocModalOpen, setStockInOpen, setStockOutOpen, setFifoStockInOpen, setFifoStockOutOpen, submitWh, submitLoc, submitStockIn, submitStockOut, submitFifoStockIn, submitFifoStockOut } = props;
   return (
     <>
-                            render: (v: string) => dayjs(v).format('YYYY-MM-DD'),
-                          },
-                          { title: '剩余量', dataIndex: 'remainingQty', width: 80 },
-                        ]}
-                        rowKey="batchNo"
-                        pagination={false}
-                      />
-                    )}
-                  </Card>
-                )}
-              </div>
-            ),
-          },
-        ]}
-      />
 
       <Modal
         title={editingWh ? '编辑仓库' : '新建仓库'}
@@ -131,6 +116,7 @@ export default function WarehouseModals(props: WarehouseModalsProps) {
             />
           </Form.Item>
           <Form.Item name="materialName" label="物料名称" rules={[{ required: true }]}>
+          </Form.Item>
             <Input />
           </Form.Item>
           <Form.Item name="materialId" label="物料ID">
@@ -169,6 +155,7 @@ export default function WarehouseModals(props: WarehouseModalsProps) {
             />
           </Form.Item>
           <Form.Item name="materialName" label="物料名称" rules={[{ required: true }]}>
+          </Form.Item>
             <Input />
           </Form.Item>
           <Form.Item name="materialId" label="物料ID" rules={[{ required: true }]}>
@@ -208,6 +195,7 @@ export default function WarehouseModals(props: WarehouseModalsProps) {
             />
           </Form.Item>
           <Form.Item name="materialName" label="物料名称" rules={[{ required: true }]}>
+          </Form.Item>
             <Input />
           </Form.Item>
           <Form.Item name="materialId" label="物料编码">
@@ -258,6 +246,7 @@ export default function WarehouseModals(props: WarehouseModalsProps) {
             <Input />
           </Form.Item>
           <Form.Item name="materialName" label="物料名称" rules={[{ required: true }]}>
+          </Form.Item>
     </>
   );
 }
