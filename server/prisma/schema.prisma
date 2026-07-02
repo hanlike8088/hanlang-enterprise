@@ -98,6 +98,9 @@ model PlmBom {
   materialId String
   quantity   Float
   unit       String
+  position   String?
+  scrapRate  Float    @default(0)
+  bomLevel   Int      @default(2)
   status     String   @default("draft")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -160,11 +163,16 @@ model ErpMaterial {
   category     String
   spec         String?
   unit         String
+  materialType String?
   batchManaged Boolean  @default(false)
   safetyStock  Int      @default(0)
   stock        Int      @default(0)
   price        Float?
   status       String   @default("active")
+  reviewStatus String   @default("pending") @map("review_status")
+  kingdeeId    String?  @map("kingdee_id")
+  reviewedBy   String?  @map("reviewed_by")
+  reviewedAt   DateTime? @map("reviewed_at")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   materialBatches MaterialBatch[]
@@ -203,6 +211,8 @@ model AdminOrganization {
   description String?
   sortOrder   Int       @default(0)
   status      String    @default("active")
+  reviewStatus String   @default("confirmed") @map("review_status")
+  kingdeeId    String?  @map("kingdee_id")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   parent      AdminOrganization?  @relation("OrgTree", fields: [parentId], references: [id])
@@ -218,6 +228,7 @@ model AdminPosition {
   orgId            String
   description      String?
   status           String               @default("active")
+  reviewStatus     String               @default("confirmed") @map("review_status")
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
   organization     AdminOrganization    @relation(fields: [orgId], references: [id])
@@ -234,6 +245,7 @@ model AdminEmployee {
   orgId        String
   hireDate     DateTime?
   status       String             @default("active")
+  reviewStatus String             @default("confirmed") @map("review_status")
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   organization AdminOrganization  @relation(fields: [orgId], references: [id])
@@ -417,6 +429,10 @@ model CrmCustomer {
   paymentTerms    String?
   notes           String?
   status          String              @default("active")
+  reviewStatus    String              @default("pending") @map("review_status")
+  kingdeeId       String?             @map("kingdee_id")
+  reviewedBy      String?             @map("reviewed_by")
+  reviewedAt      DateTime?           @map("reviewed_at")
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   deletedAt   DateTime?
@@ -606,6 +622,10 @@ model Supplier {
   taxId          String?
   category       String   // 原材料 | 外协件 | 辅料 | 设备
   status         String   @default("潜在")
+  reviewStatus   String   @default("pending") @map("review_status")
+  kingdeeId      String?  @map("kingdee_id")
+  reviewedBy     String?  @map("reviewed_by")
+  reviewedAt     DateTime? @map("reviewed_at")
   rating         String   @default("C")
   paymentTerms   String?
   createdAt      DateTime @default(now())

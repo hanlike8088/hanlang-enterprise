@@ -25,6 +25,11 @@ export class AdminController {
     return this.adminService.getOrganizations();
   }
 
+  @Get('organizations/list')
+  listOrganizations() {
+    return this.adminService.listOrganizations();
+  }
+
   @RequirePermission('admin', 'org:read')
   @Get('organizations/:id')
   getOrganization(@Param('id') id: string) {
@@ -249,7 +254,7 @@ export class AdminController {
       'erp_material','erp_work_order'
     ];
     if (module) return this.adminService.getWorkflowTransitions(module);
-    const result = {};
+    const result: Record<string, any> = {};
     for (const m of modules) { result[m] = await this.adminService.getWorkflowTransitions(m); }
     return result;
   }

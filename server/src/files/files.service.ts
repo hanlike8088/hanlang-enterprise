@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 
-const UPLOAD_DIR = '/var/www/hanlang-enterprise/uploads';
+const UPLOAD_DIR = '/home/ubuntu/hanlang/uploads';
 
 @Injectable()
 export class FilesService {

@@ -10,7 +10,7 @@ export class SamplingController {
   @RequirePermission('sampling', 'order:write')
   @Post() create(@Body() dto: CreateSamplingOrderDto, @Req() req: any) { return this.samplingService.create(dto, req.user?.orgId); }
   @RequirePermission('sampling', 'order:read')
-  @Get() findAll(@Query('status') status?: string, @Req() req: any) { return this.samplingService.findAll(status, req.user?.orgId); }
+  @Get() findAll(@Req() req: any, @Query('status') status?: string) { return this.samplingService.findAll(status); }
   @RequirePermission('sampling', 'order:read')
   @Get('stats') getStats() { return this.samplingService.getStats(); }
   @RequirePermission('sampling', 'order:read')

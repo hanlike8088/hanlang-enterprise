@@ -5,7 +5,7 @@ import * as fs from 'fs';
 
 const WEBHOOK = 'https://open.feishu.cn/open-apis/bot/v2/hook/7f4e470c-679a-453b-934c-3fe7bf9e33f5';
 const ENCRYPT_KEY = process.env.FEISHU_ENCRYPT_KEY || '6f0ed5f6e2f32954b1f3e1d5aaaa80e8';
-const QUEUE_FILE = '/var/www/hanlang-enterprise/.feishu_queue.json';
+const QUEUE_FILE = '/home/ubuntu/hanlang/.feishu_queue.json';
 
 export interface PurchaseStatusPayload {
   orderCode: string;
@@ -72,7 +72,7 @@ export class FeishuService {
   }
 
   enqueueTask(task: { text: string; sender_id?: string; message_id?: string; raw?: any }): { ok: boolean; file: string } {
-    const inboxDir = '/var/www/hanlang-enterprise/.codex/inbox';
+    const inboxDir = '/home/ubuntu/hanlang/server/inbox';
     if (!fs.existsSync(inboxDir)) fs.mkdirSync(inboxDir, { recursive: true });
     const fileName = 'msg_' + Date.now() + '.json';
     const filePath = inboxDir + '/' + fileName;

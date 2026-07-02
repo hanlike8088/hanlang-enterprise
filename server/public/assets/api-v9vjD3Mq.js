@@ -1,0 +1,1 @@
+import{h as a}from"./vendor-lib-B-yUVu49.js";const r=a.create({baseURL:"/api"});r.interceptors.request.use(e=>{const t=localStorage.getItem("access_token");return t&&(e.headers.Authorization="Bearer "+t),e});export{r as a};

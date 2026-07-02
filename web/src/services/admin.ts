@@ -3,6 +3,7 @@ import type { AdminCodingRule, AdminEmployee, AdminOrganization, AdminPermission
 
 export const adminApi = {
   getOrganizations: () => api.get('/admin/organizations').then((r) => r.data),
+  getOrganizationsList: () => api.get("/admin/organizations/list").then((r) => r.data),
   getOrganization: (id: string) => api.get('/admin/organizations/' + id).then((r) => r.data),
   createOrganization: (data: Partial<AdminOrganization>) => api.post('/admin/organizations', data).then((r) => r.data),
   updateOrganization: (id: string, data: Partial<AdminOrganization>) =>

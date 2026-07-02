@@ -16,6 +16,12 @@ export class PlmController {
     return this.plmService.getProducts();
   }
 
+  @Get('products/next-code')
+  async getNextProductCode() {
+    const code = await this.plmService.getNextProductCode();
+    return { code };
+  }
+
   @RequirePermission('plm', 'product:read')
   @Get('products/:id')
   getProduct(@Param('id') id: string) {
@@ -135,6 +141,12 @@ export class PlmController {
   @Post('documents/import-patents')
   importPatents(@Body('sourceDir') sourceDir?: string) {
     return this.plmService.importPatents(sourceDir);
+  }
+
+  // Search materials for product creation
+  @Get('materials/search')
+  searchMaterials(@Query('q') q: string) {
+    return this.plmService.searchMaterials(q);
   }
 
 }

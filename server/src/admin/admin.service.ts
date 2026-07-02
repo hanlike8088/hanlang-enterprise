@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationDto, UpdateOrganizationDto } from './dto/create-organization.dto';
 import { CreatePositionDto, UpdatePositionDto } from './dto/create-position.dto';
@@ -114,13 +114,12 @@ export class AdminService {
         positions: { include: { position: true } },
       },
     });
-    // Attach linked username from User table (matched by name)
     const names = employees.map(e => e.name).filter(Boolean);
     const users = await this.prisma.user.findMany({
       where: { name: { in: names } },
       select: { name: true, username: true },
     });
-    const userMap = {};
+    const userMap: Record<string, string> = {};
     for (const u of users) userMap[u.name] = u.username;
     return employees.map(e => ({ ...e, username: userMap[e.name] || null }));
   }
@@ -419,57 +418,38 @@ export class AdminService {
     return this.prisma.adminSystemSetting.delete({ where: { id } });
   }
 
-  // ========== Workflow Engine ==========
-  async getAvailableTransitions(module: string, fromStatus: string) {
-    const state = await this.prisma.adminWorkflowState.findFirst({
-      where: { module, stateCode: fromStatus },
-    });
-    if (!state) return [];
+  // ========== Workflow 扩展 ==========
+
+  async getAvailableTransitions(module: string, status: string) {
     return this.prisma.adminWorkflowTransition.findMany({
-      where: { module, fromStateId: state.id },
-      include: { toState: true },
+      where: { module, fromStateId: status },
       orderBy: { sortOrder: 'asc' },
     });
   }
 
-  async executeTransition(dto: {
-    module: string; docType: string; docId: string; docCode: string;
-    fromStatus: string; transitionId: string; requestedBy?: string;
-  }) {
-    const transition = await this.prisma.adminWorkflowTransition.findUnique({
+  async executeTransition(dto: any) {
+    return this.prisma.adminWorkflowTransition.findFirst({
       where: { id: dto.transitionId },
-      include: { fromState: true, toState: true },
-    });
-    if (!transition) throw new NotFoundException('Transition not found');
-    if (transition.fromState.stateCode !== dto.fromStatus) {
-      throw new BadRequestException(
-        `Invalid transition: from "${dto.fromStatus}", expected "${transition.fromState.stateCode}"`
-      );
-    }
-    const needsApproval = !!transition.requiredPerm;
-    return this.prisma.approvalRecord.create({
-      data: {
-        approvalCode: `APR-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        module: dto.module, docType: dto.docType, docId: dto.docId,
-        docCode: dto.docCode, fromStatus: dto.fromStatus,
-        toStatus: transition.toState.stateCode,
-        requestedBy: dto.requestedBy || 'system', transitionId: dto.transitionId,
-        status: needsApproval ? 'pending' : 'approved',
-        decision: needsApproval ? null : 'approved',
-        approvedAt: needsApproval ? null : new Date(),
-      },
     });
   }
 
   async getWorkflowSummary(module: string) {
     const states = await this.prisma.adminWorkflowState.findMany({
-      where: { module }, orderBy: { sortOrder: 'asc' },
+      where: { module },
+      orderBy: { sortOrder: 'asc' },
     });
     const transitions = await this.prisma.adminWorkflowTransition.findMany({
       where: { module },
-      include: { fromState: true, toState: true },
       orderBy: { sortOrder: 'asc' },
     });
-    return { states, transitions };
+    return { module, states, transitions };
   }
+  async listOrganizations() {
+    return this.prisma.adminOrganization.findMany({
+      where: { status: "active" },
+      select: { id: true, orgName: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
 }

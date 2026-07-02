@@ -53,7 +53,7 @@ function AppShell() {
       if (hasAll) return true;
       return group.children.some((item: any) => {
         const needed = permMap[item.key as string];
-        return needed ? perms.includes(needed) : false;
+        return needed ? perms.includes(needed) : true;
       });
     })
     .map((group: any) => ({
@@ -61,7 +61,7 @@ function AppShell() {
       children: group.children.filter((item: any) => {
         if (hasAll) return true;
         const needed = permMap[item.key as string];
-        return needed ? perms.includes(needed) : false;
+        return needed ? perms.includes(needed) : true;
       }),
     }));
 
@@ -87,7 +87,7 @@ function AppShell() {
               level={4}
               style={{ margin: 0, color: themeToken.colorPrimary, whiteSpace: 'nowrap' }}
             >
-              {collapsed ? '濊' : '濊朗电机'}
+              {collapsed ? '瀚' : '瀚朗电机'}
             </Title>
           </div>
           <Menu
@@ -111,7 +111,7 @@ function AppShell() {
             }}
           >
             <Title level={5} style={{ margin: 0 }}>
-              濊朗电机 — 企业管理系统
+              瀚朗电机 — 企业管理系统
             </Title>
             <Dropdown
               menu={{

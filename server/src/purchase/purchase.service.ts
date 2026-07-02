@@ -6,7 +6,7 @@ import { StatusMachineService } from '../common/services/status-machine.service'
 import { PURCHASE_ORDER_TRANSITIONS } from '../common/services/status-transitions';
 import { EventBusService } from '../common/services/event-bus.service';
 import { CrossModuleEvents } from '../common/services/event-types';
-import { FeishuService } from '../feishu/feishu.service';
+import { WecomService } from '../wecom/wecom.service';
 
 @Injectable()
 export class PurchaseService implements OnModuleInit {
@@ -15,7 +15,7 @@ export class PurchaseService implements OnModuleInit {
     private readonly codingRule: CodingRuleService,
     private readonly sm: StatusMachineService,
     private readonly eventBus: EventBusService,
-    private readonly feishu: FeishuService,
+    private readonly wecom: WecomService,
   ) {}
 
   onModuleInit() {
@@ -125,7 +125,7 @@ export class PurchaseService implements OnModuleInit {
     const updated = await this.prisma.purchaseOrder.update({ where: { id }, data: { status: nextStatus } });
 
     // 异步飞书通知，不阻塞状态变更
-    this.feishu.sendPurchaseStatusCard({
+    this.wecom.sendPurchaseStatusCard({
       orderCode: po.orderCode,
       supplierName: po.supplier?.supplierName || '未知供应商',
       oldStatus,

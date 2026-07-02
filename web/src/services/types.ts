@@ -827,6 +827,9 @@ export interface PlmBom {
   materialId: string;
   quantity: number;
   unit: string;
+  position?: string;
+  scrapRate: number;
+  bomLevel: number;
   status: string;
   createdAt: string;
   updatedAt: string;

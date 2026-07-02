@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Delete, Param, UseInterceptors, UploadedFile, Res, NotFoundException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+// @ts-ignore - multer types
 import { diskStorage } from 'multer';
 import { FilesService } from './files.service';
 import { Response } from 'express';
@@ -13,8 +14,8 @@ export class FilesController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: '/var/www/hanlang-enterprise/uploads',
-      filename: (req, file, cb) => {
+      destination: '/home/ubuntu/hanlang/uploads',
+      filename: (req: any, file: any, cb: any) => {
         const ext = path.extname(file.originalname);
         cb(null, crypto.randomUUID() + ext);
       },

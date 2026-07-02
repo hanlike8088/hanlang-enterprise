@@ -33,7 +33,7 @@ export class StatusMachineService {
     const cached = this.transitionCache.get(module);
     if (cached && Date.now() - cached.ts < 60000) return cached.defs;
     const rows = await this.prisma.adminWorkflowTransition.findMany({ where: { module } });
-    const defs = rows.map(r => ({ from: r.fromStatus, to: r.toStatus }));
+    const defs = rows.map(r => ({ from: (r as any).fromStatus || r.fromStateId, to: (r as any).toStatus || r.toStateId }));
     this.transitionCache.set(module, { defs, ts: Date.now() });
     return defs;
   }

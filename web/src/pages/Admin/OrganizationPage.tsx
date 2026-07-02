@@ -28,6 +28,8 @@ import {
 import { adminApi } from '../../services/admin';;
 
 interface OrgItem {
+  kingdeeId?: string | null;
+  orgType?: string | null;
   id: string;
   orgCode: string;
   orgName: string;
@@ -73,7 +75,9 @@ export default function OrganizationPage() {
   const fetchOrgs = useCallback(async () => {
     setLoading(true);
     try {
-      setOrgs(await adminApi.getOrganizations());
+      const allOrgs = await adminApi.getOrganizations();
+      // 只显示本地建的：排除金蝶导入（有 kingdeeId）
+      setOrgs(allOrgs.filter((o: any) => !o.kingdeeId));
     } catch {
       message.error('加载失败');
     } finally {

@@ -73,8 +73,9 @@ export class PlmService implements OnModuleInit {
   }
 
   async createProduct(dto: any) {
-    const code = await this.codingRule.generate('PLM_PRODUCT');
-    return this.prisma.plmProduct.create({ data: { ...dto, productCode: code } });
+    // 使用 DTO 中的 productCode（前端已通过 getNextProductCode 生成），不再覆盖
+    // const code = await this.codingRule.generate(PLM_PRODUCT); // 已废弃：与 getNextProductCode 冲突
+    return this.prisma.plmProduct.create({ data: dto });
   }
 
   async updateProduct(id: string, dto: any) {
@@ -238,6 +239,53 @@ export class PlmService implements OnModuleInit {
     }
 
     return { imported, skipped, errors, total: files.length, message: `Imported ${imported} patents, skipped ${skipped}, errors ${errors}` };
+  }
+
+  // ========== Next Product Code ==========
+
+  async getNextProductCode(): Promise<string> {
+    const now = new Date();
+    const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const prefix = `PRD-${ym}-`;
+
+    const last = await this.prisma.plmProduct.findFirst({
+      where: { productCode: { startsWith: prefix } },
+      orderBy: { productCode: 'desc' },
+      select: { productCode: true },
+    });
+
+    let seq = 1;
+    if (last?.productCode) {
+      const num = parseInt(last.productCode.split('-').pop() || '0', 10);
+      if (!isNaN(num)) seq = num + 1;
+    }
+
+    return `${prefix}${String(seq).padStart(4, '0')}`;
+  }
+
+  // Search erp materials
+  async searchMaterials(q: string) {
+    if (!q || q.trim().length === 0) return [];
+    const keyword = q.trim();
+    return this.prisma.erpMaterial.findMany({
+      where: {
+        materialType: '成品',
+        OR: [
+          { materialCode: { contains: keyword, mode: 'insensitive' } },
+          { materialName: { contains: keyword, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        materialCode: true,
+        materialName: true,
+        spec: true,
+        category: true,
+        unit: true,
+      },
+      take: 20,
+      orderBy: { materialCode: 'asc' },
+    });
   }
 
 }

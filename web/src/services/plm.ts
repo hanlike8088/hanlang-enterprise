@@ -8,6 +8,10 @@ export const plmApi = {
   updateProduct: (id: string, data: Partial<PlmProduct>) =>
     api.patch('/plm/products/' + id, data).then((r) => r.data),
   deleteProduct: (id: string) => api.delete('/plm/products/' + id).then((r) => r.data),
+  getNextProductCode: () =>
+    api.get('/plm/products/next-code').then((r) => r.data),
+  searchMaterials: (q: string) =>
+    api.get('/plm/materials/search', { params: { q } }).then((r) => r.data),
   getBoms: (productId?: string) =>
     api.get('/plm/boms', { params: { productId } }).then((r) => r.data),
   createBom: (data: Partial<PlmBom>) => api.post('/plm/boms', data).then((r) => r.data),

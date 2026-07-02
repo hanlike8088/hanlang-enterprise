@@ -30,7 +30,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  // Global prefix — must be after Swagger setup
+  // Global prefix
   app.setGlobalPrefix('api');
 
   await app.listen(process.env.PORT ?? 3000);

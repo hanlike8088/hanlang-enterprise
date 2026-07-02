@@ -85,7 +85,7 @@ export class K3CloudService {
     const url = `${this.baseUrl}/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.${method}.common.kdsvc`;
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Cookie': auth.cookie },
+      headers: { 'Content-Type': 'application/json', 'Cookie': auth!.cookie },
       body: JSON.stringify({ data: JSON.stringify(params) }),
     });
     const json: K3ApiResponse = await res.json();
@@ -202,7 +202,7 @@ export class K3CloudService {
       company: '宁波瀚朗智能驱动科技股份有限公司',
       dataCenter: '测试账套',
       loggedIn: true,
-      sessionId: auth.sessionId,
+      sessionId: auth!.sessionId,
     };
   }
 }
